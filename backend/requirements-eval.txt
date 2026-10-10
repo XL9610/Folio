@@ -1,0 +1,18 @@
+# RAGAS-based answer-quality eval (reference-free). Optional dev tooling —
+# NOT required for the app runtime or the desktop build. Install alongside
+# requirements.txt in a dedicated venv when running backend/scripts/ragas_eval.py:
+#
+#   pip install -r requirements.txt -r requirements-eval.txt
+#
+# RAGAS has breaking changes between minor versions — the eval script is written
+# against this pinned version.
+ragas==0.4.3
+
+# ragas 0.4.3 imports `langchain_community.chat_models.vertexai`, which was
+# removed in langchain-community 0.4.x. Pin below 0.4 so the import resolves.
+langchain-community<0.4
+
+# Local embedding model for the answer-relevancy metric (bge-small-en-v1.5, the
+# app's default embedder). Cached locally, so no download on first run.
+sentence-transformers
+langchain-huggingface

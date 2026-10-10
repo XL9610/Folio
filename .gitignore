@@ -85,12 +85,7 @@ skills-lock.json
 # ── Agent scratch ────────────────────────────────────────────────────────────
 .scratch/
 
-# ── RAGAS eval experiment (dev-only, not shipped) ─────────────────────────────
-backend/requirements-eval.txt
-backend/scripts/ragas_eval.py
-backend/scripts/ragas_questions.json
-backend/scripts/RAGAS_EVAL_AGENT_PROMPT*.md
+# ── Dev-only tooling (not shipped) ────────────────────────────────────────────
 backend/scripts/reindex_corpus.py
-ragas_report.json
-ragas_report.md
+backend/scripts/RAGAS_EVAL_AGENT_PROMPT_*.archived.md
 backend/ragas_backend*.log

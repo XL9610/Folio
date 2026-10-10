@@ -1,0 +1,82 @@
+[
+  {"question": "What is binary search and why is it faster than simple search?", "document": "Grokking Algorithms", "difficulty": "easy", "reference": "Binary search finds an item in a sorted list by repeatedly halving the search range in O(log n) time, while simple search checks each item in O(n) time."},
+  {"question": "What does Big O notation describe?", "document": "Grokking Algorithms", "difficulty": "easy"},
+  {"question": "What is a hash table and when would you use one?", "document": "Grokking Algorithms", "difficulty": "medium"},
+  {"question": "What is recursion, and what are its base case and recursive case?", "document": "Grokking Algorithms", "difficulty": "medium"},
+  {"question": "Compare breadth-first search and Dijkstra's algorithm.", "document": "Grokking Algorithms", "difficulty": "hard"},
+
+  {"question": "What is the difference between an array and a linked list?", "document": "Data Structures and Algorithms in Java", "difficulty": "easy", "reference": "An array stores elements in contiguous memory giving O(1) random access but O(n) insertion/deletion; a linked list stores elements in linked nodes giving O(1) insertion/deletion but O(n) access."},
+  {"question": "What is a stack and which operations does it support?", "document": "Data Structures and Algorithms in Java", "difficulty": "easy"},
+  {"question": "What is a binary search tree and what property distinguishes it?", "document": "Data Structures and Algorithms in Java", "difficulty": "medium"},
+  {"question": "Compare merge sort and quick sort in terms of time complexity and tradeoffs.", "document": "Data Structures and Algorithms in Java", "difficulty": "hard"},
+
+  {"question": "What is a function in Python?", "document": "Think Python", "difficulty": "easy"},
+  {"question": "What is a list in Python and how does it differ from a tuple?", "document": "Think Python", "difficulty": "easy"},
+  {"question": "Explain recursion using the factorial example.", "document": "Think Python", "difficulty": "medium"},
+  {"question": "What is a class and what is an object in object-oriented Python?", "document": "Think Python", "difficulty": "medium"},
+
+  {"question": "What is opportunity cost?", "document": "Economics", "difficulty": "easy", "reference": "Opportunity cost is the value of the next best alternative that must be foregone when making a choice."},
+  {"question": "What is supply and demand?", "document": "Economics", "difficulty": "easy"},
+  {"question": "What is inflation and what causes it?", "document": "Economics", "difficulty": "medium"},
+  {"question": "Explain the difference between microeconomics and macroeconomics.", "document": "Economics", "difficulty": "medium"},
+
+  {"question": "What is a foundation model?", "document": "AI Engineering", "difficulty": "easy"},
+  {"question": "What is retrieval-augmented generation (RAG) and why is it useful?", "document": "AI Engineering", "difficulty": "easy", "reference": "RAG retrieves relevant passages and augments the model's prompt with them so answers are grounded in retrieved sources rather than only parametric knowledge."},
+  {"question": "Explain the difference between fine-tuning and prompt engineering.", "document": "AI Engineering", "difficulty": "medium"},
+  {"question": "What are the tradeoffs between RAG and fine-tuning an LLM?", "document": "AI Engineering", "difficulty": "hard"},
+
+  {"question": "What is Gregorian chant?", "document": "History of Western Music", "difficulty": "easy"},
+  {"question": "What is a symphony?", "document": "History of Western Music", "difficulty": "medium"},
+  {"question": "Explain the differences between the Renaissance and Baroque periods in music.", "document": "History of Western Music", "difficulty": "hard"},
+
+  {"question": "Who were Vasari and Winckelmann, and what did each contribute?", "document": "Art of Art History", "difficulty": "medium"},
+  {"question": "Explain the idea of the 'art museum as ritual'.", "document": "Art of Art History", "difficulty": "medium"},
+  {"question": "What is the difference between art history and art criticism?", "document": "Art of Art History", "difficulty": "medium"},
+
+  {"question": "What is breath support in singing?", "document": "Vocal Technique", "difficulty": "easy"},
+  {"question": "What is a vocal register?", "document": "Vocal Technique", "difficulty": "medium"},
+  {"question": "Explain how resonance shapes vocal tone.", "document": "Vocal Technique", "difficulty": "hard"},
+
+  {"question": "What is A3 thinking?", "document": "A3 Thinking", "difficulty": "easy"},
+  {"question": "What are the steps of the A3 problem-solving process?", "document": "A3 Thinking", "difficulty": "medium"},
+
+  {"question": "What is value investing?", "document": "Trading Stocks", "difficulty": "easy"},
+  {"question": "What is a competitive 'moat' in investing?", "document": "Trading Stocks", "difficulty": "medium"},
+  {"question": "What is the margin of safety in value investing?", "document": "Trading Stocks", "difficulty": "medium"},
+
+  {"question": "What is a student visa in the context of UK immigration law?", "document": "Immigration law 2011", "difficulty": "easy"},
+  {"question": "What are the grounds for deportation under UK immigration law?", "document": "Immigration law 2011", "difficulty": "medium"},
+  {"question": "How does the asylum application process work in the UK?", "document": "Immigration law 2011", "difficulty": "hard"},
+
+  {"question": "How did terrorism concerns change US immigration law?", "document": "US immigration", "difficulty": "easy"},
+  {"question": "How did the USA PATRIOT Act affect immigration?", "document": "US immigration", "difficulty": "medium"},
+
+  {"question": "What does the author mean by being fooled by randomness?", "document": "Fooled by Randomness", "difficulty": "easy"},
+  {"question": "What is survivorship bias?", "document": "Fooled by Randomness", "difficulty": "medium"},
+  {"question": "Explain the role of luck versus skill in trading success, according to the author.", "document": "Fooled by Randomness", "difficulty": "medium"},
+
+  {"question": "Who is Heathcliff in Wuthering Heights?", "document": "Wuthering Heights", "difficulty": "easy"},
+  {"question": "Who narrates Wuthering Heights?", "document": "Wuthering Heights", "difficulty": "easy"},
+  {"question": "How does the frame narrative structure of Wuthering Heights work?", "document": "Wuthering Heights", "difficulty": "medium"},
+
+  {"question": "Who is the central protagonist of The Fires of Heaven?", "document": "Fires of Heaven", "difficulty": "easy"},
+  {"question": "What role do the Aes Sedai play in the story?", "document": "Fires of Heaven", "difficulty": "medium"},
+
+  {"question": "What is the main topic of Module 6 in this presentation?", "document": "5940 Mod6", "difficulty": "easy"},
+  {"question": "Summarize the key concepts covered across the slides of this module.", "document": "5940 Mod6", "difficulty": "hard"},
+
+  {"question": "What is a Superintelligent Retrieval Agent (SIRA)?", "document": "2605.06647", "difficulty": "easy"},
+  {"question": "What problem does SIRA aim to solve?", "document": "2605.06647", "difficulty": "medium"},
+
+  {"question": "Qu'est-ce que la philosophie ?", "document": "Philosophie", "difficulty": "easy"},
+  {"question": "Quelle est la difference entre la morale et l'ethique ?", "document": "Philosophie", "difficulty": "medium"},
+
+  {"question": "What is the main news story covered in this magazine issue?", "document": "US News", "difficulty": "easy"},
+
+  {"question": "Who won the 2026 FIFA World Cup?", "difficulty": "unanswerable", "expect_refusal": true},
+  {"question": "What is the capital of France?", "difficulty": "unanswerable", "expect_refusal": true},
+  {"question": "What is the current price of Bitcoin?", "difficulty": "unanswerable", "expect_refusal": true},
+  {"question": "Summarize the plot of the movie Inception.", "difficulty": "unanswerable", "expect_refusal": true},
+  {"question": "Explain how neural networks are trained, according to this book on Western music.", "document": "History of Western Music", "difficulty": "unanswerable", "expect_refusal": true},
+  {"question": "What does Grokking Algorithms say about the history of opera?", "document": "Grokking Algorithms", "difficulty": "unanswerable", "expect_refusal": true}
+]

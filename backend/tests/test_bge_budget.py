@@ -18,10 +18,10 @@ from app.services.ingestion.index_text import build_index_text
 
 
 def _bge_tokenizer_available() -> bool:
-    from transformers import AutoTokenizer
-    from app.core.config import config
-
     try:
+        from transformers import AutoTokenizer
+        from app.core.config import config
+
         AutoTokenizer.from_pretrained(config.embedding_model, local_files_only=True)
         return True
     except Exception:
