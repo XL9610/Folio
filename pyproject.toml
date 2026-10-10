@@ -1,0 +1,12 @@
+# Test configuration. This file is NOT a packaging config: the repo has no
+# setup.py/setuptools build backend and must not become pip-installable by
+# accident.
+#
+# pythonpath puts backend/ on sys.path so backend tests can `from app.main
+# import app`.
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["backend/tests"]
+consider_namespace_packages = true
+pythonpath = ["backend"]
+addopts = "-ra"

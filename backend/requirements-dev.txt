@@ -1,0 +1,5 @@
+# Dev / test-only dependencies. Not required for the app runtime or the desktop
+# build - install alongside requirements.txt when running the test suite
+# (scripts/check.ps1).
+pytest==8.3.4
+PyYAML==6.0.3

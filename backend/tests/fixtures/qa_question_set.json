@@ -1,0 +1,68 @@
+[
+  {
+    "id": "chapter_title_nested_number",
+    "category": "structure.chapter_title",
+    "query": "What's the title of Chapter 20?",
+    "expected_tools": ["find_sections", "get_source_outline"],
+    "forbidden_tools": ["get_section_chunks"],
+    "expected_answer_contains": ["Chapter 20", "20. Music in the Nineteenth Century"]
+  },
+  {
+    "id": "chapter_title_called_variant",
+    "category": "structure.chapter_title",
+    "query": "What is chapter 20 called?",
+    "expected_tools": ["find_sections", "get_source_outline"],
+    "forbidden_tools": ["get_section_chunks"],
+    "expected_answer_contains": ["20. Music in the Nineteenth Century"]
+  },
+  {
+    "id": "chapter_page_start",
+    "category": "structure.chapter_location",
+    "query": "Where does Chapter 20 start?",
+    "expected_tools": ["find_sections", "get_source_outline"],
+    "forbidden_tools": ["get_section_chunks"],
+    "expected_answer_contains": ["starts at p. 300"]
+  },
+  {
+    "id": "chapter_discussion",
+    "category": "content.chapter_summary",
+    "query": "What did chapter 20 discuss?",
+    "expected_tools": ["find_sections", "get_source_outline", "get_section_chunks"],
+    "forbidden_tools": []
+  },
+  {
+    "id": "chapter_summary_variant",
+    "category": "content.chapter_summary",
+    "query": "Summarize Chapter 20.",
+    "expected_tools": ["find_sections", "get_source_outline", "get_section_chunks"],
+    "forbidden_tools": []
+  },
+  {
+    "id": "source_outline",
+    "category": "structure.outline",
+    "query": "List the chapters in this source.",
+    "expected_tools": ["get_source_outline"],
+    "forbidden_tools": []
+  },
+  {
+    "id": "source_metadata",
+    "category": "structure.metadata",
+    "query": "How many pages are in the selected source?",
+    "expected_tools": ["get_source_metadata"],
+    "forbidden_tools": []
+  },
+  {
+    "id": "concept_definition",
+    "category": "content.concept",
+    "query": "What is sonata form?",
+    "expected_tools": ["retrieve_chunks"],
+    "forbidden_tools": []
+  },
+  {
+    "id": "comparison",
+    "category": "content.compare",
+    "query": "Compare Chapter 19 and Chapter 20.",
+    "expected_tools": ["find_sections", "get_source_outline", "get_section_chunks"],
+    "forbidden_tools": []
+  }
+]

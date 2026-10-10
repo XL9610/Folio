@@ -1,0 +1,96 @@
+# ── Environment variables (contains API keys) ────────────────────────────────
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.ragas-venv/
+
+# ── SQLite databases ─────────────────────────────────────────────────────────
+*.db
+*.db-*
+
+# ── Runtime data — everything under local-data/ ────────────────────────────────
+local-data/
+!local-data/README.md
+
+# ── Backend runtime ──────────────────────────────────────────────────────────
+backend/uploads/
+backend/tmp/
+backend/data/
+backend/.cache/
+
+# ── Frontend build/cache ─────────────────────────────────────────────────────
+frontend/.vite/
+# User uploads written at runtime — never version these
+frontend/uploads/
+# index.html + dist/ are COMMITTED (built via `npm run build`) so a clean clone
+# can serve the browser route without running the unsigned esbuild binary.
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Source books directory — place your textbooks here, not in git ────────────
+books/
+
+# ── Large binaries ───────────────────────────────────────────────────────────
+*.pdf
+# Embedding model weights fetched at build time (backend/scripts/fetch_embedding_model.py)
+backend/packaging/embedding_model/
+# tiktoken BPE cache fetched at build time (backend/scripts/fetch_tiktoken_cache.py)
+backend/packaging/tiktoken_cache/
+
+# ── Node (for future frontend migration) ─────────────────────────────────────
+node_modules/
+
+# ── Electron/packaging build artifacts ─────────────────────────────────────────
+build/
+release/
+build-desktop.log
+
+# ── Test artifacts (Playwright) ─────────────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ── Root-level test cache ───────────────────────────────────────────────────────
+.pytest_cache/
+
+# ── Dev tooling / editor config ─────────────────────────────────────────────────
+.opencode/
+opencode.json
+skills-lock.json
+.rollback/
+.claude/settings.local.json
+
+# ── Type-checker caches ─────────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+
+# ── Agent tooling ────────────────────────────────────────────────────────────
+.agents/
+
+# ── Agent scratch ────────────────────────────────────────────────────────────
+.scratch/
+
+# ── RAGAS eval experiment (dev-only, not shipped) ─────────────────────────────
+backend/requirements-eval.txt
+backend/scripts/ragas_eval.py
+backend/scripts/ragas_questions.json
+backend/scripts/RAGAS_EVAL_AGENT_PROMPT*.md
+backend/scripts/reindex_corpus.py
+ragas_report.json
+ragas_report.md
+backend/ragas_backend*.log

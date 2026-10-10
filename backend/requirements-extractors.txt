@@ -1,0 +1,4 @@
+ebooklib
+python-pptx
+python-docx
+kreuzberg

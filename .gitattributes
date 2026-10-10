@@ -1,0 +1,12 @@
+# Force LF for files that feed content-hashed build artifacts, so Windows
+# core.autocrlf cannot rewrite line endings and change the emitted bytes (and
+# therefore the bundle/CSS hashes).
+frontend/*.jsx text eol=lf
+frontend/*.js text eol=lf
+frontend/*.mjs text eol=lf
+frontend/*.cjs text eol=lf
+frontend/*.css text eol=lf
+frontend/*.html text eol=lf
+frontend/dist/*.js text eol=lf
+frontend/dist/*.map text eol=lf
+frontend/dist/*.css text eol=lf
