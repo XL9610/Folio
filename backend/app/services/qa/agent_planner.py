@@ -249,28 +249,57 @@ def _augment_structural_tool_calls(
     return augmented
 
 
+# A numbered chapter/section reference makes the query scoped, not a
+# whole-document overview ("What does Chapter 3 cover?"). Same shape as
+# structural_answers._SECTION_REF_RE.
+_SCOPED_OVERVIEW_RE = re.compile(
+    r"\b(?:chapter|ch|section|sec)\s*#?\s*\d{1,3}\b",
+    re.IGNORECASE,
+)
+
+
 def _augment_overview_tool_calls(
     query: str,
     tool_calls: list[ToolCall],
     document_ids: list[str],
 ) -> list[ToolCall]:
-    """For overview/summary queries, guarantee representative body chunks are
-    retrieved even when the planner only asked for metadata/outline (or nothing)."""
+    """Route whole-document overview queries through deterministic coverage.
+
+    Branch C (roadmap Phase 2): similarity ranking is a poor proxy for
+    whole-source coverage, so for an unscoped overview ("what does this
+    source cover?") the plan's similarity ``retrieve_chunks`` calls are
+    replaced by a ``get_source_chunks`` sweep (evenly-spread representative
+    chunks across the document). Outline/metadata calls are kept. Scoped
+    overviews — section-tool plans and numbered chapter references — keep
+    their targeted plan. Routed sweeps carry ``_coverage`` so the tool can
+    apply coverage sampling only where this routing made the call.
+    """
     if not document_ids or not is_overview_query(query):
         return tool_calls
-    if any(tc.name == "get_source_chunks" for tc in tool_calls):
+    if _SCOPED_OVERVIEW_RE.search(query or ""):
         return tool_calls
     if any(tc.name in ("find_sections", "get_section_chunks") for tc in tool_calls):
         # The plan already scopes the query to specific sections ("Summarize the
         # methods section", "Summarize Chapter 1"). A whole-document body sweep
         # would bury the targeted sections under the rest of the book.
         return tool_calls
-    augmented = list(tool_calls)
-    augmented.append(ToolCall(
+    if not any(tc.name == "retrieve_chunks" for tc in tool_calls):
+        # Planner already asked for coverage (or nothing retrievable): keep it.
+        if any(tc.name == "get_source_chunks" for tc in tool_calls):
+            return tool_calls
+        return tool_calls + [ToolCall(
+            name="get_source_chunks",
+            args={"document_ids": document_ids[:5], "limit": 20, "_coverage": True},
+        )]
+    routed = [
+        tc for tc in tool_calls
+        if tc.name != "retrieve_chunks"
+    ]
+    routed.append(ToolCall(
         name="get_source_chunks",
-        args={"document_ids": document_ids[:5], "limit": 20},
+        args={"document_ids": document_ids[:5], "limit": 20, "_coverage": True},
     ))
-    return augmented
+    return routed
 
 
 # ---------------------------------------------------------------------------
@@ -415,7 +444,7 @@ class AgentPlanner:
     @staticmethod
     def _normalize_label(raw: str) -> str:
         """Normalize planner labels.
-        
+
         - Known labels pass through unchanged.
         - Tool-name-as-task mistakes are aliased to safe labels.
         - Completely unknown fall back to 'answer_directly'.

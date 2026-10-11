@@ -136,21 +136,28 @@ def is_body_chunk(chunk: RetrievedChunk) -> bool:
 def sample_body_chunks(
     chunks: list[RetrievedChunk],
     max_chunks: int = 25,
+    include_front_matter: bool = False,
+    head_bias: int = 0,
 ) -> list[RetrievedChunk]:
     """Sample chunks for whole-document generation, favoring body content.
 
     Strategy:
-    1. Filter obvious non-body chunks (front/back matter).
+    1. Filter obvious non-body chunks (front/back matter) — unless
+       ``include_front_matter``: overview answers for magazines and slide
+       decks live in the cover/TOC (Branch C), and the even spread below
+       dilutes noise from a book's few front-matter chunks anyway.
     2. If remaining chunks ≤ max_chunks, return all.
     3. Allocate the budget fairly across documents, so the first document cannot
        monopolize the window.
-    4. Within each document, pick evenly-spaced chunks across the full text
-       position, so the head sections cannot crowd out the rest.
+    4. Within each document: always include the first ``head_bias`` chunks
+       (cover, TOC, agenda slides — overview evidence is front-loaded), then
+       pick evenly-spaced chunks across the rest so the head cannot crowd
+       out the body.
     """
     if not chunks:
         return []
 
-    body = [c for c in chunks if is_body_chunk(c)]
+    body = chunks if include_front_matter else [c for c in chunks if is_body_chunk(c)]
     if not body:
         body = chunks
     if len(body) <= max_chunks:
@@ -164,10 +171,15 @@ def sample_body_chunks(
     budgets = _allocate_document_budget(
         [len(by_doc[d]) for d in doc_ids], max_chunks
     )
+    head_per_doc = max(1, head_bias // max(1, len(doc_ids))) if head_bias else 0
 
     sampled: list[RetrievedChunk] = []
     for did, k in zip(doc_ids, budgets):
-        sampled.extend(_spread_evenly(by_doc[did], k))
+        doc_chunks = by_doc[did]
+        hb = min(head_per_doc, k)
+        head, rest = doc_chunks[:hb], doc_chunks[hb:]
+        sampled.extend(head)
+        sampled.extend(_spread_evenly(rest, k - len(head)))
     return sampled
 
 

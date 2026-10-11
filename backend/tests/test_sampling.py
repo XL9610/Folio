@@ -385,3 +385,15 @@ def test_grouping_uses_major_section_key():
     groups = group_chunks_by_major_section(chunks)
     # Should have 3 groups (one per chapter), not 2 (one per PART)
     assert len(groups) == 3
+
+
+def test_head_bias_always_includes_head_chunks():
+    """Branch C: overview evidence is front-loaded (cover/TOC/agenda)."""
+    chunks = [make_chunk(title=f"Head {i}") for i in range(3)]
+    chunks += [make_chunk(title=f"Body {i}") for i in range(27)]
+    sampled = sample_body_chunks(chunks, max_chunks=10, include_front_matter=True, head_bias=3)
+    titles = [c.title for c in sampled]
+    assert "Head 0" in titles
+    assert "Head 1" in titles
+    assert "Head 2" in titles
+    assert len(sampled) == 10

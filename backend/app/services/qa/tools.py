@@ -503,7 +503,17 @@ class QAToolExecutor:
         doc_ids: list[str],
         top_k: int = 0,
     ) -> None:
-        """Retrieve representative body chunks across the document (overview/summary)."""
+        """Retrieve representative body chunks across the document (overview/summary).
+
+        Branch C: calls routed from the planner's overview augmentation carry
+        ``_coverage`` — only those apply the coverage sampling profile
+        (front matter included: a magazine's cover story or a deck's
+        title/agenda slides are exactly the overview evidence, and the even
+        spread dilutes a book's copyright noise; head bias: overview
+        evidence is front-loaded). Planner-initiated calls keep the classic
+        body-favoring sampling.
+        """
+        coverage = bool(tc.args.get("_coverage"))
         from ..generation.sampling import sample_body_chunks
 
         requested = tc.args.get("document_ids", doc_ids)[:5]
@@ -526,7 +536,12 @@ class QAToolExecutor:
                     page_end=rec.get("page_end", -1),
                 ))
 
-        sampled = sample_body_chunks(collected, max_chunks=min(limit, MAX_BOOK_CITATIONS))
+        sampled = sample_body_chunks(
+            collected,
+            max_chunks=min(limit, MAX_BOOK_CITATIONS),
+            include_front_matter=coverage,
+            head_bias=3 if coverage else 0,
+        )
 
         seen = set()
         for chunk in sampled:
