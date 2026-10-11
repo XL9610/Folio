@@ -194,6 +194,7 @@ async def list_documents_endpoint(
             "document_id": d["id"],
             "filename": d["filename"],
             "display_title": d.get("display_title", ""),
+            "content_hash": d.get("content_hash", ""),
             "page_count": d["page_count"],
             "chunk_count": d["chunk_count"],
             "status": d["status"],

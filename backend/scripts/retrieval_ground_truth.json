@@ -1,0 +1,1711 @@
+[
+  {
+    "id": "q-ah-01",
+    "question": "In Walter Benjamin's essay in this anthology, how does he define the 'aura' of a work of art, and why does the aura decline in the age of technological reproducibility?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "aee555ee449699396c1259450f87e1d7b83e412e2e4ebdcd85b79163647c608e",
+    "document_filename": "The_Art_of_Art_History_A_Critical_Ant_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a323f99ac9e25b90bfec9adbc6316d9fc7594ec83bfbf095ddd478a7fd9e796a",
+        "page_start": 444,
+        "page_end": 451,
+        "section_path": "Chapter 8 Globalization and its Discontents > The Work of Art in the Age of its Technological Reproducibility",
+        "excerpt": "the drawing is traced on a stone, rather than incised on a block of wood or \netched on a copper plat"
+      },
+      {
+        "chunk_content_hash": "cc591689d8762fbe2c3776b1da81ea6b050c10fefde3be34ae28831eccc7569a",
+        "page_start": 444,
+        "page_end": 451,
+        "section_path": "Chapter 8 Globalization and its Discontents > The Work of Art in the Age of its Technological Reproducibility",
+        "excerpt": "from its physical duration to the historical testimony relating \nto it. Since the historical testimo"
+      },
+      {
+        "chunk_content_hash": "dec227a1d57b99be5612647e6ad39263a4ad70ce72813627157ae75d01b57ce5",
+        "page_start": 444,
+        "page_end": 451,
+        "section_path": "Chapter 8 Globalization and its Discontents > The Work of Art in the Age of its Technological Reproducibility",
+        "excerpt": "ﬀ ered by illustrated magazines and newsreels, diﬀ ers \nunmistakably from the image. Uniqueness and "
+      }
+    ]
+  },
+  {
+    "id": "q-ah-02",
+    "question": "Panofsky's essay on iconography and iconology describes several kinds of meaning a work of art can carry. What are they, and how does iconology differ from iconography?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "aee555ee449699396c1259450f87e1d7b83e412e2e4ebdcd85b79163647c608e",
+    "document_filename": "The_Art_of_Art_History_A_Critical_Ant_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d95a075865cef0b3f4cd2ea12f7457fa388c2a915d9882978e06a741f66a9d56",
+        "page_start": 229,
+        "page_end": 244,
+        "section_path": "Chapter 5 Mechanisms of Meaning > Iconography and Iconology: An Introduction to the Study of Renaissance Art",
+        "excerpt": "220 mechanisms of meaning\nErwin Panofsky \n1939\nIconography and Iconology: \nAn Introduction to the St"
+      },
+      {
+        "chunk_content_hash": "77cf823f18161ba523d9afefbb377d236f139b8bd0d8300279f6599c505ec922",
+        "page_start": 229,
+        "page_end": 244,
+        "section_path": "Chapter 5 Mechanisms of Meaning > Iconography and Iconology: An Introduction to the Study of Renaissance Art",
+        "excerpt": "every single action; so that, conversely, every single action can be inter-\npreted in the light of t"
+      },
+      {
+        "chunk_content_hash": "360e549e0a93a95b33e2cbb31b4d27729ce1d5de535b90d34cbfd1f456025dcc",
+        "page_start": 229,
+        "page_end": 244,
+        "section_path": "Chapter 5 Mechanisms of Meaning > Iconography and Iconology: An Introduction to the Study of Renaissance Art",
+        "excerpt": ", for \ninstance (the earliest examples can be dated around 1300), the traditional \ntype of the Nativ"
+      },
+      {
+        "chunk_content_hash": "df10935f9f033895bccfa60dea22e04630aabddd89fae1d0003deab602572ecc",
+        "page_start": 229,
+        "page_end": 244,
+        "section_path": "Chapter 5 Mechanisms of Meaning > Iconography and Iconology: An Introduction to the Study of Renaissance Art",
+        "excerpt": "’—denote something \ninterpretative. ‘Ethnology,’ for instance, is deﬁ ned as a ‘science of human rac"
+      }
+    ]
+  },
+  {
+    "id": "q-a3-01",
+    "question": "According to Sobek and Smalley, how many elements make up the mind-set behind Toyota's A3 report system, and what are they?",
+    "category": "exact_lookup",
+    "difficulty": "easy",
+    "document_hash": "e15edfea2f6aee111d35d5b886ddf39d205d8f61ea29fe717163c39e6f8fdafb",
+    "document_filename": "Understanding_A3_Thinking_A_Critical_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "0111545650afa15c87ca70ec7789f298a48858af426ce9b738dd5d1810b44199",
+        "page_start": 33,
+        "page_end": 37,
+        "section_path": "1. Logical thinking process",
+        "excerpt": "As we reflect on our experiences and research of Toyota, we find that intellectual development of\npe"
+      }
+    ]
+  },
+  {
+    "id": "q-wb-01",
+    "question": "The book says Buffett's investment principles group themselves into four categories of tenets. What are the four categories, and what does each one cover?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "5cbe656c255d52cca906add8fd9aecaac9a72e37559cef04b623fc07002d8efa",
+    "document_filename": "Trading Stocks - The Warren Buffet Wa... (Z-Library).pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d228c95e39945d8c3e59472253db81dfbeb4d86ebc0a4558b99a927a2da4ba2e",
+        "page_start": 88,
+        "page_end": 88,
+        "section_path": "1. Business tenets. Three basic characteristics of the business itself",
+        "excerpt": "62\nT H E  W A R R E N  B U F F E T T  W AY\nthat have guided his decisions. If we extract these tenet"
+      }
+    ]
+  },
+  {
+    "id": "q-wb-02",
+    "question": "According to the book, how does Buffett determine the value of a business, and what are the two components of rational investing?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "5cbe656c255d52cca906add8fd9aecaac9a72e37559cef04b623fc07002d8efa",
+    "document_filename": "Trading Stocks - The Warren Buffet Wa... (Z-Library).pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d3c4adddfa72de725b63bf0cc373ceca347909a3acccafd232e2dc301ba714a6",
+        "page_start": 146,
+        "page_end": 146,
+        "section_path": "Value Tenets",
+        "excerpt": "121\n8\nInvesting Guidelines\nValue Tenets\nA\nll the principles embodied in the tenets described so far "
+      },
+      {
+        "chunk_content_hash": "50511fbb9d251511fc96ad9ab4030e7d5d12b221542180f361632bf94903d5e2",
+        "page_start": 147,
+        "page_end": 147,
+        "section_path": "1. Determine the value of the business",
+        "excerpt": "122\nT H E  W A R R E N  B U F F E T T  W AY\nTheoretically, investors make their decisions based on t"
+      },
+      {
+        "chunk_content_hash": "131abe106d6bc111910ad28082bd35bdb4b3b8a6ef29755b4a1a4c1547a6bc13",
+        "page_start": 148,
+        "page_end": 148,
+        "section_path": "come economic equals.”2",
+        "excerpt": "come economic equals.”2\nI n v e s t i n g  G u i d e l i n e s :  Va l u e  Te n e t s\n123\nmanufacturers of buggy whips to operators of cellular telephones, be-"
+      }
+    ]
+  },
+  {
+    "id": "q-ja-01",
+    "question": "According to the book, what is the heap-order property that a heap data structure must satisfy?",
+    "category": "exact_lookup",
+    "difficulty": "easy",
+    "document_hash": "6fd926a9a237e1edb9cba950f14178027a097f4d5ddc3d123610478cf6c33873",
+    "document_filename": "Data Structures and Algorithms in Java, 6th Edition, 2014.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "33e0fb46d134bdf77410a72e3eba383faff0af0b6b9714cc332233bb03af6d52",
+        "page_start": 388,
+        "page_end": 402,
+        "section_path": "Chapter 9: Priority Queues > 9.3 Heaps",
+        "excerpt": "370\nChapter 9. Priority Queues\n9.3\nHeaps\nThe two strategies for implementing a priority queue ADT in"
+      }
+    ]
+  },
+  {
+    "id": "q-ja-02",
+    "question": "Can you give me an overview of Chapter 5 'Recursion' — what are the main topics it covers?",
+    "category": "chapter_question",
+    "difficulty": "medium",
+    "document_hash": "6fd926a9a237e1edb9cba950f14178027a097f4d5ddc3d123610478cf6c33873",
+    "document_filename": "Data Structures and Algorithms in Java, 6th Edition, 2014.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "7b4a5ec34cee94807c921ccc514252b4fb38302479728e7b58c6cabc438dfd28",
+        "page_start": 207,
+        "page_end": 208,
+        "section_path": "Chapter 5: Recursion",
+        "excerpt": "Chapter\n5\nRecursion\nContents\n5.1\nIllustrative Examples . . . . . . . . . . . . . . . . . . . . . .\n1"
+      },
+      {
+        "chunk_content_hash": "68ac0f6ebeb5c3e63d8e86e3d9d32d404d38552dacefdeaf97db9853a53e1d15",
+        "page_start": 209,
+        "page_end": 219,
+        "section_path": "Chapter 5: Recursion > 5.1 Illustrative Examples",
+        "excerpt": "5.1. Illustrative Examples\n191\n5.1\nIllustrative Examples\n5.1.1\nThe Factorial Function\nTo demonstrate"
+      },
+      {
+        "chunk_content_hash": "2d6b296934adf41b9cff2122de4e819d71a5b97765449bd824a5dd6511b84ca0",
+        "page_start": 220,
+        "page_end": 223,
+        "section_path": "Chapter 5: Recursion > 5.2 Analyzing Recursive Algorithms",
+        "excerpt": "202\nChapter 5. Recursion\n5.2\nAnalyzing Recursive Algorithms\nIn Chapter 4, we introduced mathematical"
+      },
+      {
+        "chunk_content_hash": "1d1337fbb95a27cba74c3cba487671ee89b60fcaa4b32c2ccf2fd4103243d613",
+        "page_start": 224,
+        "page_end": 231,
+        "section_path": "Chapter 5: Recursion > 5.3 Further Examples of Recursion",
+        "excerpt": "206\nChapter 5. Recursion\n5.3\nFurther Examples of Recursion\nIn this section, we provide additional ex"
+      },
+      {
+        "chunk_content_hash": "6b4560557d633bb1849b9562de3afe465ac6af8c575235b10a9f479216f6a224",
+        "page_start": 232,
+        "page_end": 232,
+        "section_path": "Chapter 5: Recursion > 5.4 Designing Recursive Algorithms",
+        "excerpt": "214\nChapter 5. Recursion\n5.4\nDesigning Recursive Algorithms\nAn algorithm that uses recursion typical"
+      },
+      {
+        "chunk_content_hash": "f285305c7c1bb4c74986670afa241aadc91fce474217cbc32703168ef00dec9f",
+        "page_start": 233,
+        "page_end": 236,
+        "section_path": "Chapter 5: Recursion > 5.5 Recursion Run Amok",
+        "excerpt": "5.5. Recursion Run Amok\n215\n5.5\nRecursion Run Amok\nAlthough recursion is a very powerful tool, it ca"
+      },
+      {
+        "chunk_content_hash": "0d42dcb066c7c66a38a35a2b39cbacf6662de0f7919058da773ca388242a6015",
+        "page_start": 237,
+        "page_end": 238,
+        "section_path": "Chapter 5: Recursion > 5.6 Eliminating Tail Recursion",
+        "excerpt": "5.6. Eliminating Tail Recursion\n219\n5.6\nEliminating Tail Recursion\nThe main beneﬁt of a recursive ap"
+      }
+    ]
+  },
+  {
+    "id": "q-ec-01",
+    "question": "A drought has pushed up the price of animal feed for dairy farmers. Using the supply and demand model, what happens to the equilibrium price and quantity of milk, and why?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "4a6cdb403cd8113657a83024cb59322ed5d98262003f1e4ee222d6b3674df8b2",
+    "document_filename": "Economics_Share_N_Gregory_Mankiw,_M_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d6c0a5c8ae3523226b504b4133be60e6ccd1f3a3f1fc5fff0ccc0f8f01c7a260",
+        "page_start": 60,
+        "page_end": 62,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Supply and Demand Together",
+        "excerpt": "Equilibrium\nDemand\nSupply\nEquilibrium price\nThe Equilibrium of Supply and \nDemand\nThe equilibrium is"
+      },
+      {
+        "chunk_content_hash": "aa1a28397cd19b6ef954084689dc4039a23da01b13f27ecdd63a911aa42d8a72",
+        "page_start": 64,
+        "page_end": 68,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Analyzing Changes in Equilibrium",
+        "excerpt": "AND DEMAND   49\nWe use comparative static analysis to look at what happens when some event shifts on"
+      },
+      {
+        "chunk_content_hash": "227a8c6bdf636893405ba83b12d31e24bafcbb70c4cbe49ac5371a43a6224dde",
+        "page_start": 64,
+        "page_end": 68,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Analyzing Changes in Equilibrium",
+        "excerpt": "cattle. Let us follow our three steps:\n1.\t The change in the price of animal feed, an input into pro"
+      }
+    ]
+  },
+  {
+    "id": "q-ec-02",
+    "question": "What does Chapter 3, 'The Market Forces of Supply and Demand', cover? Summarise its main ideas.",
+    "category": "chapter_question",
+    "difficulty": "hard",
+    "document_hash": "4a6cdb403cd8113657a83024cb59322ed5d98262003f1e4ee222d6b3674df8b2",
+    "document_filename": "Economics_Share_N_Gregory_Mankiw,_M_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "75c4f0409ad41e7aab19a0193dcd7845ba1ba112d468c9aab4821365c4b547c6",
+        "page_start": 49,
+        "page_end": 50,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > The Assumptions of the Competitive Market Model",
+        "excerpt": "33\nT\nhis chapter introduces the theory of supply and demand. It considers how buyers and sellers beh"
+      },
+      {
+        "chunk_content_hash": "26bfe430cae296530d12fc9be3b2ff61a366a643e8544ddebc7a01c89a16da7a",
+        "page_start": 51,
+        "page_end": 52,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Demand",
+        "excerpt": "CHAPTER 3   THE MARKET FORCES OF SUPPLY AND DEMAND   35\nThere are some markets in which the assumpti"
+      },
+      {
+        "chunk_content_hash": "2009e724ef35a9f4125c480c3761827db2315f0283dc51fedf058146339bfe13",
+        "page_start": 53,
+        "page_end": 55,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Shifts versus Movements along the Demand Curve",
+        "excerpt": "CHAPTER 3   THE MARKET FORCES OF SUPPLY AND DEMAND   37\nMovement Along the Demand Curve\nIt is import"
+      },
+      {
+        "chunk_content_hash": "3cda1d54d081ce5481fa2c5db3935376d45188b518d3fe77adb9d81026993e94",
+        "page_start": 56,
+        "page_end": 59,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Supply",
+        "excerpt": "40   PART 2   The theory of competitive markets\nIf the demand for a good rises when income falls, th"
+      },
+      {
+        "chunk_content_hash": "d6c0a5c8ae3523226b504b4133be60e6ccd1f3a3f1fc5fff0ccc0f8f01c7a260",
+        "page_start": 60,
+        "page_end": 62,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Supply and Demand Together",
+        "excerpt": "Equilibrium\nDemand\nSupply\nEquilibrium price\nThe Equilibrium of Supply and \nDemand\nThe equilibrium is"
+      },
+      {
+        "chunk_content_hash": "aa1a28397cd19b6ef954084689dc4039a23da01b13f27ecdd63a911aa42d8a72",
+        "page_start": 64,
+        "page_end": 68,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Analyzing Changes in Equilibrium",
+        "excerpt": "AND DEMAND   49\nWe use comparative static analysis to look at what happens when some event shifts on"
+      },
+      {
+        "chunk_content_hash": "c49f25ee148d1a4fe4242317e640ac5654e69a0219652baf1b902d7bc9c26907",
+        "page_start": 69,
+        "page_end": 76,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > The Price Elasticity of Demand",
+        "excerpt": "CHAPTER 3   THE MARKET FORCES OF SUPPLY AND DEMAND   53\nOne thing to note is that this particular ou"
+      },
+      {
+        "chunk_content_hash": "2dd9bf552de75cc49ee48bf37e50e0c8e82c3ef1eb58c885101402b3b50a0923",
+        "page_start": 77,
+        "page_end": 77,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Other Demand Elasticities",
+        "excerpt": "CHAPTER 3   THE MARKET FORCES OF SUPPLY AND DEMAND   61\nOther Demand Elasticities\nIn addition to the"
+      },
+      {
+        "chunk_content_hash": "63d51b97b39c7311e7cc63ded9621ef4cfbeee44ccca05bafc2672ada7b10060",
+        "page_start": 78,
+        "page_end": 82,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Price Elasticity of Supply",
+        "excerpt": "62   PART 2   The theory of competitive markets\nConversely, complements are goods that are typically"
+      },
+      {
+        "chunk_content_hash": "5865915d1c5c26ab537ff63ffe5b1c4b587c94ceb302d4d6495afe16bac18ef8",
+        "page_start": 86,
+        "page_end": 87,
+        "section_path": "Part 2: The Theory of Competitive Markets > Chapter 3: The Market Forces of Supply and Demand > Summary",
+        "excerpt": "70   PART 2   The theory of competitive markets\nSummary\n●\n●\nEconomists use the model of supply and d"
+      }
+    ]
+  },
+  {
+    "id": "q-ga-01",
+    "question": "What does a hash table's load factor measure, and when does the book say you should resize the hash table?",
+    "category": "exact_lookup",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "21da6e417db5e940815154a4d3a26738fa9e2f0b0fba564852c9a5c1244d2033",
+        "page_start": 109,
+        "page_end": 110,
+        "section_path": "Chapter 5 Hash Tables > Performance > Load factor",
+        "excerpt": "90\nChapter 5  I  Hash tables\nIn the worst case, a hash table takes O(n)—linear time—for everything, "
+      },
+      {
+        "chunk_content_hash": "3a28bbf74c41620c71aa345a9590f73eda9e47d3f6a79fd6e5f72c3556b75265",
+        "page_start": 111,
+        "page_end": 111,
+        "section_path": "Chapter 5 Hash Tables > Performance > A good hash function",
+        "excerpt": "92\nChapter 5  I  Hash tables\nNow you need to re-insert all of those items into this new hash table \n"
+      },
+      {
+        "chunk_content_hash": "a9cf85c5f5d4bb9dfebb69bccaf38d855b8a472e4204ca183aad6f7ec44c7a95",
+        "page_start": 112,
+        "page_end": 113,
+        "section_path": "Chapter 5 Hash Tables > Recap"
+      }
+    ]
+  },
+  {
+    "id": "q-ga-02",
+    "question": "Why can't Dijkstra's algorithm be used on graphs that have negative-weight edges, and what algorithm does the book mention instead?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "9afc633704deabb0e9c06d84e7e96102e20678521afc385ecaed6aff499b4a06",
+        "page_start": 147,
+        "page_end": 148,
+        "section_path": "Chapter 7 Dijkstra’s Algorithm > Negative-weight edges",
+        "excerpt": "128\nChapter 7  I  Dijkstra’s algorithm\nSo far, I’ve been using the term shortest path pretty literal"
+      },
+      {
+        "chunk_content_hash": "1f3a14f828044ffce32439139f8175934bf8afba5c8987daf0e8aaf6fbba73e0",
+        "page_start": 149,
+        "page_end": 157,
+        "section_path": "Chapter 7 Dijkstra’s Algorithm > Implementation",
+        "excerpt": "130\nChapter 7  I  Dijkstra’s algorithm\nLet’s get the next-cheapest node that hasn’t already been pro"
+      },
+      {
+        "chunk_content_hash": "284c8162c1311e670e8be12e78238e69f488efaa95f0e047839b55baa92a661d",
+        "page_start": 158,
+        "page_end": 159,
+        "section_path": "Chapter 7 Dijkstra’s Algorithm > Recap"
+      }
+    ]
+  },
+  {
+    "id": "q-ga-03",
+    "question": "What does the chapter on hash tables (Chapter 5) of Grokking Algorithms cover?",
+    "category": "chapter_question",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "c94876681343a2d5a59948d0c6272a4a25d0d3f35f2f5deac6045a44189c07ef",
+        "page_start": 92,
+        "page_end": 94,
+        "section_path": "Chapter 5 Hash Tables",
+        "excerpt": "73\nIn this chapter\n•\t\nYou learn about hash tables, one of the most  \nuseful basic data structures. H"
+      },
+      {
+        "chunk_content_hash": "5e86ea3f1b882c8a4d9f3468281efd005ebcabb627b65e6b51953d76958be391",
+        "page_start": 95,
+        "page_end": 97,
+        "section_path": "Chapter 5 Hash Tables > Hash functions",
+        "excerpt": "76\nChapter 5  I  Hash tables\nHash functions\nA hash function is a function where you put in a string1"
+      },
+      {
+        "chunk_content_hash": "b62ed5065d75b37c8c5ab245cfa31010d108cfb036d1cf9b556d3f2735285f77",
+        "page_start": 98,
+        "page_end": 99,
+        "section_path": "Chapter 5 Hash Tables > Use cases > Using hash tables for lookups",
+        "excerpt": "79\nUse cases\nPretty easy! Now let’s ask for the price of an avocado:\n>>> print book[“avocado”]\n1.49 "
+      },
+      {
+        "chunk_content_hash": "722a4031d94da7bcd5f014a3b9f4e2a33f424c17e839b433012b10ec3b29f329",
+        "page_start": 100,
+        "page_end": 101,
+        "section_path": "Chapter 5 Hash Tables > Use cases > Preventing duplicate entries",
+        "excerpt": "81\nUse cases\nFor any website you go to, the address has to be translated to an IP \naddress.\nWow, map"
+      },
+      {
+        "chunk_content_hash": "400379c2b9dcc595bdb2f1f63f7aecb7fd9528710861eea5f756b8e019f1d4f3",
+        "page_start": 102,
+        "page_end": 104,
+        "section_path": "Chapter 5 Hash Tables > Use cases > Using hash tables as a cache",
+        "excerpt": "83\nUse cases\nRemember, if you were storing these names in a list of people who have \nvoted, this fun"
+      },
+      {
+        "chunk_content_hash": "08d1d06d4e424d7b7099549b056c7ecd787132d9ad9f315ccaebb45933e5d223",
+        "page_start": 105,
+        "page_end": 106,
+        "section_path": "Chapter 5 Hash Tables > Collisions",
+        "excerpt": "86\nChapter 5  I  Hash tables\nRecap\nTo recap, hashes are good for\n•\t\nModeling relationships from one "
+      },
+      {
+        "chunk_content_hash": "4755136dd35a32f81ed27108ee8cf667d152841fa6dfccff79225df543f14cfe",
+        "page_start": 107,
+        "page_end": 108,
+        "section_path": "Chapter 5 Hash Tables > Performance",
+        "excerpt": "88\nChapter 5  I  Hash tables\nIn this example, both “apple” and “avocado” map to the same slot. \nSo y"
+      },
+      {
+        "chunk_content_hash": "21da6e417db5e940815154a4d3a26738fa9e2f0b0fba564852c9a5c1244d2033",
+        "page_start": 109,
+        "page_end": 110,
+        "section_path": "Chapter 5 Hash Tables > Performance > Load factor",
+        "excerpt": "90\nChapter 5  I  Hash tables\nIn the worst case, a hash table takes O(n)—linear time—for everything, "
+      },
+      {
+        "chunk_content_hash": "3a28bbf74c41620c71aa345a9590f73eda9e47d3f6a79fd6e5f72c3556b75265",
+        "page_start": 111,
+        "page_end": 111,
+        "section_path": "Chapter 5 Hash Tables > Performance > A good hash function",
+        "excerpt": "92\nChapter 5  I  Hash tables\nNow you need to re-insert all of those items into this new hash table \n"
+      },
+      {
+        "chunk_content_hash": "a9cf85c5f5d4bb9dfebb69bccaf38d855b8a472e4204ca183aad6f7ec44c7a95",
+        "page_start": 112,
+        "page_end": 113,
+        "section_path": "Chapter 5 Hash Tables > Recap",
+        "excerpt": "93\nRecap\nEXERCISES\nIt’s important for hash functions to have a good distribution. They \nshould map i"
+      }
+    ]
+  },
+  {
+    "id": "q-tp-01",
+    "question": "Why is the book's memoized version of fibonacci much faster than the original recursive version?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "3d360ed75aeb82d10c63ce61984e48985517b017872e1664b8266f9f1f1db9eb",
+    "document_filename": "Think Python (Allen B. Downey) (Z-Library).epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "2093e606ed66f11276c15c7671c9d617123e44991c4fc858349400a03f493dcd",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "11. Dictionaries",
+        "excerpt": " you have to do it often, or if the dictionary gets big, the performance of your program will suffer"
+      },
+      {
+        "chunk_content_hash": "c051d6e108b511ae02d615874b3d22f65cdfa88a99a591c5e610ece5ea287d16",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "11. Dictionaries",
+        "excerpt": " res    known  is a dictionary that keeps track of the Fibonacci numbers we already know. It starts "
+      },
+      {
+        "chunk_content_hash": "481fbaa8ad938162e70cc8d298b27fba8ae69848b2e0148aabfba26b9fcdeeaa",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "11. Dictionaries",
+        "excerpt": " “pretty print”).       Again, time you spend building scaffolding can reduce the time you spend  de"
+      }
+    ]
+  },
+  {
+    "id": "q-tp-02",
+    "question": "What does the Strings chapter (Chapter 8) of Think Python cover?",
+    "category": "chapter_question",
+    "difficulty": "easy",
+    "document_hash": "3d360ed75aeb82d10c63ce61984e48985517b017872e1664b8266f9f1f1db9eb",
+    "document_filename": "Think Python (Allen B. Downey) (Z-Library).epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "ed29ea444e70d391953368c26c6b6f1f5f8107f04bdf0becc939d41ead70f7d3",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "8. Strings",
+        "excerpt": "8. Strings\n\n#  Chapter 8.  Strings\n Strings are not like integers, floats, and booleans. A string is"
+      },
+      {
+        "chunk_content_hash": "dee0a510603d220538a2169f37ff34ee8b9ceb43357151646433e5e94a250403",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "8. Strings",
+        "excerpt": " s[6:12]\n'Python'   The operator  [n:m]  returns the part of the string from the “n-eth” character t"
+      },
+      {
+        "chunk_content_hash": "ba836f8458764c9d72d0bb3b7fa68202022d422df09487b216ec25f11c96c5fc",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "8. Strings",
+        "excerpt": " find  that is remarkably similar to the function we wrote:   >>> word = 'banana'\n>>> index = word.f"
+      },
+      {
+        "chunk_content_hash": "169326e23b1daf8c6b79768aefa1df61fe16631452cd6ab7030218bcb22e3037",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "8. Strings",
+        "excerpt": "   >>> is_reverse('pots', 'stop')\n0 4\n...\nIndexError: string index out of range   The first time thr"
+      }
+    ]
+  },
+  {
+    "id": "q-xd-01",
+    "question": "How does Grokking Algorithms explain recursion, and how does Think Python explain it? Compare the two books' definitions, examples, and the key concepts each uses to teach recursion.",
+    "category": "cross_document",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [
+      "3d360ed75aeb82d10c63ce61984e48985517b017872e1664b8266f9f1f1db9eb"
+    ],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d30aaf03931ac202218454f0f1df9bedc674d13dcbd4cd883f22425cb7c7f102",
+        "page_start": 55,
+        "page_end": 56,
+        "section_path": "Chapter 3 Recursion",
+        "excerpt": "36\nRecap\n•\t Your computer’s memory is like a giant set of drawers.\n•\t When you want to store multipl"
+      },
+      {
+        "chunk_content_hash": "4cf345658e632d3edbcfb80a5d17ff29c7f4d77fcc032204cfdefe4f79ca32df",
+        "page_start": 57,
+        "page_end": 58,
+        "section_path": "Chapter 3 Recursion > Recursion",
+        "excerpt": "38\nChapter 3  I  Recursion\nThis chapter also includes a lot of pseudocode. Pseudocode is a  \nhigh-le"
+      },
+      {
+        "chunk_content_hash": "e50f956070fa756002a77c8c29b0bf8928b46d87cb829ee14aa3c7f56fdacf8e",
+        "page_start": 59,
+        "page_end": 59,
+        "section_path": "Chapter 3 Recursion > Base case and recursive case",
+        "excerpt": "40\nChapter 3  I  Recursion\nWhich approach seems easier to you? The first approach uses a while \nloop"
+      },
+      {
+        "chunk_content_hash": "6f9319a89216efb5bd40bb9ec3213b1fd5cc68958c826b56b9c47732d7c5262a",
+        "page_start": 60,
+        "page_end": 61,
+        "section_path": "Chapter 3 Recursion > The stack",
+        "excerpt": "41\nBase case and recursive case\nYou can write it recursively, like so:\n  def countdown(i):\n  print i"
+      },
+      {
+        "chunk_content_hash": "e2a2b78879ac2499822f0d6bdb27d3b1781ba978f41c1a7e022ed246d6d2db5e",
+        "page_start": 62,
+        "page_end": 63,
+        "section_path": "Chapter 3 Recursion > The stack > The call stack",
+        "excerpt": "43\nThe stack\nThe call stack\nYour computer uses a stack internally called the call stack. Let’s see i"
+      },
+      {
+        "chunk_content_hash": "1e8f5730422a900e8c43bf818af1d3ea2b3d4cc77c7099035f4977cbaa53351c",
+        "page_start": 64,
+        "page_end": 68,
+        "section_path": "Chapter 3 Recursion > The stack > The call stack with recursion",
+        "excerpt": "45\nThe stack\nA box for that function is added to the top of the stack. Then you print \nok bye! and r"
+      },
+      {
+        "chunk_content_hash": "4f3a4cfee21ff27aed2375a2c52319113c4cb465d6519c3483f2f962ec9d1eae",
+        "page_start": 69,
+        "page_end": 69,
+        "section_path": "Chapter 3 Recursion > Recap",
+        "excerpt": "50\nChapter 3  I  Recursion\nRecap\n•\t Recursion is when a function calls itself.\n•\t Every recursive fu"
+      },
+      {
+        "chunk_content_hash": "3be2796d87351501ca2e768a22e34326357837e3e0a18163bc42164eb9322a31",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5. Conditionals and Recursion",
+        "excerpt": " one. Occasionally, it is useful to have a body with no statements (usually as a place keeper for co"
+      },
+      {
+        "chunk_content_hash": "2b5fc5ac65d514557b6510126635b14efd42d5286068b0c9c254b63bd3306c99",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5. Conditionals and Recursion",
+        "excerpt": ".    The  countdown  that got  n=1  returns.    The  countdown  that got  n=2  returns.    The  coun"
+      },
+      {
+        "chunk_content_hash": "54a8741d40f74627bc80f5c8bc398426f575f75dd0a0990f2e1e28f449c8f600",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "6. Fruitful Functions",
+        "excerpt": " a function  is_between(x, y, z)  that returns  True  if   or  False  otherwise.      # More Recursi"
+      },
+      {
+        "chunk_content_hash": "a352fdc463765b64ff8eb2e0f06b4f0fc29d215d2395f2d5f35120a0e3bf67bd",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "6. Fruitful Functions",
+        "excerpt": " the built-in functions were good programmers.   The same is true when you call one of your own func"
+      }
+    ]
+  },
+  {
+    "id": "q-xd-02",
+    "question": "How do Grokking Algorithms and Data Structures and Algorithms in Java each compare arrays and linked lists? What advantages and disadvantages does each book describe for the two data structures?",
+    "category": "cross_document",
+    "difficulty": "easy",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [
+      "6fd926a9a237e1edb9cba950f14178027a097f4d5ddc3d123610478cf6c33873"
+    ],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a4a4ce7117571c1321782677c0a519c7d4821cc7bc9d91703511903553b5eb45",
+        "page_start": 43,
+        "page_end": 43,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists",
+        "excerpt": "24\nArrays and linked lists\nSometimes you need to store a list of elements in memory. Suppose \nyou’re"
+      },
+      {
+        "chunk_content_hash": "91fe2963442941c664c42b163eb36d23056bd4a8715857fa67858560d5c6716e",
+        "page_start": 44,
+        "page_end": 44,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists > Linked lists",
+        "excerpt": "25\nArrays and linked lists\nIf another friend comes by, you’re out of room again—and you all have \nto"
+      },
+      {
+        "chunk_content_hash": "48c8e4b994a47a01b4722d13f3f8512957b4c4556b6110ee8f4cd34879a10367",
+        "page_start": 45,
+        "page_end": 45,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists > Arrays",
+        "excerpt": "26\nIt’s like a treasure hunt. You go to the first address, and it says, “The next \nitem can be found"
+      },
+      {
+        "chunk_content_hash": "93c08c87b0462f837d6f3a9fcde57a2e8f5e81e0128fe83eddefab7dd15f175b",
+        "page_start": 46,
+        "page_end": 47,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists > Terminology",
+        "excerpt": "27\nArrays and linked lists\nitem #2. Then you have to go to item #2 to get the address for item #3. \n"
+      },
+      {
+        "chunk_content_hash": "cf28036a9e696cacdadd7fbb1ffb6ad0702d5f269b3e2f6c14af1cb67fc5d3ac",
+        "page_start": 48,
+        "page_end": 48,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists > Inserting into the middle of a list",
+        "excerpt": "29\nArrays and linked lists\nInserting into the middle of a list\nSuppose you want your todo list to wo"
+      },
+      {
+        "chunk_content_hash": "f80c063295ee2671a533af5b9daa8e469d71a656ed3934b59ea867f4ad94002d",
+        "page_start": 49,
+        "page_end": 50,
+        "section_path": "Chapter 2 Selection Sort > Arrays and linked lists > Deletions",
+        "excerpt": "30\nChapter 2  I  Selection sort\nDeletions\nWhat if you want to delete an element? Again, lists are be"
+      },
+      {
+        "chunk_content_hash": "0af2a3a63aa60e18d51372d820023e5146c4163b18fe2e2e54b31b19706f3c9f",
+        "page_start": 55,
+        "page_end": 55,
+        "section_path": "Chapter 2 Selection Sort > Recap",
+        "excerpt": "36\nRecap\n•\t Your computer’s memory is like a giant set of drawers.\n•\t When you want to store multipl"
+      },
+      {
+        "chunk_content_hash": "1d0592dc1c916829e38f8b3d0e22b7790260edd24b255c11d2a47fe7e6bfcdc7",
+        "page_start": 140,
+        "page_end": 145,
+        "section_path": "Chapter 3: Fundamental Data Structures > 3.2 Singly Linked Lists",
+        "excerpt": "122\nChapter 3. Fundamental Data Structures\n3.2\nSingly Linked Lists\nIn the previous section, we prese"
+      },
+      {
+        "chunk_content_hash": "ec42bed7ef4363112128f35ac62d8ada63a46fdc04c3a9371f0b02cda4866014",
+        "page_start": 276,
+        "page_end": 277,
+        "section_path": "Chapter 7: List and Iterator ADTs > 7.1 The List ADT",
+        "excerpt": "258\nChapter 7. List and Iterator ADTs\n7.1\nThe List ADT\nIn Chapter 6, we introduced the stack, queue,"
+      },
+      {
+        "chunk_content_hash": "1c4dfa2c5ef24a30a73edd55339e155312cf922205b709d713dce86a7b2dd028",
+        "page_start": 278,
+        "page_end": 287,
+        "section_path": "Chapter 7: List and Iterator ADTs > 7.2 Array Lists",
+        "excerpt": "260\nChapter 7. List and Iterator ADTs\n7.2\nArray Lists\nAn obvious choice for implementing the list AD"
+      },
+      {
+        "chunk_content_hash": "8409ffeff00d331edfe53f9b476d92802314b4dce52a72a7bdf240f06774347e",
+        "page_start": 278,
+        "page_end": 287,
+        "section_path": "Chapter 7: List and Iterator ADTs > 7.2 Array Lists",
+        "excerpt": "ArrayList class with bounded\ncapacity. (Continued from Code Fragment 7.2.)\nwww.it-ebooks.info\n\n262\nC"
+      },
+      {
+        "chunk_content_hash": "b017a75acf1c06d9b11258ed0bac37c3406a45ba0a12c1ffaeba9948f84cbbcc",
+        "page_start": 288,
+        "page_end": 299,
+        "section_path": "Chapter 7: List and Iterator ADTs > 7.3 Positional Lists",
+        "excerpt": "270\nChapter 7. List and Iterator ADTs\n7.3\nPositional Lists\nWhen working with array-based sequences, "
+      },
+      {
+        "chunk_content_hash": "d8f5b53efac9a7bbdcbb19bed6ce2c1535251493f9cf2a53baf38d66cb8c6cec",
+        "page_start": 288,
+        "page_end": 299,
+        "section_path": "Chapter 7: List and Iterator ADTs > 7.3 Positional Lists",
+        "excerpt": "nd the neighboring position.\nWhen an element is inserted or deleted somewhere in the list, we can lo"
+      }
+    ]
+  },
+  {
+    "id": "q-xd-03",
+    "question": "How does the SIRA paper's \"retrieval agent\" relate to the RAG and agent patterns described in AI Engineering — what does each source say about how retrieval and agents work together?",
+    "category": "cross_document",
+    "difficulty": "hard",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [
+      "c3bc3e76ada21b5cd6a741de1e66d4c880eea272e2598e476f3645c9f57f4ef1"
+    ],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "1a23ffbebd4af4e6dd89154c7b9aab65b1d636814d2403a6b7f9cdc55a28ff76",
+        "page_start": 277,
+        "page_end": 279,
+        "section_path": "Chapter 6. RAG and Agents > RAG",
+        "excerpt": "CHAPTER 6\nRAG and Agents\nTo solve a task, a model needs both the instructions on how to do it, and t"
+      },
+      {
+        "chunk_content_hash": "dfe3123ae60382678f8a4a95876baa82102a0e8ee82b067cd5de956920e34b9b",
+        "page_start": 299,
+        "page_end": 299,
+        "section_path": "Chapter 6. RAG and Agents > Agents",
+        "excerpt": "Figure 6-7. A RAG system that augments context with tabular data.\nFor the text-to-SQL step, if there"
+      },
+      {
+        "chunk_content_hash": "fffad194b2f540d0006c3bfc0e99c42127eba9ec80c163d79fa0b6e9e3242281",
+        "page_start": 300,
+        "page_end": 301,
+        "section_path": "Chapter 6. RAG and Agents > Agents > Agent Overview",
+        "excerpt": "10 Artificial Intelligence: A Modern Approach (1995) defines an agent as anything that can be viewed"
+      },
+      {
+        "chunk_content_hash": "de957bd033ea5a76ed02aa2c16fb79105f24de58090c2f8b53152d8e82ec2e07",
+        "page_start": 302,
+        "page_end": 304,
+        "section_path": "Chapter 6. RAG and Agents > Agents > Tools",
+        "excerpt": "11 A complaint in the early days of agents is that agents are only good for burning through your API"
+      },
+      {
+        "chunk_content_hash": "1266730c5c71cf0140862b4c89e4d3a0f29247ae3420e5e863bbca984751788a",
+        "page_start": 329,
+        "page_end": 330,
+        "section_path": "Chapter 6. RAG and Agents > Summary",
+        "excerpt": "Summary\nGiven the popularity of RAG and the potential of agents, early readers have men‐\ntioned that"
+      },
+      {
+        "chunk_content_hash": "3497e4dc9af7fb07fd78f9ddbb9d9528b112e9edd60e9140191852f6fb010ae1",
+        "page_start": 1,
+        "page_end": 2,
+        "section_path": "Introduction",
+        "excerpt": "Superintelligent Retrieval Agent: The Next Frontier\nof Information Retrieval\nZeyu Yang1,2,∗, Qi Ma1,"
+      },
+      {
+        "chunk_content_hash": "7bf8c33c05836c54730361b80dfd7ac0f176a64869a1c05a889fab7d9bec8489",
+        "page_start": 1,
+        "page_end": 2,
+        "section_path": "Introduction",
+        "excerpt": ", and\ndecompose queries with predictable effects on retrieval outcomes. It naturally rewards rare, d"
+      },
+      {
+        "chunk_content_hash": "3bdc15d0fd3610e0c0149980942177b1b8f1e329deb3e4feaf3d41f390e486d4",
+        "page_start": 3,
+        "page_end": 3,
+        "section_path": "Introduction > Our Proposal: SIRA",
+        "excerpt": "(a) Dense Retrieval\n(b) Multi-Step Agent\n(c) SIRA (Ours)\nQuery q\nNeural Encoder\nBlack-box embedding\n"
+      },
+      {
+        "chunk_content_hash": "9546b6578922376196b69c2b9b4cc7d730fabcfa5f57433db06d6266054e9bb1",
+        "page_start": 4,
+        "page_end": 4,
+        "section_path": "SIRA: SuperIntelligent Retrieval Agent > Overview",
+        "excerpt": "Before issuing the final BM25 query, SIRA consults lightweight corpus-statistics tools (document fre"
+      },
+      {
+        "chunk_content_hash": "63428c58d60547f2c4ea7e302c4a73ec030655bbacc279a78a521f46c1b28ba8",
+        "page_start": 7,
+        "page_end": 8,
+        "section_path": "Experiments > Main Results on Large-Scale Information Retrieval",
+        "excerpt": "documents in the top ranks? This makes it the right setting for evaluating SIRA as a retrieval agent"
+      },
+      {
+        "chunk_content_hash": "986994d942a84a127de5d89844031af361ea88e766e0517d85224f9aabc9515d",
+        "page_start": 10,
+        "page_end": 12,
+        "section_path": "Conclusion",
+        "excerpt": "RQ3: The best retrieval agent yields the strongest QA evidence.\nDespite this disadvantaged\nevaluatio"
+      }
+    ]
+  },
+  {
+    "id": "q-il-01",
+    "question": "A friend of mine has been given limited leave to enter the UK. What conditions can be attached to that leave, and what does it mean in practice that she must not have \"recourse to public funds\"?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "e012fea55cd00a3f31a4cf8956f69c8ef0b3c17845ea1b216a7ad6ac64ded799",
+    "document_filename": "Immigration_law_2011_etc_z_library_sk,_1lib_sk,_z_lib_sk.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "842fab84a0284c54aaacffe979b32413fdec28bbfc55030cb464e2bf905b239b",
+        "page_start": 41,
+        "page_end": 42,
+        "section_path": "Chapter 3",
+        "excerpt": "Immigration Status\n19\nChapter 3\nImmigration Status\n3.1\nImmigration controls\n19\n3.2\nImmigration Rules"
+      },
+      {
+        "chunk_content_hash": "de1e4f9f33842e2e66151cef7cef38d03bf273a7d591f36dc8d64418a6ca9f11",
+        "page_start": 43,
+        "page_end": 58,
+        "section_path": "Immigration Status",
+        "excerpt": "Immigration Status\n21\n3.3.2\nNot to have recourse to public funds\n3.3.2.1\nWhat are public funds?\nAll "
+      },
+      {
+        "chunk_content_hash": "741006fccb64016d9e0dbff5deb0d501756de6cdbe444724670f654876d2e738",
+        "page_start": 43,
+        "page_end": 58,
+        "section_path": "Immigration Status",
+        "excerpt": "10 of Welfare Benefits.\n3.3.3\nRegistration with the police\nAdult nationals of certain countries are "
+      }
+    ]
+  },
+  {
+    "id": "q-ut-01",
+    "question": "After the September 11 attacks, how did the U.S. government keep track of foreign students and of male visitors from Middle Eastern countries who were already living in the country?",
+    "category": "paraphrase",
+    "difficulty": "hard",
+    "document_hash": "9bd115a5dcb568395309e9f873e6bfe6f92e40201898e17d507a112dbee0fbec",
+    "document_filename": "US_immigration_laws_under_the_threat_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "d136bbed82990458fcbc0f7071952843b4becf7d316a72b96fc03510bd18accc",
+        "page_start": 70,
+        "page_end": 108,
+        "section_path": "3. The Impact of September 11",
+        "excerpt": "theory, this system would aid immigration enforcement \nofficials in preventing visa fraud, apprehending"
+      },
+      {
+        "chunk_content_hash": "ab6fd84cf9325461b0706d207a32dbf31b95f766d9114795dd0b0cf99e828099",
+        "page_start": 70,
+        "page_end": 108,
+        "section_path": "3. The Impact of September 11",
+        "excerpt": "upon 10 days notice and at \nthe Department of Homeland Security's discretion, be \nrequired to appear"
+      }
+    ]
+  },
+  {
+    "id": "q-us-01",
+    "question": "What are the main stories and topics covered in this issue of U.S. News & World Report?",
+    "category": "overview",
+    "difficulty": "medium",
+    "document_hash": "19f6b325d3149f175d62e2e6f0d6b017f4777ff008a1423e271043e3e3f88185",
+    "document_filename": "U_S_News_World_Report_Volume_141,_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "104fa39a3321777420b98521a2fefea344b2e384e91951d7c1d2ad45a246d023",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "Letters 16\nOne Week 22\nTravel hassles, spooky news, and busy lives\ncould almost make you want to get"
+      },
+      {
+        "chunk_content_hash": "b38d104ec78522f757821a6586c0893abcbcfa7613f3039225ca4d9d3e8060dc",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "• Canada\n\nContents continued from Page 3\nCLOCKWISE FROM TOP: JEFFREY MACMILLAN FOR USN&WR; JIM LO SC"
+      },
+      {
+        "chunk_content_hash": "8e6c1d981f6d3f2a6580ad9630342d1c4416933611cec63e03a00a3a627fcfd6",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "NEWS.COM • AUGUST 28, 2006\nbrief biographies and résumés—not names—were\ngiven. In other words, vot"
+      },
+      {
+        "chunk_content_hash": "dd3a66dab122989ff090d52e201ff46586425fc3011b8c6cc4df0a95f0ea6c8d",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "toll\noccurred outside Baghdad.\nBut even as sectarian vio-\nlence continued to spark\nconcerns that Ira"
+      },
+      {
+        "chunk_content_hash": "1b1e207370d883f3b50f1c84590b88f497cb2100d100896cf69772e71b1cb0cb",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "the villages in\nthe south, it was worth it”—\nthere is someone returning to a\ndestroyed home or busin"
+      },
+      {
+        "chunk_content_hash": "bb6dba0295001e9d302fe67892c93d830b8548888e8cec405f48f57506338dc7",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "head south, the 30-year-old\nreal-estate broker is already making al-\nternate plans. “I might restart"
+      },
+      {
+        "chunk_content_hash": "4e9da727f43b12878d2d4bd64f90bef4b689201192070b16e0faf1926c1095f5",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "the navigator program at\nHarlem Hospital boosted the number of\nwomen who were diagnosed when their\nb"
+      },
+      {
+        "chunk_content_hash": "c8d42bc6ab667e02ecb7072c64811cc53095bde92024f5dba8bb88e431cfea2d",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "opposite may be true.\nBy Ben Harder\nA\ndam de Havenon was a bright\nstudent in high school, but that\nw"
+      },
+      {
+        "chunk_content_hash": "8c6cb5ff5c09eeb6575d496b8740227a2dd3b315e9e46605b1a829b21bdcb46e",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "be a powerful tool \nin your quest to choose the right col-\nlege for you. \nThe U.S. News rankings sys"
+      },
+      {
+        "chunk_content_hash": "e47285787e07b26f726f82bb1891c89526eff782138fe4464ce09ca8b79fb0a4",
+        "page_start": 4,
+        "page_end": 138,
+        "section_path": "TOC",
+        "excerpt": "Special Report • America’s Best Colleges\nBest Liberal Arts \nPeer\nGraduation\nAverage\nOver-\n%\nassessme"
+      }
+    ]
+  },
+  {
+    "id": "q-op-01",
+    "question": "What does this document cover about opera?",
+    "category": "overview",
+    "difficulty": "easy",
+    "document_hash": "6d8586df8067ef564595232f993dd6dc70518de1a586e96bf15c17bd532d5365",
+    "document_filename": "Opera - Wikipedia.mhtml",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "acbb71029f38beda435f970f74465bbcad21d18f76e934ee39e328cfeedc3a57",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " Italian tradition in particular.[3] Originally understood as an entirely sung piece, in contrast to"
+      },
+      {
+        "chunk_content_hash": "17d9f80a93957f7022324bd03a1b041e35626b7fbecd5a2ee34365fd95227e38",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " consists of two modes of singing: recitative, the plot-driving passages sung in a style designed to"
+      },
+      {
+        "chunk_content_hash": "b4c97d9765dcadd6361c5373fbd626de0d9ebd2748de39154fea699754908e61",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " revive the classical Greek drama, part of the wider revival of antiquity characteristic of the Rena"
+      },
+      {
+        "chunk_content_hash": "69447fe9015b4acebe1df3dc9019c9740904498d1f762e48a6c79e866e09e7c9",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " of Mozart's Die Zauberflöte The first German opera was Dafne, composed by Heinrich Schütz in 1627, "
+      },
+      {
+        "chunk_content_hash": "b91ffe4e4e4591bacd5f739e01f5f44949c18955fe70df77839462a60bb4b590",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": "place, Lully established an Academy of Music and monopolised French opera from 1672. Starting with C"
+      },
+      {
+        "chunk_content_hash": "de0887321f3205ef95728fd34c9d92bb98197b696a2bddfa6daf10ff99a86777",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " Arne Following Purcell, the popularity of opera in England dwindled for several decades. A revived "
+      },
+      {
+        "chunk_content_hash": "f9a5e5334841e969f2cb5df02c2a9d076580bc5e878788637b71abb866372c40",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": "itic Mass. Other national operas[edit] Spain also produced its own distinctive form of opera, known "
+      },
+      {
+        "chunk_content_hash": "010e17fa0c18c411c75e765e533e3ad3ffddce26a2bdf2045c791b05e384d14a",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": ". Another aspect of modernist opera is the shift away from long, suspended melodies, to short quick "
+      },
+      {
+        "chunk_content_hash": "c0d10c3c5066e7742beb489793838b4828031a49e814bd8d08a7a6cf806ea30d",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": ", without the instrumentalists having to substantially compromise their volume. Vocal classification"
+      },
+      {
+        "chunk_content_hash": "399149ac680e659b001fb795b1ffd3b65cdd8da21bd1d7d6e834783a255227ad",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Opera - Wikipedia.mhtml",
+        "excerpt": " Renée Fleming, Galina Vishnevskaya, Marilyn Horne, Bryn Terfel, Dmitri Hvorostovsky and The Three T"
+      }
+    ]
+  },
+  {
+    "id": "q-ai-01",
+    "question": "What does the book call abilities that only appear at scale and might not be observable in smaller models trained on smaller datasets?",
+    "category": "exact_lookup",
+    "difficulty": "easy",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "1bc571cc5f7d9a61341548a3ff91247ff4ea65060b326a4a4288acbfb9f65af7",
+        "page_start": 91,
+        "page_end": 101,
+        "section_path": "Chapter 2. Understanding Foundation Models > Modeling > Model Size",
+        "excerpt": ").\nThe scaling law was developed for dense models trained on predominantly human-\ngenerated data. Ad"
+      },
+      {
+        "chunk_content_hash": "c602bbd0f558ba6c0f9b9f67140f1fd955b06ab6a172e118a414ada824cd0806",
+        "page_start": 91,
+        "page_end": 101,
+        "section_path": "Chapter 2. Understanding Foundation Models > Modeling > Model Size",
+        "excerpt": "extrapolation less accurate.\nEmergent abilities refer to those that are only present at scale might "
+      }
+    ]
+  },
+  {
+    "id": "q-ai-02",
+    "question": "According to the book, what characteristics should finetuning data have to be considered high-quality?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "9ded5e33b6eff101320d49e2dffb50d36ff61c9532c8dc054653d491a5136cc9",
+        "page_start": 392,
+        "page_end": 392,
+        "section_path": "Chapter 8. Dataset Engineering > Data Curation > Data Quality",
+        "excerpt": "3 While I love writing, one of the things I absolutely do not enjoy is trying to condense everyone’s"
+      },
+      {
+        "chunk_content_hash": "bee1939b3d67d1dad978c6cf86d9cb28c6185e31a0beb22fadd24f40c03846f5",
+        "page_start": 393,
+        "page_end": 395,
+        "section_path": "Chapter 8. Dataset Engineering > Data Curation > Data Coverage",
+        "excerpt": "4 One painful bug I still remember is when a float column in my data was wrongly stored as integers,"
+      }
+    ]
+  },
+  {
+    "id": "q-si-01",
+    "question": "How does SIRA use document frequency statistics to filter the expansion terms proposed by the LLM?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "c3bc3e76ada21b5cd6a741de1e66d4c880eea272e2598e476f3645c9f57f4ef1",
+    "document_filename": "2605.06647v1.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "3497e4dc9af7fb07fd78f9ddbb9d9528b112e9edd60e9140191852f6fb010ae1",
+        "page_start": 1,
+        "page_end": 2,
+        "section_path": "Introduction",
+        "excerpt": "Superintelligent Retrieval Agent: The Next Frontier\nof Information Retrieval\nZeyu Yang1,2,∗, Qi Ma1,"
+      },
+      {
+        "chunk_content_hash": "9546b6578922376196b69c2b9b4cc7d730fabcfa5f57433db06d6266054e9bb1",
+        "page_start": 4,
+        "page_end": 4,
+        "section_path": "Background and Organization",
+        "excerpt": "Before issuing the final BM25 query, SIRA consults lightweight corpus-statistics tools (document fre"
+      },
+      {
+        "chunk_content_hash": "7f41a20654a62d101206e01057bbd3d57d3d85c8e633be707e8b9efcabae9a24",
+        "page_start": 5,
+        "page_end": 5,
+        "section_path": "SIRA: SuperIntelligent Retrieval Agent > Vocabulary Enrichment with SuperIntelligent LLMs",
+        "excerpt": "Offline: Corpus-Side Enrichment (Amortized)\nOnline: Query-Side Enrichment (Per-Query)\nCorpus Documen"
+      },
+      {
+        "chunk_content_hash": "cc630d6d0d44f45854d285cda031a625a43acfca6871dca4e783e7269cb957bc",
+        "page_start": 6,
+        "page_end": 6,
+        "section_path": "Experiments > Experimental Setup",
+        "excerpt": "documents. SIRA therefore treats document frequency and BM25/TF–IDF-style salience as lightweight\nco"
+      },
+      {
+        "chunk_content_hash": "826af2c5e5d5fd66184956820d610eccb357c67de42ecfafd3881ad1299e0e00",
+        "page_start": 7,
+        "page_end": 8,
+        "section_path": "Experiments > Main Results on Large-Scale Information Retrieval",
+        "excerpt": ".5507\n.2223\n.4451\n.3315\n.3924\n.1402\n.6565\n.3622\nCoT\n.4951\n.1471\n.3354\n.4932\n.2486\n.5595\n.3168\n.7608\n"
+      }
+    ]
+  },
+  {
+    "id": "q-hw-01",
+    "question": "Why is the chant repertory of the medieval Western church called Gregorian chant, and what do modern scholars say about Pope Gregory I's actual role in creating it?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "00cd55b71386d7b5a20b87a496855093d8667866c23f6c691c75d5e604b10a46",
+    "document_filename": "A History of Western Music Tenth.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "84aa6eb6791dda20c06121a39f8ff27b17e11f4a87148a2d022e11a4b407af53",
+        "page_start": 62,
+        "page_end": 64,
+        "section_path": "PART ONE: THE ANCIENT AND MEDIEVAL WORLDS > 2. The Christian Church in the First Millennium > Source Reading: A Christian Observance in Jerusalem, ca. 400",
+        "excerpt": "other Slavic \nOrthodox churches. The Greek texts were translated into local languages and \nthe melod"
+      },
+      {
+        "chunk_content_hash": "0a2d5013f55d34afcc48aa289a1c911af8882cff8743fb5717e42e67689bfddd",
+        "page_start": 62,
+        "page_end": 64,
+        "section_path": "PART ONE: THE ANCIENT AND MEDIEVAL WORLDS > 2. The Christian Church in the First Millennium > Source Reading: A Christian Observance in Jerusalem, ca. 400",
+        "excerpt": "), leading \nto the name Gregorian chant. But there is no evidence from his own time that \nGregory pl"
+      },
+      {
+        "chunk_content_hash": "2f39e1f2245c0170c8fe1f65be42bb0e348995773ed84fb241719e8a4ea54356",
+        "page_start": 65,
+        "page_end": 70,
+        "section_path": "PART ONE: THE ANCIENT AND MEDIEVAL WORLDS > 2. The Christian Church in the First Millennium > The Development of Notation",
+        "excerpt": "28 \n \n \nC H A P T E R 2 • The Christian Church in the First Millennium\nas the founder of their churc"
+      }
+    ]
+  },
+  {
+    "id": "q-hw-02",
+    "question": "In the chapter 'The Invention of Opera', what earlier musical genres and intellectual interests prepared the way for opera, and what work does the book call the first opera?",
+    "category": "chapter_question",
+    "difficulty": "hard",
+    "document_hash": "00cd55b71386d7b5a20b87a496855093d8667866c23f6c691c75d5e604b10a46",
+    "document_filename": "A History of Western Music Tenth.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "6595044e1ee0398aab655904dd795bf1e9b3201d9cb8a10d37813642bbeafe02",
+        "page_start": 334,
+        "page_end": 334,
+        "section_path": "PART THREE: THE SEVENTEENTH CENTURY > 14. The Invention of Opera",
+        "excerpt": "C H A P T E R\nForerunners  \nof Opera\t\n298\nThe First Operas\t\n301\nClaudio  \nMonteverdi\t\n305\nOpera from"
+      },
+      {
+        "chunk_content_hash": "c3dbe6daa270a1383c12dbedcb34a8c7e8dcc03cf1feacb75e9f9b0005c0a076",
+        "page_start": 335,
+        "page_end": 337,
+        "section_path": "PART THREE: THE SEVENTEENTH CENTURY > 14. The Invention of Opera > Forerunners of Opera",
+        "excerpt": "298 \n \n \nC H A P T E R 14 • The Invention of Opera  \ntell us how they are feeling—a function of lyri"
+      },
+      {
+        "chunk_content_hash": "5010eb6e52fcd9ec4a60497b27c17287a3c95fea32dd02ec66d35b18a79f3ae0",
+        "page_start": 335,
+        "page_end": 337,
+        "section_path": "PART THREE: THE SEVENTEENTH CENTURY > 14. The Invention of Opera > Forerunners of Opera",
+        "excerpt": "inta \npazza\n1643 Monteverdi, \nL’incoronazione di Poppea \n1657 Francesco Cavalli, \nArtemisia\n\nForerun"
+      },
+      {
+        "chunk_content_hash": "4e88611abc43d6cbe0029516dbd789e59421bf16a71e0d3d20c970b0c0c01cf0",
+        "page_start": 335,
+        "page_end": 337,
+        "section_path": "PART THREE: THE SEVENTEENTH CENTURY > 14. The Invention of Opera > Forerunners of Opera",
+        "excerpt": "o-\nrist and composer and the father of astronomer Galileo. From the early 1570s, \nBardi hosted an ac"
+      },
+      {
+        "chunk_content_hash": "d3ba11bc59a5986846aef8a86dd73bfaefa3b1b90b9cbe0d7b569dd7496f7794",
+        "page_start": 338,
+        "page_end": 338,
+        "section_path": "PART THREE: THE SEVENTEENTH CENTURY > 14. The Invention of Opera > The First Operas",
+        "excerpt": "The First Operas   301\nCaccini wrote numerous songs for solo voice with continuo in the 1580s and \n1"
+      }
+    ]
+  },
+  {
+    "id": "q-vt-01",
+    "question": "In the book's discussion of the attack, what German word do singers use for the beginning of a tone?",
+    "category": "exact_lookup",
+    "difficulty": "easy",
+    "document_hash": "d659ac363d8c7fd313257fe62ccc92480b1b17f22f787e96b07201795f41c682",
+    "document_filename": "Fundamentals of Great Vocal Technique... (Z-Library).pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "8980cb90f282f49672d6a31d63b4016ed2c99e601aec07e6f421af2e7e7ad092",
+        "page_start": 18,
+        "page_end": 64,
+        "section_path": "Fundamentals of Great Vocal Technique",
+        "excerpt": "darker, than the true potential and capabilities of the \nvoice. Remember the old dictum: “The invisi"
+      },
+      {
+        "chunk_content_hash": "2345849d5467e43e36300b4161b57c09d8bdb617b01b7f0b35946a75763b72e8",
+        "page_start": 18,
+        "page_end": 64,
+        "section_path": "Fundamentals of Great Vocal Technique",
+        "excerpt": "In German, the word \nAngriff (attack, based on the verb, angreifen (to grasp or grab at something), "
+      }
+    ]
+  },
+  {
+    "id": "q-vt-02",
+    "question": "According to this book, what causes a wobble or a tremolo in a singer's voice, and how does correct breathing prevent these faulty vibratos?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "d659ac363d8c7fd313257fe62ccc92480b1b17f22f787e96b07201795f41c682",
+    "document_filename": "Fundamentals of Great Vocal Technique... (Z-Library).pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "ae529a4f0a386578cdb0384eb6627bf30e6d1b79cedb1f16ea92adbcfb52509c",
+        "page_start": 18,
+        "page_end": 64,
+        "section_path": "Fundamentals of Great Vocal Technique",
+        "excerpt": "develop into great vocal artists. When \nthey perform without the assistance of amplification, which "
+      },
+      {
+        "chunk_content_hash": "6eb1b796812fd75bfc3d37e26e81e5d58050d9e218c4c12df0bcbc5c2cb545c6",
+        "page_start": 18,
+        "page_end": 64,
+        "section_path": "Fundamentals of Great Vocal Technique",
+        "excerpt": "action or reaction when inhaling or singing, the \nbreath should be inhaled as deeply as possible int"
+      }
+    ]
+  },
+  {
+    "id": "q-ph-01",
+    "question": "Pourquoi faut-il, selon ce livre, distinguer les mots « éthique » et « morale », et quelle répartition l'auteur propose-t-il de retenir entre ces deux termes ?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "7adfdb5945327338ac038cb8a72dc95c63e0d1f72eae0ed52f56f615f1219f9e",
+    "document_filename": "Philosophie_FrÃ_dÃ_ric_Laupies_z_library_sk,_1lib_sk,_z_lib_s.pdf",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "e308630d7669e327e186586833291dd51ad2c53c929a3fece24f3bad13acc8c2",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Philosophie_FrÃ_dÃ_ric_Laupies_z_library_sk,_1lib_sk,_z_lib_s.pdf",
+        "excerpt": " PROBLEME DES DEFINITIONS\n\nEnjeux de savoir, enjeux de pouvoir\n\nAlors que l’éthique connait une fave"
+      },
+      {
+        "chunk_content_hash": "3d48a29c724107f3c91b1b70a865d8a54569e25074d86e00e63ab1fddda10c33",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Philosophie_FrÃ_dÃ_ric_Laupies_z_library_sk,_1lib_sk,_z_lib_s.pdf",
+        "excerpt": " de remettre les pendules 4 l’heure juste.\n\nProblémes de langues\n\nPour commencer, examinons les term"
+      }
+    ]
+  },
+  {
+    "id": "q-wh-01",
+    "question": "Who narrates Wuthering Heights, and how does he find out the history of Heathcliff and the Earnshaw family?",
+    "category": "fiction",
+    "difficulty": "medium",
+    "document_hash": "1ae0633fbf56cbe298def55454020a5f8fd2ef7e83fbb475c2e1fd3ca24b9e7a",
+    "document_filename": "Wuthering_Heights_Emily_Brontë_z_library_sk,_1lib_sk,_z_lib_s.epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "981a85a6ee9e9cc568c8bfe69fc38170f4bbc86d430c72bb355da182d0cee192",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter I",
+        "excerpt": "Chapter I\n\nChapter I\n\n        1 801.   1   —I have just returned from a visit to my landlord—the sol"
+      },
+      {
+        "chunk_content_hash": "80f62fee2cedc5d934aec26c77ab6a4d14033faa2e06ebb053eccc677c7ac815",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter IV",
+        "excerpt": "Chapter IV\n\nChapter IV\n\n        W hat vain weather-cocks   ao    we are! I, who had determined to ho"
+      }
+    ]
+  },
+  {
+    "id": "q-wh-02",
+    "question": "What happens during Lockwood's night at Wuthering Heights in Chapter 3, when a ghost appears at the window?",
+    "category": "fiction",
+    "difficulty": "easy",
+    "document_hash": "1ae0633fbf56cbe298def55454020a5f8fd2ef7e83fbb475c2e1fd3ca24b9e7a",
+    "document_filename": "Wuthering_Heights_Emily_Brontë_z_library_sk,_1lib_sk,_z_lib_s.epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "3d8e99d22b47a3f0d7ef555aaea51c3a6b375dc03d20c4aaf4e73953a424eb71",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": "Chapter III\n\nChapter III\n\n        W hile leading the way upstairs, she recommended that I should hid"
+      },
+      {
+        "chunk_content_hash": "9abbdb70672a0c13f87ad188c804042bcd751b76eb5fcb71f5ee25df62e76493",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": " the famous Jabez Branderham preach, from the text—‘Seventy Times Seven;’   4    and either Joseph, "
+      },
+      {
+        "chunk_content_hash": "0e4e6dde5ceec9f8059fbfe48f2e086fb595d7f3d0dfe9bd2d9ceb05d5136bf6",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": ", my fingers closed on the fingers of a little, ice-cold hand! The intense horror of nightmare came "
+      },
+      {
+        "chunk_content_hash": "55ee9b3a14cbfee1f90741da11a0c0d4a3068aa5d1c05c01c6797f3a926c6eb8",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": "icked little soul! She told me she had been walking the earth these twenty years: a just punishment "
+      }
+    ]
+  },
+  {
+    "id": "q-wh-03",
+    "question": "Why does Catherine say she cannot marry Heathcliff, and how does she describe her love for him compared with her love for Edgar?",
+    "category": "fiction",
+    "difficulty": "medium",
+    "document_hash": "1ae0633fbf56cbe298def55454020a5f8fd2ef7e83fbb475c2e1fd3ca24b9e7a",
+    "document_filename": "Wuthering_Heights_Emily_Brontë_z_library_sk,_1lib_sk,_z_lib_s.epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "182177361a8fde44b956957f365f0d5bd4ec66065ff6e54f387784bb28c43764",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter IX",
+        "excerpt": ": I’m going to tell it—but take care not to smile at any part of it.’\n       ‘Oh! don’t, Miss Cather"
+      },
+      {
+        "chunk_content_hash": "6988bdfcae9040b8b7fefed17e801be5df5b62a8e6fffe0c866f9121105a200a",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter IX",
+        "excerpt": " Nelly, I see now you think me a selfish wretch; but did it never strike you that if Heathcliff and "
+      }
+    ]
+  },
+  {
+    "id": "q-fh-01",
+    "question": "Who is Deane Bradburn, and why do he and Jessica get off to a bad start when she arrives in Rwanda?",
+    "category": "fiction",
+    "difficulty": "easy",
+    "document_hash": "7ee1d2755feafcabea64ad217fbd887307c33de142b95da43eea5940e1028311",
+    "document_filename": "The_Fires_of_Heaven_docx_Lane_Roum_z_library_sk,_1lib_sk,.docx",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "1942aea4654c65568b3e421b8d2d413f4264caf22f4f0aa21acfb99c24734018",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The_Fires_of_Heaven_docx_Lane_Roum_z_library_sk,_1lib_sk,.docx",
+        "excerpt": "The_Fires_of_Heaven_docx_Lane_Roum_z_library_sk,_1lib_sk,.docx\n\nTHE FIRES OF HEAVEN\nRoumelia Lane\nOv"
+      },
+      {
+        "chunk_content_hash": "dc4477c73c7fb504bcc12c3be2439a2b80ad2232c65dbafddf8b31dff244d245",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER ONE",
+        "excerpt": "CHAPTER ONE\n\nThe river was like a lion's tail, a dull tawny yellow and so sharply visible that the s"
+      },
+      {
+        "chunk_content_hash": "4a13800d6c7430cb0f6fd35f4e01772feb8815c1433462fb793fc36fad56b35f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER ONE",
+        "excerpt": " main reaction was one of distrust. As he joined her in the rear seat compartment she couldn't fault"
+      },
+      {
+        "chunk_content_hash": "a46753abc1fc975cd5dde628a44233a94fefcd8837734bca61feaa20a765e85b",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER ONE"
+      }
+    ]
+  },
+  {
+    "id": "q-fh-02",
+    "question": "Why does Jessica believe Deane is heartbroken over Carla Maitland, and what does she learn about their relationship by the end of the novel?",
+    "category": "fiction",
+    "difficulty": "medium",
+    "document_hash": "7ee1d2755feafcabea64ad217fbd887307c33de142b95da43eea5940e1028311",
+    "document_filename": "The_Fires_of_Heaven_docx_Lane_Roum_z_library_sk,_1lib_sk,.docx",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "ff4046b1b3eb33be85bf54016862c5161acd19037eb59f0b922091057c01b2c7",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER TEN",
+        "excerpt": "CHAPTER TEN\n\nJessica herself was ready to leave the next day. She had rushed through the last of her"
+      },
+      {
+        "chunk_content_hash": "dd129c9a1e9ef94eed2479a57ccb78d4dc9bac152ce4f92fafd6640c69ba7471",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER TEN",
+        "excerpt": " the guy on the nose for his loutish behaviour,' he said darkly. He sought to find the hollow of her"
+      },
+      {
+        "chunk_content_hash": "f2a43a19e3e94b452dfc37722e949c3048343883debaf58b566af01331a0f347",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER TEN",
+        "excerpt": ". 'It's a bit of a sad story in a way. The Maitlands have never been able to understand their daught"
+      },
+      {
+        "chunk_content_hash": "9bb23b1178e34aaf5095f89e8f15641c0fd615b3bb83be5f1172fef735b24589",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER NINE",
+        "excerpt": "'s all right.' Jessica folded a handkerchief from her tiny indoor line.\n'We're flying to Kigali and "
+      }
+    ]
+  },
+  {
+    "id": "q-fr-01",
+    "question": "Why does the author argue that you cannot judge the quality of a decision just by its outcome, and how does he explain the idea of alternative histories?",
+    "category": "paraphrase",
+    "difficulty": "medium",
+    "document_hash": "929ebbc16a9b0220813213b252630854e27aef9ad585288249379f97747d619d",
+    "document_filename": "Fooled by Randomness - The Hidden Rol... (Z-Library).epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "9e113ce34d5e5d222a244fa70b87e1fd45070fb6947e99202e90c78b2bfec2fc",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Two",
+        "excerpt": "Chapter Two\n\nTwo\n •\n A BIZARRE ACCOUNTING METHOD\n    On alternative histories, a probabilistic view "
+      },
+      {
+        "chunk_content_hash": "525809787676443fb1046b45d415f6fd7abe6357750c84f424e5fb4bb1e0df30",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Two",
+        "excerpt": " across the highest number of different alternative histories; uncertainty concerns events that shou"
+      }
+    ]
+  },
+  {
+    "id": "q-fr-02",
+    "question": "Why does the author claim that a large population of investment managers will produce some with impressive track records even when none of them has real skill?",
+    "category": "paraphrase",
+    "difficulty": "hard",
+    "document_hash": "929ebbc16a9b0220813213b252630854e27aef9ad585288249379f97747d619d",
+    "document_filename": "Fooled by Randomness - The Hidden Rol... (Z-Library).epub",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a867f94698d86be90e8e20ee12ec605251741d96b8a23462a4fec54e7a711dca",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "PART II",
+        "excerpt": "PART II\n\nPart II\n •\n MONKEYS ON\nTYPEWRITERS\n   Survivorship and Other Biases\n  I f one puts an infin"
+      },
+      {
+        "chunk_content_hash": "4ff64bb9f1b1cbd1b62edf2cb7029ebf1a8c881a1b31bbb832b639ac53aa2d75",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Nine",
+        "excerpt": " might have been plain lucky in my life?” Well, nobody really believes that he or she was lucky. My "
+      },
+      {
+        "chunk_content_hash": "ae7184f40914be59a4490d9245da57c5c4102e53d3648de807d6d4e0b6df6e11",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Nine",
+        "excerpt": "%.What can we conclude?\n The first counterintuitive point is that a population entirely composed of "
+      }
+    ]
+  },
+  {
+    "id": "q-sd-01",
+    "question": "According to the Module 6 slides, what are the three main tree traversal methods?",
+    "category": "slide_deck",
+    "difficulty": "easy",
+    "document_hash": "22d5776cc268ee46895c7acc2054e11eea75bcacdf65691dc641dc9948a55074",
+    "document_filename": "5940_Mod6_PPT.pptx",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "58938aba950deb7e98c1fc787ca52e654e852819802bc450130db83d4c4d8392",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 59 > Three Main Traversal Methods",
+        "excerpt": "Three Main Traversal Methods\nThree Main Traversal Methods\nTraversal is the process of systematically"
+      },
+      {
+        "chunk_content_hash": "ad984fe63b4851a13680ebf2826bcb3e770bad4b1360ed9b7acd5d3270c1a4e0",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 88 > Summary",
+        "excerpt": "Summary\nSummary\nTraversal is the process of systematically visiting all nodes in a tree.\nPreorder: R"
+      },
+      {
+        "chunk_content_hash": "f3053f9ce41c953957ec359f6c1b83bb1a61ffeda77c9e5f2bd05b36523e492e",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 90 > Review: Tree Traversal Methods",
+        "excerpt": "Review: Tree Traversal Methods\nThree Main Traversal Methods:\nPreorder: Root, Left, Right\n\nInorder: L"
+      }
+    ]
+  },
+  {
+    "id": "q-sd-02",
+    "question": "What does Module 6 cover?",
+    "category": "slide_deck",
+    "difficulty": "medium",
+    "document_hash": "22d5776cc268ee46895c7acc2054e11eea75bcacdf65691dc641dc9948a55074",
+    "document_filename": "5940_Mod6_PPT.pptx",
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "e5049ac075aa781d9de9535442b0b93a147de2e0d08a2c7287fd3536a7549e03",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 1",
+        "excerpt": "Introduction to Binary Search Trees"
+      },
+      {
+        "chunk_content_hash": "9c8a21970fcbf02ad1c69ecb29a872cfbef2935a4f3c10e24f2a72ebf5819fd1",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 2",
+        "excerpt": "Java Lambda in Comparator\n(Optional Lecture)"
+      },
+      {
+        "chunk_content_hash": "83e3f58e96ead2ae42c7c18ba175f0d8a2300aa098ad2a9894ad6695f3e1779a",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 15 > So far….",
+        "excerpt": "So far….\nArrayList\n\nLinkedList\nSingly and Doubly LinkedList\nQueue and Stack\n\nHashSet\n\nTrees\nSo far…."
+      },
+      {
+        "chunk_content_hash": "c33f0e3db3ed0c4ff3804d354dda82d1efe544fa7818bcdd7069351736c8a141",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 56 > Summary",
+        "excerpt": "Summary\nTree Properties: acyclic, connected, and recursive structure\n\nBasic Definitions: \nRoot, pare"
+      },
+      {
+        "chunk_content_hash": "58938aba950deb7e98c1fc787ca52e654e852819802bc450130db83d4c4d8392",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 59 > Three Main Traversal Methods",
+        "excerpt": "Three Main Traversal Methods\nThree Main Traversal Methods\nTraversal is the process of systematically"
+      },
+      {
+        "chunk_content_hash": "fc6bfff9421d804c9c06f594744e701e68cfe00d07dee9c09a7c3b8e887668bb",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 165 > Summary",
+        "excerpt": "Summary\nSummary\nA Binary Search Tree (BST) stores smaller values in the left subtree and larger valu"
+      },
+      {
+        "chunk_content_hash": "18939d552014482b3cc23103ec04de3a49202ec449864bbba38e2289368d2ead",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 212 > Summary: Trees and Sets",
+        "excerpt": "Summary: Trees and Sets\nSummary: Trees and Sets\nBinary Search Trees are implemented in the Java Coll"
+      },
+      {
+        "chunk_content_hash": "d1b95ed5bb50627ef7de7693a5c15a19f3b301d528683b0ca2a10850103153f3",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5940_Mod6_PPT.pptx > Slide 233 > Summary",
+        "excerpt": "Summary\nSummary\nSorted Data Structure: TreeSet, TreeMap\n\nTo make objects sortable:\nUse Comparable wh"
+      }
+    ]
+  },
+  {
+    "id": "q-un-01",
+    "question": "Who won the 2026 FIFA World Cup?",
+    "category": "unanswerable",
+    "difficulty": "easy",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-02",
+    "question": "What is the capital of France?",
+    "category": "unanswerable",
+    "difficulty": "easy",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-03",
+    "question": "What is the current price of Bitcoin?",
+    "category": "unanswerable",
+    "difficulty": "easy",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-04",
+    "question": "Summarize the plot of the movie Inception.",
+    "category": "unanswerable",
+    "difficulty": "medium",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-05",
+    "question": "Explain how neural networks are trained, according to this book on Western music.",
+    "category": "unanswerable",
+    "difficulty": "hard",
+    "document_hash": "00cd55b71386d7b5a20b87a496855093d8667866c23f6c691c75d5e604b10a46",
+    "document_filename": "A History of Western Music Tenth.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-06",
+    "question": "What does Grokking Algorithms say about the history of opera?",
+    "category": "unanswerable",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-07",
+    "question": "What is the main theme of Dune?",
+    "category": "unanswerable",
+    "difficulty": "medium",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "q-un-08",
+    "question": "How do I bake sourdough bread?",
+    "category": "unanswerable",
+    "difficulty": "easy",
+    "document_hash": "",
+    "document_filename": "",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  }
+]

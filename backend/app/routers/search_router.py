@@ -48,6 +48,7 @@ class SearchResponse(BaseModel):
     results: list[SearchResultItem]
     search_mode: str = "hybrid"
     warnings: list[str] = []
+    latency_ms: dict[str, float] = Field(default_factory=dict)
 
 
 # Lazy-initialised retriever
@@ -117,4 +118,8 @@ async def search(request: SearchRequest) -> SearchResponse:
         ],
         search_mode=search_mode,
         warnings=meta.get("warnings", []),
+        latency_ms={
+            k: meta.get(k, 0.0)
+            for k in ("dense_latency_ms", "keyword_latency_ms", "fusion_latency_ms", "total_latency_ms")
+        },
     )

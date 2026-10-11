@@ -7,13 +7,14 @@ contexts)`` triples, then scores them with RAGAS. No golden corpus and no
 ground-truth answers are required for the default metric set - you just need a
 judge LLM and a backend that has already ingested documents.
 
-Documents are referenced by a human-readable ``document`` label (e.g.
-``"Grokking Algorithms"``) rather than a hard-coded UUID. At startup the script
-lists ``GET /api/documents`` and resolves each label to a ``document_id`` by
+Documents are referenced by an immutable ``content_hash`` (preferred) or a
+human-readable ``document`` label (e.g. ``"Grokking Algorithms"``). At startup
+the script lists ``GET /api/documents`` and resolves each question to a
+``document_id``: by exact ``content_hash`` match when present, else by
 normalized (alphanumeric-only, case-insensitive) substring match against the
-ingested ``filename``/``display_title``. Questions whose label matches zero or
-more than one document are reported and skipped, so re-ingesting the corpus (or
-moving it to a fresh machine) never invalidates the question set.
+ingested ``filename``/``display_title``. Questions matching zero or more than
+one document are reported and skipped, so re-ingesting the corpus (or moving
+it to a fresh machine) never invalidates the question set.
 
 Judge LLM: defaults to DeepSeek. Any OpenAI-compatible endpoint works.
 
@@ -24,11 +25,14 @@ Usage:
     python backend/scripts/ragas_eval.py --questions backend/scripts/ragas_questions.json --out ragas_report.json
     python backend/scripts/ragas_eval.py --questions eval_questions.json            # api defaults to localhost:8000
 
-Questions file - a JSON array. ``document`` is a filename label; ``reference`` is
-optional and enables the ground-truth metrics:
+Questions file - a JSON array. ``content_hash`` is the immutable binding;
+``document`` is a filename label fallback; ``reference`` is optional and
+enables the ground-truth metrics:
     [
-      {"question": "What does Chapter 3 cover?", "document": "Grokking Algorithms"},
-      {"question": "Explain binary search.", "document": "Grokking Algorithms", "reference": "..."},
+      {"question": "What does Chapter 3 cover?", "document": "Grokking Algorithms",
+       "content_hash": "<sha256>"},
+      {"question": "Explain binary search.", "document": "Grokking Algorithms",
+       "content_hash": "<sha256>", "reference": "..."},
       {"question": "What is the main topic?", "document": "Economics", "difficulty": "easy"},
       {"question": "Who won the 2026 World Cup?", "expect_refusal": true}
     ]
@@ -40,7 +44,7 @@ import argparse
 import json
 import math
 import os
-import re
+import re  # noqa: E402
 import sys
 from pathlib import Path
 
@@ -58,9 +62,8 @@ except Exception:  # pragma: no cover - python-dotenv is optional here
 import warnings  # noqa: E402
 
 import httpx  # noqa: E402  (openai depends on httpx, so it is available)
-from openai import OpenAI  # noqa: E402
-
 from langchain_huggingface import HuggingFaceEmbeddings as _LCHFEmbeddings  # noqa: E402
+from openai import OpenAI  # noqa: E402
 from ragas import EvaluationDataset, evaluate  # noqa: E402
 from ragas.embeddings import LangchainEmbeddingsWrapper  # noqa: E402
 from ragas.llms import llm_factory  # noqa: E402
@@ -105,16 +108,35 @@ def list_documents(api: str, notebook_id: str) -> list[dict]:
 
 
 def resolve_documents(documents: list[dict], questions: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Resolve each question's `document` label to a `document_id`.
+    """Resolve each question's document to a `document_id`.
 
-    Returns (resolved_questions, unresolved) where unresolved is a list of
-    {question, document, reason} for labels matching zero or >1 documents.
+    Preferred binding is an immutable `content_hash` on the entry (exact
+    match against the notebook's documents — immune to renames, re-uploads,
+    and same-title documents). The human-readable `document` label is the
+    fallback (normalized substring match). Returns (resolved, unresolved).
     """
     resolved: list[dict] = []
     unresolved: list[dict] = []
 
     for entry in questions:
         label = (entry.get("document") or "").strip()
+        entry_hash = (entry.get("content_hash") or "").strip()
+        if entry_hash:
+            matches = [d for d in documents if d.get("content_hash") == entry_hash]
+            if len(matches) == 1:
+                out = dict(entry)
+                out["document_ids"] = [matches[0]["document_id"]]
+                resolved.append(out)
+                continue
+            if not matches:
+                unresolved.append({"question": entry.get("question"), "document": label,
+                                   "reason": f"content_hash not found: {entry_hash[:12]}…"})
+                continue
+            names = ", ".join(d.get("filename", "?") for d in matches)
+            unresolved.append({"question": entry.get("question"), "document": label,
+                               "reason": f"content_hash matches >1 document: {names}"})
+            continue
+
         if not label:
             # No document scope: ask across the whole notebook.
             resolved.append(entry)
@@ -200,6 +222,9 @@ _REFUSAL_PHRASES = (
     "out of scope",
 )
 
+# See retrieval_eval.py `_is_refusal` for the calibration rationale.
+_CONTRAST_PIVOTS = (" but ", " however", " although", " instead", ", though")
+
 
 def _classify_skip(agent_status: str, answer: str) -> str | None:
     """Return a skip reason for a refusal/clarification, else None (scoreable)."""
@@ -209,9 +234,14 @@ def _classify_skip(agent_status: str, answer: str) -> str | None:
         return "clarification_needed"
     if agent_status != "completed":
         return f"non-completed: {agent_status}"
-    if any(p in answer.lower() for p in _REFUSAL_PHRASES):
-        return "refused (refusal wording in answer)"
-    return None
+    head = answer.lower()[:200]
+    positions = [head.find(p) for p in _REFUSAL_PHRASES if p in head]
+    if not positions:
+        return None
+    tail = head[min(positions):]
+    if any(p in tail for p in _CONTRAST_PIVOTS):
+        return None
+    return "refused (refusal wording in answer)"
 
 
 def main() -> int:
