@@ -87,6 +87,12 @@ class AppConfig:
     rerank_enabled: bool = field(
         default_factory=lambda: os.getenv("RERANK_ENABLED", "false").lower() == "true"
     )
+    # Eval-only: force reranking for every planner task (instead of the
+    # task-conditional set). Lets Phase 1 of the retrieval roadmap measure
+    # always-on reranking without changing production behavior.
+    rerank_force_all: bool = field(
+        default_factory=lambda: os.getenv("RERANK_FORCE_ALL", "false").lower() == "true"
+    )
     rerank_top_n: int = field(
         default_factory=lambda: int(os.getenv("RERANK_TOP_N", "20"))
     )

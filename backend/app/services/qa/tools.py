@@ -15,8 +15,10 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
+from ...core.config import config
 from ...repositories.chunk_repository import (
     get_chunks_by_document,
     get_chunks_by_section_prefix,
@@ -37,8 +39,6 @@ from ..retrieval.reranker import rerank_results
 from ..retrieval.retriever import HybridRetriever
 from ..retrieval.search_filters import SearchFilters
 from ..retrieval.search_options import SearchOptions
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
 from ..web_search import DisabledWebSearchProvider, WebSearchProvider, fetch_page_content
 from .agent_planner import PlanResult, ToolCall
 from .citations import (
@@ -47,7 +47,7 @@ from .citations import (
     _dedupe_chunks as _citations_dedupe_chunks,
     _finalize_chunk_citations as _citations_finalize_chunk_citations,
     _next_ref_label as _citations_next_ref_label,
-    finalize_merged_citations,
+    finalize_merged_citations,  # re-export (kept importable from tools)
 )
 from .section_labels import (
     extract_numbered_section_label,
@@ -84,6 +84,8 @@ _profile_selector = ProfileSelector()
 
 def _should_rerank(task: str) -> bool:
     """Return True if the planner task benefits from LLM reranking."""
+    if config.rerank_force_all:  # eval-only override (RERANK_FORCE_ALL)
+        return True
     return task in _RERANK_TASKS
 
 

@@ -88,6 +88,13 @@ def test_ranking_metrics_empty_ground_truth_skipped_by_caller(eval_module):
                       "unrelated topics: a Wikipedia page about opera "
                       "[S1][S2], a sample ODT file explaining placeholder "
                       "text.", True),
+        # "no reliable" alone is not a refusal (observed on q-vt-02): the
+        # agent hedged about chapter boundaries, then answered
+        ("completed", "No reliable chapter boundary was found for a section "
+                      "on vibrato, so the following is drawn from the "
+                      "passages that were retrieved. The book treats wobble "
+                      "and tremolo as breath-management problems rather than "
+                      "as separate vocal defects.", False),
     ],
 )
 def test_refusal_classification(eval_module, status, answer, expected):

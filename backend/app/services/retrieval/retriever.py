@@ -100,9 +100,12 @@ class HybridRetriever:
 
         t_total_start = time.monotonic()
 
+        dense_enabled = options is None or options.dense_enabled
+        keyword_enabled = options is None or options.keyword_enabled
+
         # Check dense health
-        self._dense_healthy = self._check_dense_health()
-        if not self._dense_healthy:
+        self._dense_healthy = self._check_dense_health() if dense_enabled else None
+        if dense_enabled and not self._dense_healthy:
             meta["dense_available"] = False
             meta["warnings"].append("Dense search unavailable — using keyword-only search")
 
@@ -111,12 +114,15 @@ class HybridRetriever:
         if options is not None and options.profile_name:
             profile = load_profile(options.profile_name)
 
-        # Try embedding for dense
-        query_vector, embed_error = self._embed_query_safe(query)
-        if embed_error:
-            meta["embedding_error"] = embed_error
-            meta["dense_available"] = False
-            meta["warnings"].append("Query embedding failed — dense search skipped")
+        # Try embedding for dense (skipped entirely when dense is disabled)
+        query_vector: list[float] | None = None
+        embed_error: str | None = None
+        if dense_enabled:
+            query_vector, embed_error = self._embed_query_safe(query)
+            if embed_error:
+                meta["embedding_error"] = embed_error
+                meta["dense_available"] = False
+                meta["warnings"].append("Query embedding failed — dense search skipped")
 
         # Run both backends — fetch more when reranker needs a wider window
         fetch_k = top_k * max(profile.dense_fetch_k_mult, profile.keyword_fetch_k_mult)
@@ -125,19 +131,27 @@ class HybridRetriever:
             fetch_k = max(fetch_k, min(self._rerank_top_n * 2, 50))
             rfuse_k = max(top_k, min(self._rerank_top_n, fetch_k))
 
-        t_dense_start = time.monotonic()
-        dense_results, dense_error = self._dense_search(query_vector, notebook_id, fetch_k, document_ids)
-        meta["dense_latency_ms"] = round((time.monotonic() - t_dense_start) * 1000, 2)
-        if dense_error:
-            meta["dense_error"] = dense_error
-            meta["warnings"].append("Dense search failed")
+        if dense_enabled:
+            t_dense_start = time.monotonic()
+            dense_results, dense_error = self._dense_search(query_vector, notebook_id, fetch_k, document_ids)
+            meta["dense_latency_ms"] = round((time.monotonic() - t_dense_start) * 1000, 2)
+            if dense_error:
+                meta["dense_error"] = dense_error
+                meta["warnings"].append("Dense search failed")
+        else:
+            dense_results = []
+            meta["dense_disabled"] = True
 
-        t_fts_start = time.monotonic()
-        fts_results, fts_error = self._fts_search(notebook_id, query, fetch_k, document_ids)
-        meta["keyword_latency_ms"] = round((time.monotonic() - t_fts_start) * 1000, 2)
-        if fts_error:
-            meta["keyword_error"] = fts_error
-            meta["warnings"].append("Keyword search failed")
+        if keyword_enabled:
+            t_fts_start = time.monotonic()
+            fts_results, fts_error = self._fts_search(notebook_id, query, fetch_k, document_ids)
+            meta["keyword_latency_ms"] = round((time.monotonic() - t_fts_start) * 1000, 2)
+            if fts_error:
+                meta["keyword_error"] = fts_error
+                meta["warnings"].append("Keyword search failed")
+        else:
+            fts_results = []
+            meta["keyword_disabled"] = True
 
         # Post-filter results when scoped retrieval is active (Module E)
         if options is not None and options.filters is not None and options.filters.has_any_filter():

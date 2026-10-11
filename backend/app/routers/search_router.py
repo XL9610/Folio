@@ -12,9 +12,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..repositories.notebook_repository import get_notebook, get_or_create_default
-from ..services.retrieval.retriever import HybridRetriever
 from ..services.embedding.sentence_transformer_embedder import SentenceTransformerEmbedder
 from ..services.index.sqlite_vec_store import SqliteVecStore
+from ..services.retrieval.retriever import HybridRetriever
+from ..services.retrieval.search_options import SearchOptions
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ class SearchRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Search query")
     top_k: int = Field(10, ge=1, le=50, description="Max results")
     document_ids: list[str] | None = Field(None, description="Optional filter: only search these documents")
+    dense_enabled: bool = Field(True, description="Run the dense backend (eval toggle)")
+    keyword_enabled: bool = Field(True, description="Run the keyword backend (eval toggle)")
 
 
 class SearchResultItem(BaseModel):
@@ -91,11 +94,20 @@ async def search(request: SearchRequest) -> SearchResponse:
         query=request.query,
         top_k=request.top_k,
         document_ids=request.document_ids,
+        options=SearchOptions(
+            dense_enabled=request.dense_enabled,
+            keyword_enabled=request.keyword_enabled,
+        ),
     )
 
-    search_mode = "hybrid"
-    if not meta.get("dense_available", True):
+    if not request.dense_enabled:
         search_mode = "keyword_only"
+    elif not request.keyword_enabled:
+        search_mode = "dense_only"
+    else:
+        search_mode = "hybrid"
+        if not meta.get("dense_available", True):
+            search_mode = "keyword_only"
 
     return SearchResponse(
         notebook_id=notebook_id,

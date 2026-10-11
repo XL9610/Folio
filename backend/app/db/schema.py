@@ -420,6 +420,30 @@ def _drop_study_plans(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS study_plans")
 
 
+def _backfill_vec_notebook_ids(conn: sqlite3.Connection) -> None:
+    """Repair chunks_vec rows indexed with an empty notebook_id (one-time).
+
+    The 2026-09-21 migration from Qdrant to sqlite-vec left some rows with an
+    empty notebook_id payload; dense search filters on notebook_id, so those
+    rows were invisible to dense retrieval. One correlated UPDATE re-derives
+    the value from the document (measured ~250 ms for 7.6k rows). Idempotent.
+    Safe on connections without sqlite-vec loaded (OperationalError, ignored).
+    """
+    try:
+        cur = conn.execute(
+            "UPDATE chunks_vec SET notebook_id = COALESCE("
+            "(SELECT notebook_id FROM source_documents "
+            " WHERE source_documents.id = chunks_vec.document_id), '') "
+            "WHERE notebook_id = ?",
+            ("",),
+        )
+    except sqlite3.OperationalError:
+        return  # vec table not present, or vec0 not loaded on this connection
+    if cur.rowcount > 0:
+        conn.commit()
+        logger.info("Backfilled notebook_id for %d dense-index rows", cur.rowcount)
+
+
 def run_migrations(conn: sqlite3.Connection) -> None:
     """Run any pending schema migrations."""
     _ensure_column(conn, "source_documents", "display_title", "TEXT NOT NULL DEFAULT ''")
@@ -437,6 +461,7 @@ def run_migrations(conn: sqlite3.Connection) -> None:
     _migrate_app_config_to_env(conn)
     _migrate_ingestion_jobs(conn)
     _drop_study_plans(conn)
+    _backfill_vec_notebook_ids(conn)
 
 
 # Legacy DB app_config keys → environment variable names. The app_config KV

@@ -23,3 +23,7 @@ class SearchOptions:
     rerank_top_n: int = 20
     filters: SearchFilters | None = None
     boost_config: BoostConfig | None = None
+    # Per-request backend toggles (used by the retrieval eval to measure each
+    # backend's contribution; production paths leave both enabled).
+    dense_enabled: bool = True
+    keyword_enabled: bool = True

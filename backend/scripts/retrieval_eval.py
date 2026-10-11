@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
-"""Retrieval-only eval against a fixed ground-truth question set (PRD Phase 0).
+"""Retrieval-only eval against a fixed ground-truth question set (PRD Phase 0/1).
 
 No LLM judge: ranking metrics are computed deterministically against
 ground-truth chunks bound by immutable content hashes. Runs against the
 running backend:
 
   - ``POST /api/search``   -> ranked chunks + per-stage latency
-  - ``POST /api/ask``      -> refusal classification only (agent_status +
-    refusal wording), plus a second look at which ground-truth chunks the
-    full ask pipeline actually retrieved
+  - ``POST /api/ask``      -> full ask pipeline (refusal classification,
+    tool-trace-derived rerank accounting, client-side wall time)
+
+Variants (--variants, Phase 1 of the roadmap):
+  fts        keyword backend only
+  dense      dense backend only
+  rrf        dense + FTS + RRF fusion (the base retriever)
+  ask        the complete ask pipeline (planner, query expansion, scoping,
+             boosts, multi-round) — ranking scored on the chunks it
+             actually retrieved, in the order generation saw them
+  ask_rerank the ask pipeline with always-on LLM reranking — run against a
+             backend started with RERANK_ENABLED=true RERANK_FORCE_ALL=true
 
 Ground-truth questions file (JSON array):
 
@@ -36,13 +45,15 @@ Chunk and document identity is content-hash based, so re-ingesting the corpus
 hashes no longer resolve is reported as an extraction/chunking failure, not
 silently scored.
 
-Metrics: Recall@5, Recall@10, Precision@10, MRR@10, nDCG@10, refusal
-precision/recall, and mean/median dense/keyword/fusion/total latency.
+Metrics per variant: Recall@5, Recall@10, Precision@10, MRR@10, nDCG@10,
+refusal precision/recall (ask variants), latency, and rerank LLM calls
+(ask variants, from the tool trace).
 
 Usage:
     python backend/scripts/retrieval_eval.py \\
         --questions backend/scripts/retrieval_ground_truth.json \\
-        --out .scratch/retrieval-quality-roadmap/phase0-report.json
+        --variants fts,dense,rrf,ask \\
+        --out .scratch/retrieval-quality-roadmap/phase1-report.json
 """
 
 from __future__ import annotations
@@ -53,12 +64,16 @@ import json
 import math
 import sqlite3
 import sys
+import time
 from pathlib import Path
 
 import httpx
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _DEFAULT_DB = _REPO_ROOT / "local-data" / "rag_companion.db"
+
+_ALL_VARIANTS = ("fts", "dense", "rrf", "ask", "ask_rerank")
+_SEARCH_VARIANT_FLAGS = {"fts": {"dense_enabled": False}, "dense": {"keyword_enabled": False}, "rrf": {}}
 
 _REFUSAL_PHRASES = (
     "does not cover",
@@ -67,7 +82,8 @@ _REFUSAL_PHRASES = (
     "don't have any material",
     "no material on",
     "cannot be identified from the source",
-    "no reliable",
+    "no reliable answer",
+    "no reliable information",
     "does not discuss",
     "doesn't discuss",
     "does not mention",
@@ -162,8 +178,8 @@ def _resolve(question: dict, documents: list[dict], con: sqlite3.Connection) -> 
 # ---------------------------------------------------------------------------
 
 
-def _search(api: str, question: str, notebook_id: str, document_ids: list[str], top_k: int) -> dict:
-    payload: dict = {"notebook_id": notebook_id, "query": question, "top_k": top_k}
+def _search(api: str, question: str, notebook_id: str, document_ids: list[str], top_k: int, **extra) -> dict:
+    payload: dict = {"notebook_id": notebook_id, "query": question, "top_k": top_k, **extra}
     if document_ids:
         payload["document_ids"] = document_ids
     with httpx.Client(timeout=60) as client:
@@ -225,9 +241,15 @@ def main() -> int:
     parser.add_argument("--notebook-id", default="default", help="Notebook to evaluate (default %(default)s)")
     parser.add_argument("--db", type=Path, default=_DEFAULT_DB, help="SQLite DB for chunk/hash resolution")
     parser.add_argument("--top-k", type=int, default=10, help="Chunks to retrieve per question (default %(default)s)")
-    parser.add_argument("--no-ask", action="store_true", help="Skip /api/ask calls (drops refusal metrics)")
+    parser.add_argument("--variants", default=",".join(_ALL_VARIANTS),
+                        help="Comma-separated variants to run (default: all five)")
     parser.add_argument("--out", type=Path, help="Write JSON report here (sibling .md summary is always written)")
     args = parser.parse_args()
+
+    variants = [v.strip() for v in args.variants.split(",") if v.strip()]
+    unknown = [v for v in variants if v not in _ALL_VARIANTS]
+    if unknown:
+        sys.exit(f"Unknown variants: {unknown}; choose from {_ALL_VARIANTS}")
 
     questions = _load_ground_truth(args.questions)
     if not isinstance(questions, list) or not questions:
@@ -256,67 +278,67 @@ def main() -> int:
         _search(args.api, "warmup query", args.notebook_id, [], args.top_k)
 
     rows: list[dict] = []
-    latencies: dict[str, list[float]] = {k: [] for k in ("dense", "keyword", "fusion", "total")}
-    for q in resolved:
-        entry = {
-            "id": q.get("id"),
-            "question": q.get("question"),
-            "category": q.get("category", ""),
-            "difficulty": q.get("difficulty", ""),
-            "expect_refusal": bool(q.get("expect_refusal")),
-            "document_filename": q.get("document_filename", ""),
-        }
-        try:
-            s = _search(args.api, q["question"], args.notebook_id, q["document_ids"], args.top_k)
-        except Exception as exc:
-            rows.append({**entry, "failure": f"search failed: {exc}"})
-            continue
+    latencies: dict[str, dict[str, list[float]]] = {v: {} for v in variants}
+    for variant in variants:
+        for q in resolved:
+            entry = {
+                "id": q.get("id"),
+                "question": q.get("question"),
+                "category": q.get("category", ""),
+                "difficulty": q.get("difficulty", ""),
+                "expect_refusal": bool(q.get("expect_refusal")),
+                "document_filename": q.get("document_filename", ""),
+                "variant": variant,
+            }
+            gt = q["gt_chunk_hashes"]
 
-        entry["search_mode"] = s.get("search_mode")
-        for k in latencies:
-            v = (s.get("latency_ms") or {}).get(f"{k}_latency_ms")
-            if isinstance(v, int | float):
-                latencies[k].append(float(v))
-        entry["latency_ms"] = s.get("latency_ms")
+            if variant in _SEARCH_VARIANT_FLAGS:
+                if q.get("expect_refusal"):  # nothing rankable without ground truth
+                    continue
+                try:
+                    s = _search(args.api, q["question"], args.notebook_id, q["document_ids"],
+                                args.top_k, **_SEARCH_VARIANT_FLAGS[variant])
+                except Exception as exc:
+                    rows.append({**entry, "failure": f"search failed: {exc}"})
+                    continue
+                entry["search_mode"] = s.get("search_mode")
+                for stage, v in (s.get("latency_ms") or {}).items():
+                    if isinstance(v, int | float):
+                        latencies[variant].setdefault(stage, []).append(float(v))
+                entry["latency_ms"] = s.get("latency_ms")
+                ranked_hashes = [chunk_hash_by_id.get((r.get("chunk_id") or ""), "")
+                                 for r in s.get("results", [])]
+                entry.update(_ranking_metrics(ranked_hashes, gt))
+                rows.append(entry)
+                continue
 
-        ranked = [(r.get("chunk_id") or "") for r in s.get("results", [])]
-        ranked_hashes = [chunk_hash_by_id.get(c, "") for c in ranked]
-        gt = q["gt_chunk_hashes"]
-        if gt:
-            m = _ranking_metrics(ranked_hashes, gt)
-            entry.update(m)
-            if m["hit_rank"] is None:
-                entry["attribution"] = "not_recalled_top10"
-            elif m["hit_rank"] > 5:
-                entry["attribution"] = "recalled_rank6to10"
-            else:
-                entry["attribution"] = "recalled_top5"
+            # ask / ask_rerank: full pipeline
+            t0 = time.monotonic()
+            try:
+                a = _ask(args.api, q["question"], args.notebook_id, q["document_ids"], args.top_k)
+            except Exception as exc:
+                rows.append({**entry, "failure": f"ask failed: {exc}"})
+                continue
+            entry["wall_ms"] = round((time.monotonic() - t0) * 1000, 1)
 
-        if args.no_ask:
+            entry["agent_status"] = a.get("agent_status", "")
+            answer = (a.get("answer") or "").strip()
+            entry["refused"] = _is_refusal(entry["agent_status"], answer)
+            if entry["refused"]:
+                entry["refusal_evidence"] = answer  # full text: classification must be auditable
+
+            trace = a.get("tool_trace", [])
+            entry["rerank_calls"] = sum(1 for t in trace if (t.get("args") or {}).get("reranked"))
+            entry["retrieval_rounds"] = sum(1 for t in trace if t.get("name") == "retrieve_chunks")
+
+            ask_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])
+                       if not str(c.get("chunk_id", "")).startswith("web:")]
+            ranked_hashes = [chunk_hash_by_id.get(c, "") for c in ask_ids[: args.top_k]]
+            if gt:
+                entry.update(_ranking_metrics(ranked_hashes, gt))
             rows.append(entry)
-            continue
 
-        try:
-            a = _ask(args.api, q["question"], args.notebook_id, q["document_ids"], args.top_k)
-        except Exception as exc:
-            rows.append({**entry, "failure": f"ask failed: {exc}"})
-            continue
-        entry["agent_status"] = a.get("agent_status", "")
-        answer = (a.get("answer") or "").strip()
-        entry["refused"] = _is_refusal(entry["agent_status"], answer)
-        if entry["refused"]:
-            entry["refusal_evidence"] = answer  # full text: classification must be auditable
-
-        # Second look: did the full ask pipeline retrieve the ground truth even
-        # when single-shot search did not?
-        if gt and entry.get("attribution") == "not_recalled_top10":
-            ask_chunk_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])]
-            ask_hashes = {chunk_hash_by_id.get(c, "") for c in ask_chunk_ids}
-            if ask_hashes & gt:
-                entry["attribution"] = "recalled_by_ask_pipeline"
-        rows.append(entry)
-
-    # ── Aggregates ──
+    # ── Aggregates per variant ──
     def _mean(vals: list[float]) -> float | None:
         return round(sum(vals) / len(vals), 4) if vals else None
 
@@ -328,48 +350,63 @@ def main() -> int:
         return round((s[mid] if len(s) % 2 else (s[mid - 1] + s[mid]) / 2), 2)
 
     metric_names = ("recall_at_5", "recall_at_10", "precision_at_10", "mrr_at_10", "ndcg_at_10")
-    means = {
-        name: _mean([r[name] for r in rows if isinstance(r.get(name), int | float) and name in r])
-        for name in metric_names
-    }
-
-    answerable = [r for r in rows if not r.get("expect_refusal")]
-    refusal_rows = [r for r in rows if r.get("expect_refusal") or r.get("refused")]
-    expect_refusal_rows = [r for r in rows if r.get("expect_refusal")]
-    refusal_recall = (
-        sum(1 for r in expect_refusal_rows if r.get("refused")) / len(expect_refusal_rows)
-        if expect_refusal_rows else None
-    )
-    refusal_precision = (
-        sum(1 for r in refusal_rows if r.get("expect_refusal")) / len(refusal_rows)
-        if refusal_rows else None
-    )
-    false_refusals = [r for r in answerable if r.get("refused")]
-    false_refusal_rate = (len(false_refusals) / len(answerable)) if answerable else None
-
-    attribution_counts: dict[str, int] = {}
-    for r in answerable:
-        key = r.get("attribution") or r.get("failure") or "unscored"
-        attribution_counts[key] = attribution_counts.get(key, 0) + 1
+    variant_metrics: dict[str, dict] = {}
+    for variant in variants:
+        vrows = [r for r in rows if r.get("variant") == variant]
+        answerable = [r for r in vrows if not r.get("expect_refusal")]
+        vm: dict = {
+            "n_questions": len(vrows),
+            "metric_means": {
+                name: _mean([r[name] for r in vrows if isinstance(r.get(name), int | float)])
+                for name in metric_names
+            },
+        }
+        if variant in ("ask", "ask_rerank"):
+            expect_refusal_rows = [r for r in vrows if r.get("expect_refusal")]
+            refused_rows = [r for r in vrows if r.get("refused")]
+            vm["refusal_recall"] = (
+                round(sum(1 for r in expect_refusal_rows if r.get("refused")) / len(expect_refusal_rows), 4)
+                if expect_refusal_rows else None
+            )
+            vm["refusal_precision"] = (
+                round(sum(1 for r in refused_rows if r.get("expect_refusal")) / len(refused_rows), 4)
+                if refused_rows else None
+            )
+            vm["false_refusals"] = [r["id"] for r in answerable if r.get("refused")]
+            vm["llm_calls"] = {
+                "rerank_calls_total": sum(r.get("rerank_calls", 0) for r in vrows),
+                "retrieval_rounds_total": sum(r.get("retrieval_rounds", 0) for r in vrows),
+            }
+            wall = [r["wall_ms"] for r in vrows if isinstance(r.get("wall_ms"), int | float)]
+            vm["wall_ms"] = {"mean": _mean(wall), "median": _median(wall), "n": len(wall)}
+        else:
+            vm["latency_ms"] = {
+                stage: {"mean": _mean(v), "median": _median(v), "n": len(v)}
+                for stage, v in latencies.get(variant, {}).items()
+            }
+        # failure attribution over answerable rows
+        attr: dict[str, int] = {}
+        for r in answerable:
+            if r.get("hit_rank") is None:
+                key = r.get("failure") or "not_recalled_top10"
+            elif r["hit_rank"] > 5:
+                key = "recalled_rank6to10"
+            else:
+                key = "recalled_top5"
+            attr[key] = attr.get(key, 0) + 1
+        vm["attribution_counts"] = attr
+        variant_metrics[variant] = vm
 
     report = {
         "api": args.api,
         "notebook_id": args.notebook_id,
         "db": str(args.db),
         "top_k": args.top_k,
+        "variants_run": variants,
         "n_questions": len(questions),
         "n_resolved": len(resolved),
         "unresolved": unresolved,
-        "metric_means": means,
-        "refusal_recall": round(refusal_recall, 4) if refusal_recall is not None else None,
-        "refusal_precision": round(refusal_precision, 4) if refusal_precision is not None else None,
-        "false_refusal_rate": round(false_refusal_rate, 4) if false_refusal_rate is not None else None,
-        "false_refusals": [{"id": r["id"], "question": r["question"], "evidence": r.get("refusal_evidence", "")} for r in false_refusals],
-        "latency_ms": {
-            k: {"mean": _mean(v), "median": _median(v), "n": len(v)}
-            for k, v in latencies.items()
-        },
-        "attribution_counts": attribution_counts,
+        "variant_metrics": variant_metrics,
         "rows": rows,
     }
 
@@ -383,46 +420,59 @@ def main() -> int:
 
 def _write_markdown(report: dict, path: Path) -> None:
     lines = [
-        "# Phase 0 retrieval-only eval",
+        "# Retrieval eval (Phase 1 variants)",
         "",
         f"- API: {report['api']} · notebook: {report['notebook_id']} · top_k: {report['top_k']}",
+        f"- Variants run: {', '.join(report['variants_run'])}",
         f"- Questions: {report['n_questions']} total, {report['n_resolved']} resolved",
         "",
-        "## Retrieval metrics (mean over answerable questions)",
+        "## Metric means by variant (answerable questions)",
         "",
-        "| Metric | Value |",
-        "|---|---|",
+        "| Variant | Recall@5 | Recall@10 | Prec@10 | MRR@10 | nDCG@10 |",
+        "|---|---|---|---|---|---|",
     ]
-    for name, val in report["metric_means"].items():
-        lines.append(f"| {name} | {val} |")
-    lines += [
-        "",
-        "## Refusal",
-        "",
-        f"- refusal recall: {report['refusal_recall']}",
-        f"- refusal precision: {report['refusal_precision']}",
-        f"- false refusal rate (answerable questions wrongly refused): {report['false_refusal_rate']}",
-        "",
-        "## Latency (ms)",
-        "",
-        "| Stage | Mean | Median | n |",
-        "|---|---|---|---|",
-    ]
-    for k, v in report["latency_ms"].items():
-        lines.append(f"| {k} | {v['mean']} | {v['median']} | {v['n']} |")
-    lines += ["", "## Failure attribution (answerable questions)", "", "| Cause | Count |", "|---|---|"]
-    for cause, n in sorted(report["attribution_counts"].items(), key=lambda kv: -kv[1]):
-        lines.append(f"| {cause} | {n} |")
+    for variant, vm in report["variant_metrics"].items():
+        m = vm["metric_means"]
+        lines.append(f"| {variant} | {m['recall_at_5']} | {m['recall_at_10']} | "
+                     f"{m['precision_at_10']} | {m['mrr_at_10']} | {m['ndcg_at_10']} |")
+    lines += ["", "## Refusal and LLM calls (ask variants)", ""]
+    for variant in ("ask", "ask_rerank"):
+        vm = report["variant_metrics"].get(variant)
+        if not vm:
+            continue
+        lines += [
+            f"### {variant}",
+            f"- refusal recall: {vm.get('refusal_recall')} · refusal precision: {vm.get('refusal_precision')}",
+            f"- false refusals (answerable wrongly refused): {vm.get('false_refusals')}",
+            f"- rerank LLM calls (total): {vm['llm_calls']['rerank_calls_total']} · "
+            f"retrieval rounds (total): {vm['llm_calls']['retrieval_rounds_total']}",
+            f"- wall ms: mean {vm['wall_ms']['mean']} · median {vm['wall_ms']['median']} (n={vm['wall_ms']['n']})",
+            "",
+        ]
+    lines += ["## Latency (search variants, ms)", ""]
+    for variant in ("fts", "dense", "rrf"):
+        vm = report["variant_metrics"].get(variant)
+        if not vm:
+            continue
+        lines.append(f"### {variant}")
+        for stage, v in vm.get("latency_ms", {}).items():
+            lines.append(f"- {stage}: mean {v['mean']} · median {v['median']} (n={v['n']})")
+        lines.append("")
+    lines += ["## Failure attribution by variant (answerable questions)", ""]
+    for variant, vm in report["variant_metrics"].items():
+        lines.append(f"### {variant}")
+        for cause, n in sorted(vm["attribution_counts"].items(), key=lambda kv: -kv[1]):
+            lines.append(f"- {cause}: {n}")
+        lines.append("")
     if report["unresolved"]:
-        lines += ["", "## Ground truth not resolvable (extraction/chunking changed?)", ""]
+        lines += ["## Ground truth not resolvable (extraction/chunking changed?)", ""]
         for u in report["unresolved"]:
             lines.append(f"- {u['id']}: {u['question']}")
     lines += ["", "## Per-question rows", ""]
     for r in report["rows"]:
         m = " ".join(f"{k}={r[k]}" for k in ("recall_at_10", "hit_rank", "ndcg_at_10") if r.get(k) is not None)
-        att = f" [{r.get('attribution')}]" if r.get("attribution") else ""
         ref = " REFUSED" if r.get("refused") else ""
-        lines.append(f"- `{r['id']}` {r['question'][:70]}{att}{ref} {m}")
+        lines.append(f"- `{r['variant']}:{r['id']}` {r['question'][:60]}{ref} {m}")
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
