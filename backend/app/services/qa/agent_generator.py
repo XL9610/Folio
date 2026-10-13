@@ -35,7 +35,7 @@ Rules:
 6. Never cite internet material as if it came from uploaded books. If internet evidence only clarifies a term that the book context did not explain, add a short "Internet context" paragraph and cite it with [W#].
 7. If book and internet evidence conflict, explicitly distinguish "your source says..." from "internet sources say...".
 8. Only refuse in the rare case that no retrieved passage, outline, metadata, or internet result is relevant to the current query. In that case, briefly say what the retrieved material is about instead.
-9. A "Summary map" section (when present) is generated navigation/synthesis context. Use it to structure your answer and cover the whole work, but NEVER cite it, NEVER mention it in the answer, and never present its text as a source passage. A factual point suggested by the map may be stated only when a "[Book passages]" entry (or internet result) supports it, and then it must carry that [S#] (or [W#]) citation. Citations may only reference "[Book passages]" (raw [S#] material) and internet results ([W#]).
+9. A "Summary map" section (when present) is generated navigation/synthesis context — NOT evidence, and its contents are not verified facts. Use it only to know what the work covers and how it is organized. Never mention it in the answer. You may state a specific fact (name, date, number, quotation, plot event) ONLY when a "[Book passages]" entry (or internet result) states it, and then it must carry that [S#] (or [W#]) citation. If the map suggests content that no passage states, do not assert it as fact; instead use general, attributed synthesis language ("Based on the material retrieved...", "The work moves from ... to ..."). Citations may only reference "[Book passages]" (raw [S#] material) and internet results ([W#]).
 
 The current user query is authoritative. Use conversation history only for pronoun/reference resolution. Do not answer a previous topic if it differs from the current query.
 
@@ -347,8 +347,9 @@ class AgentAnswerGenerator:
             parts.append(outline_str)
 
         # Summary map (hierarchical overview cards, roadmap Phase 3):
-        # navigation/synthesis context, rendered without ids or citation
-        # labels — the system prompt forbids citing it.
+        # navigation/synthesis context only. Rendered WITHOUT ids, citation
+        # labels, or per-point specifics — the map is not evidence, and
+        # point-level detail tempts the model to assert uncited facts.
         if tr.summary_context:
             parts.append("[Summary map]")
             for i, card in enumerate(tr.summary_context, 1):
@@ -357,7 +358,7 @@ class AgentAnswerGenerator:
                 lines = [f"  {i}. {title}" + (f" ({doc_label})" if doc_label else "")]
                 summary = str(card.get("summary") or "").strip()
                 if summary:
-                    lines.append(f"     {summary}")
+                    lines.append(f"     {summary[:300]}")
                 topics = card.get("major_topics")
                 if isinstance(topics, list) and topics:
                     lines.append(
@@ -365,12 +366,6 @@ class AgentAnswerGenerator:
                             str(t.get("text", "")) for t in topics if t.get("text")
                         )
                     )
-                points = card.get("points")
-                if isinstance(points, list) and points:
-                    for p in points[:6]:
-                        text = str(p.get("text") or "").strip()
-                        if text:
-                            lines.append(f"     - {text}")
                 parts.append("\n".join(lines))
 
         # Retrieved chunks (truncate to max)
