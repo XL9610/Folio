@@ -348,25 +348,23 @@ class AgentAnswerGenerator:
 
         # Summary map (hierarchical overview cards, roadmap Phase 3):
         # navigation/synthesis context only. Rendered WITHOUT ids, citation
-        # labels, or per-point specifics — the map is not evidence, and
-        # point-level detail tempts the model to assert uncited facts.
+        # labels, summaries, or point texts — titles and topic labels give
+        # the work's structure, and every shred of specific content is
+        # withheld so nothing from the map can be asserted as fact.
         if tr.summary_context:
             parts.append("[Summary map]")
             for i, card in enumerate(tr.summary_context, 1):
                 title = card.get("title") or "Untitled"
                 doc_label = card.get("filename") or ""
-                lines = [f"  {i}. {title}" + (f" ({doc_label})" if doc_label else "")]
-                summary = str(card.get("summary") or "").strip()
-                if summary:
-                    lines.append(f"     {summary[:300]}")
+                line = f"  {i}. {title}"
+                if doc_label:
+                    line += f" ({doc_label})"
                 topics = card.get("major_topics")
                 if isinstance(topics, list) and topics:
-                    lines.append(
-                        "     Topics: " + "; ".join(
-                            str(t.get("text", "")) for t in topics if t.get("text")
-                        )
+                    line += "\n     Topics: " + "; ".join(
+                        str(t.get("text", "")) for t in topics if t.get("text")
                     )
-                parts.append("\n".join(lines))
+                parts.append(line)
 
         # Retrieved chunks (truncate to max)
         if tr.chunks:
