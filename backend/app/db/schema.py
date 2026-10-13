@@ -33,6 +33,7 @@ def create_tables(conn: sqlite3.Connection) -> None:
     _create_review_items(conn)
     _create_document_extractions(conn)
     _create_saved_conversations(conn)
+    _create_document_summary_nodes(conn)
     _create_indexes(conn)
     _set_version(conn)
     run_migrations(conn)
@@ -276,6 +277,45 @@ def _create_document_extractions(conn: sqlite3.Connection) -> None:
     """)
 
 
+def _create_document_summary_nodes(conn: sqlite3.Connection) -> None:
+    """Derived two-level summary hierarchy (section cards + one document card).
+
+    Roadmap Phase 3: generated navigation/synthesis aids above the canonical
+    chunks. Idempotent, so it is safe to call from both create_tables (fresh
+    databases) and run_migrations (existing databases).
+    """
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS document_summary_nodes (
+            id                    TEXT PRIMARY KEY,
+            notebook_id           TEXT NOT NULL,
+            document_id           TEXT NOT NULL,
+            level                 TEXT NOT NULL,
+            section_key           TEXT NOT NULL,
+            ordinal               INTEGER NOT NULL,
+            summary_json          TEXT NOT NULL,
+            source_chunk_ids_json TEXT NOT NULL,
+            child_node_ids_json   TEXT NOT NULL,
+            build_signature       TEXT NOT NULL,
+            prompt_version        TEXT NOT NULL,
+            model_id              TEXT NOT NULL,
+            created_at            TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at            TEXT NOT NULL DEFAULT (datetime('now')),
+            FOREIGN KEY (document_id) REFERENCES source_documents(id)
+        )
+    """)
+    # Scoped reads by notebook + document + level.
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_summary_nodes_scope
+        ON document_summary_nodes(notebook_id, document_id, level)
+    """)
+    # One active build per document: atomic replacement keeps a single node
+    # per (document, level, section_key).
+    conn.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS uq_summary_nodes_doc_level_key
+        ON document_summary_nodes(document_id, level, section_key)
+    """)
+
+
 def _dedupe_notebook_names(conn: sqlite3.Connection) -> None:
     """Merge duplicate notebook names into the surviving row before the unique index is added.
 
@@ -457,6 +497,7 @@ def run_migrations(conn: sqlite3.Connection) -> None:
     _ensure_column(conn, "notebooks", "description", "TEXT NOT NULL DEFAULT ''")
     _ensure_column(conn, "notebooks", "last_opened_at", "TEXT DEFAULT NULL")
     _create_document_extractions(conn)
+    _create_document_summary_nodes(conn)
     _ensure_chunk_context_columns(conn)
     _migrate_app_config_to_env(conn)
     _migrate_ingestion_jobs(conn)

@@ -111,6 +111,7 @@ def delete_document(document_id: str) -> bool:
     conn.execute("DELETE FROM chunks WHERE document_id = ?", (document_id,))
     conn.execute("DELETE FROM ingestion_jobs WHERE document_id = ?", (document_id,))
     conn.execute("DELETE FROM document_extractions WHERE document_id = ?", (document_id,))
+    conn.execute("DELETE FROM document_summary_nodes WHERE document_id = ?", (document_id,))
     conn.execute("DELETE FROM source_documents WHERE id = ?", (document_id,))
     conn.commit()
     return conn.total_changes > 0
