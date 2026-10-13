@@ -99,7 +99,12 @@ class OpenAICompatibleClient:
         choice = response.choices[0]
         return choice.message.content or ""
 
-    def complete_json(self, system_prompt: str, user_prompt: str) -> LLMJSONResponse:
+    def complete_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int | None = None,
+    ) -> LLMJSONResponse:
         if not self._config.is_configured:
             raise ValueError("LLM_API_KEY is not set. Cannot invoke LLM.")
 
@@ -110,7 +115,7 @@ class OpenAICompatibleClient:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                max_tokens=self._config.max_tokens,
+                max_tokens=max_tokens or self._config.max_tokens,
                 temperature=self._config.temperature,
                 response_format={"type": "json_object"},
             )
@@ -195,12 +200,18 @@ class AnthropicNativeClient:
             for part in parts
         )
 
-    def complete_json(self, system_prompt: str, user_prompt: str) -> LLMJSONResponse:
+    def complete_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int | None = None,
+    ) -> LLMJSONResponse:
         raw = self.complete_chat(
             messages=[
                 {"role": "system", "content": f"{system_prompt}\n\nReturn only a valid JSON object."},
                 {"role": "user", "content": user_prompt},
             ],
+            max_tokens=max_tokens,
         )
         return LLMJSONResponse(
             data=_extract_json_object(raw),
@@ -274,12 +285,18 @@ class GoogleNativeClient:
             for part in parts
         )
 
-    def complete_json(self, system_prompt: str, user_prompt: str) -> LLMJSONResponse:
+    def complete_json(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        max_tokens: int | None = None,
+    ) -> LLMJSONResponse:
         raw = self.complete_chat(
             messages=[
                 {"role": "system", "content": f"{system_prompt}\n\nReturn only a valid JSON object."},
                 {"role": "user", "content": user_prompt},
             ],
+            max_tokens=max_tokens,
         )
         return LLMJSONResponse(
             data=_extract_json_object(raw),

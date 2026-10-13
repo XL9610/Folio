@@ -37,7 +37,7 @@ class FakeLLM:
         self.calls = 0
         self.fail_attempts = fail_attempts  # number of leading attempts to fail
 
-    def complete_json(self, system_prompt, user_prompt):
+    def complete_json(self, system_prompt, user_prompt, max_tokens=None):
         self.calls += 1
         if self.calls <= self.fail_attempts:
             raise ValueError("fake provider failure")
@@ -78,7 +78,7 @@ def _resp(data) -> _FakeResp:
 class InventingLLM(FakeLLM):
     """Always returns points whose ids do not exist in the document."""
 
-    def complete_json(self, system_prompt, user_prompt):
+    def complete_json(self, system_prompt, user_prompt, max_tokens=None):
         self.calls += 1
         return _resp({
             "title": "X",
@@ -338,7 +338,7 @@ def test_document_card_reduction_uses_all_sections_in_order(test_db):
             super().__init__()
             self.doc_batches = []
 
-        def complete_json(self, system_prompt, user_prompt):
+        def complete_json(self, system_prompt, user_prompt, max_tokens=None):
             if "section cards" in system_prompt:
                 self.doc_batches.append(len(re.findall(r'"node_id": "', user_prompt)))
             return super().complete_json(system_prompt, user_prompt)

@@ -49,13 +49,17 @@ logger = logging.getLogger(__name__)
 # Frozen build identities. Increment PROMPT_VERSION whenever a prompt below
 # changes meaningfully (it invalidates caches via the build signature).
 BUILDER_VERSION = "1"
-PROMPT_VERSION = "1"
+PROMPT_VERSION = "2"
 
 # Bounded, deterministic budgets (frozen for evaluation runs).
 SECTION_BATCH_CHUNKS = 12   # chunks per section-summarization prompt batch
 DOCUMENT_BATCH_CARDS = 8    # section cards per document-card prompt batch
 WINDOW_SIZE = 10            # contiguous fallback window (allowed range 8-12)
 MAX_CARD_RETRIES = 1        # one bounded retry for malformed structured output
+# Output budgets for structured cards: the app-wide LLM_MAX_TOKENS is tuned
+# for compact planner JSON and truncates full card output (finish=length).
+SECTION_CARD_MAX_TOKENS = 4096
+DOCUMENT_CARD_MAX_TOKENS = 2048
 
 
 # ---------------------------------------------------------------------------
@@ -354,7 +358,8 @@ Rules:
 1. Use ONLY the passages provided. Do not invent content.
 2. Every point MUST cite at least one passage id from the list below. Copy the ids verbatim. A point may cite multiple ids.
 3. Do not invent passage ids.
-4. Keep the summary and points faithful to the passages, in reading order where possible."""
+4. Keep the summary and points faithful to the passages, in reading order where possible.
+5. Keep the output compact: at most 4-8 points, each 1-2 sentences."""
 
 
 _DOCUMENT_CARD_SYSTEM_PROMPT = """You are building a traceable document overview for a study companion. You receive section cards from ONE source document, each with its node id and the raw passage ids it covers.
@@ -608,6 +613,7 @@ class HierarchicalSummaryBuilder:
                 system=_SECTION_CARD_SYSTEM_PROMPT,
                 user=_section_batch_user_prompt(group.key, batch),
                 validate=lambda raw: _validate_section_card(raw, chunk_ids),
+                max_tokens=SECTION_CARD_MAX_TOKENS,
             )
             calls += n
             if card is None:
@@ -643,6 +649,7 @@ class HierarchicalSummaryBuilder:
                 validate=lambda raw: _validate_document_card(
                     raw, node_id_set, chunk_ids,
                 ),
+                max_tokens=DOCUMENT_CARD_MAX_TOKENS,
             )
             calls += n
             if card is None:
@@ -657,6 +664,7 @@ class HierarchicalSummaryBuilder:
         system: str,
         user: str,
         validate,
+        max_tokens: int | None = None,
     ) -> tuple[dict | None, int]:
         """One LLM structured call with exactly one bounded retry."""
         if self._llm is None:
@@ -665,7 +673,9 @@ class HierarchicalSummaryBuilder:
         for attempt in range(MAX_CARD_RETRIES + 1):
             try:
                 result = self._llm.complete_json(
-                    system_prompt=system, user_prompt=user,
+                    system_prompt=system,
+                    user_prompt=user,
+                    max_tokens=max_tokens,
                 )
             except Exception as exc:  # noqa: BLE001
                 last_error = exc

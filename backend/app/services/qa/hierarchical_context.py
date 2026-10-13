@@ -128,6 +128,13 @@ class HierarchicalContextAdapter:
                 "cache": "hit",
                 "raw_evidence_count": len(evidence),
                 "summary_context_chars": total_chars,
+                # Section keys represented in the summary context — titles
+                # only, for eval/debug (no source text).
+                "section_keys": sorted({
+                    card["section_key"]
+                    for card in summary
+                    if card.get("section_key")
+                })[:64],
             },
         )
 
