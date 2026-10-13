@@ -201,7 +201,11 @@ def main() -> int:
 
     judge_client = None
     if args.judge:
-        judge_client = create_llm_client()
+        # Frozen judge: temperature 0, model from the LLM env config.
+        from app.services.llm import LLMConfig
+        judge_cfg = LLMConfig()
+        judge_cfg.temperature = 0.0
+        judge_client = create_llm_client(judge_cfg)
 
     rows: list[dict] = []
     for q in questions:
@@ -270,10 +274,14 @@ def main() -> int:
         # ── Section coverage ──
         accepted_all = accepted_section_keys or accepted_section_paths
         if accepted_all:
-            if entry["hierarchical_status"] == "ok":
-                represented = set(entry["hierarchical_args"].get("section_keys", []))
-            elif accepted_section_paths:
+            if accepted_section_paths:
+                # Legacy flat GT: an accepted section is covered when at
+                # least one retrieved evidence chunk lies in it (works for
+                # window grouping too — hydrated chunks keep their original
+                # section paths).
                 represented = {r.get("section_path", "") for r in ranked_rows}
+            elif entry["hierarchical_status"] == "ok":
+                represented = set(entry["hierarchical_args"].get("section_keys", []))
             else:
                 represented = {_section_key_of(r) for r in ranked_rows}
             entry["section_coverage"] = len(
@@ -297,7 +305,9 @@ def main() -> int:
         entry["n_citations"] = len(citations)
 
         # ── Frozen LLM judge ──
-        if args.judge and topics:
+        # Runs for topic groups when present, and for unsupported-major-claim
+        # scoring whenever --judge is given (empty topic list is valid).
+        if args.judge:
             passages = [{
                 "ref": f"S{i}",
                 "text": r["text"],
@@ -322,6 +332,13 @@ def main() -> int:
         rows.append(entry)
 
     # ── Build coverage per document (from the DB, read-only) ──
+    # Two distinct numbers:
+    #   build_coverage:      accepted body chunks assigned to exactly one
+    #                        section/window card (manifest integrity; the
+    #                        acceptance gate is 100% by construction)
+    #   provenance_coverage: fraction of accepted body chunks reachable as
+    #                        evidence via stored card provenance (the LLM
+    #                        cites a subset of each batch's chunks)
     build_coverage: dict[str, dict] = {}
     for doc in documents:
         doc_id = doc.get("document_id")
@@ -331,10 +348,13 @@ def main() -> int:
         ).fetchall()
         if not chunk_rows:
             continue
-        manifest = build_manifest(
-            [dict(r) for r in chunk_rows],
-            doc.get("structure_status", ""),
-        )
+        rows_for_doc = [dict(r) for r in chunk_rows]
+        manifest = build_manifest(rows_for_doc, doc.get("structure_status", ""))
+        assigned: list[str] = []
+        for g in manifest.groups:
+            assigned.extend(g.chunk_ids)
+        accepted = set(manifest.accepted_chunk_ids)
+        exact_once = len(set(assigned)) == len(assigned) and set(assigned) == accepted
         section_rows = con.execute(
             "SELECT source_chunk_ids_json FROM document_summary_nodes "
             "WHERE notebook_id = ? AND document_id = ? AND level = 'section'",
@@ -343,15 +363,15 @@ def main() -> int:
         represented: set[str] = set()
         for (ids_json,) in section_rows:
             represented.update(json.loads(ids_json or "[]"))
-        accepted = set(manifest.accepted_chunk_ids)
         build_coverage[doc_id] = {
             "filename": doc.get("filename", ""),
             "grouping_mode": manifest.grouping_mode,
             "accepted_body_chunks": len(accepted),
             "excluded_chunks": len(manifest.excluded_chunk_ids),
             "section_nodes": len(section_rows),
-            "build_coverage": (len(accepted & represented) / len(accepted))
-                              if accepted else None,
+            "build_coverage": 1.0 if exact_once else None,
+            "provenance_coverage": (len(accepted & represented) / len(accepted))
+                                   if accepted else None,
         }
 
     report = {
@@ -381,19 +401,22 @@ def main() -> int:
     for doc_id, bc in build_coverage.items():
         print(f"build {bc['filename'][:50]}: mode={bc['grouping_mode']} "
               f"sections={bc['section_nodes']} body={bc['accepted_body_chunks']} "
-              f"coverage={bc['build_coverage']}")
+              f"assign={bc['build_coverage']} proven={bc['provenance_coverage']}")
     if args.judge:
         n = sum(1 for r in rows if r.get("judge_runs"))
         agree = sum(1 for r in rows if r.get("judge_agreement") is True)
         print(f"judge: {n} judged, agreement {agree}/{n}")
         covered = 0
         total = 0
+        unsupported = []
         for r in rows:
             for run in r.get("judge_runs", []):
                 for v in (run.get("topic_coverage") or {}).values():
                     total += 1
                     covered += int(bool(v))
+                unsupported.extend(run.get("unsupported_claims") or [])
         print(f"expected-topic coverage (judge): {round(covered/total, 4) if total else None}")
+        print(f"unsupported-major-claims (judge): {len(unsupported)}")
     print(f"Wrote {args.out}")
     return 0
 
