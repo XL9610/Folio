@@ -1,12 +1,16 @@
 """Citation shaping for the QA path.
 
-Owns the per-round `_finalize_chunk_citations` (renumber S# after dedup) and the
+Owns the per-round `_finalize_chunk_citations` (renumber S# after dedup), the
 post-merge `finalize_merged_citations` (renumber to exactly what the LLM sees),
-so every citation shape lives in one place for both ask and generate.
+and the presentation-layer `strip_inline_book_citations` (Phase 3.1: hide
+internal [S#] markers in whole-source overview answers without discarding the
+grounding data), so every citation shape lives in one place for both ask and
+generate.
 """
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,6 +22,34 @@ if TYPE_CHECKING:
 # the first 10 book chunks and first 8 web results to the LLM.
 MAX_BOOK_CITATIONS = 10
 MAX_WEB_CITATIONS = 8
+
+# Internal [S#] grounding markers, removed only at the presentation layer.
+_INLINE_BOOK_REF_RE = re.compile(r"\[S\d+\]")
+
+
+def strip_inline_book_citations(answer: str) -> str:
+    """Remove internal [S#] markers from a final answer for display.
+
+    Phase 3.1 presentation layer for whole-source overviews: the model
+    generates internal [S#] citations, and the user-facing text hides
+    them while the pipeline preserves valid citation references (dedup,
+    renumbering, chunk-id provenance) separately. Cleans only the inline
+    artifacts removal leaves behind — paragraph breaks and newlines are
+    preserved. Web [W#] markers are left visible.
+    """
+    text = _INLINE_BOOK_REF_RE.sub("", answer or "")
+    # "word ," / "word ." / "word ;" ... -> "word," (inline whitespace only)
+    text = re.sub(r"[ \t]+([,.;:!?])", r"\1", text)
+    # Empty brackets/parens left where a marker was the sole content.
+    text = re.sub(r"\(\s*\)", "", text)
+    text = re.sub(r"（\s*）", "", text)
+    text = re.sub(r"\[\s*\]", "", text)
+    # Collapse repeated inline spaces/tabs only — keep newlines so Markdown
+    # headings, lists, and paragraph breaks survive.
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    # A marker at the end of a line leaves trailing inline whitespace.
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    return text.strip()
 
 
 def _next_ref_label(results: ToolResults, source_type: str) -> str:

@@ -41,6 +41,7 @@ from ..services.qa.structural_answers import (
     _with_unresolved_section_disclaimer,
 )
 from ..services.qa.tools import QAToolExecutor, ToolResults, finalize_merged_citations
+from ..services.qa.citations import strip_inline_book_citations
 from ..services.qa.types import AskResult, CitationItem, CitationResponse, ToolTraceItem
 from ..services.retrieval.llm_reranker import LLMReranker
 from ..services.retrieval.retrieval_profile import load_profile
@@ -349,6 +350,16 @@ class AgenticAskPipeline:
         answer_text = _with_source_framing_questions(effective_query, all_tool_results, answer_text)
         answer_text = _with_unresolved_section_disclaimer(effective_query, all_tool_results, answer_text)
 
+        # ── 3b. Overview presentation (Phase 3.1) ──
+        # The model generated internal [S#] citations and the pipeline
+        # finalized valid citation references (dedup, renumbering, real
+        # chunk ids); for whole-source overviews the user-facing text hides
+        # the markers. The internal answer and the citation/provenance data
+        # are retained for debug and evaluation. fact/section/pinpoint
+        # answers are untouched.
+        internal_answer = answer_text
+        answer_text = _apply_overview_presentation(plan, answer_text)
+
         # Convert citations
         citems: list[CitationItem] = []
         seen_cids = set()
@@ -388,6 +399,7 @@ class AgenticAskPipeline:
             used_llm=True,
             citations=citems,
             tool_trace=tool_trace,
+            internal_answer=internal_answer if debug_retrieval else "",
             retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
             source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
         )
@@ -396,6 +408,19 @@ class AgenticAskPipeline:
 # ---------------------------------------------------------------------------
 # Helper: merge tool results across rounds
 # ---------------------------------------------------------------------------
+
+def _apply_overview_presentation(plan: PlanResult, answer_text: str) -> str:
+    """Hide internal [S#] markers for whole-source overviews only (Phase 3.1).
+
+    The planner's retrieval_scope is the gate: whole_source answers strip
+    their inline book citations at the presentation layer; fact, section,
+    and unknown scopes are returned exactly as generated. The internal
+    answer (with markers) is preserved on the debug path, and the response
+    citations field always keeps the source-chunk provenance.
+    """
+    if plan.retrieval_scope == "whole_source":
+        return strip_inline_book_citations(answer_text)
+    return answer_text
 
 def _merge_tool_results(into: ToolResults, from_round: ToolResults) -> None:
     """Merge round-level ToolResults into accumulated results (dedup by chunk_id)."""
@@ -543,6 +568,7 @@ async def ask(request: AskRequest) -> AskResponse:
         agent_status=result.agent_status,
         planner_task=result.planner_task,
         used_llm=result.used_llm,
+        internal_answer=result.internal_answer,
         citations=[
             CitationResponse(
                 chunk_id=c.chunk_id,

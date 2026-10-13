@@ -35,13 +35,42 @@ Rules:
 6. Never cite internet material as if it came from uploaded books. If internet evidence only clarifies a term that the book context did not explain, add a short "Internet context" paragraph and cite it with [W#].
 7. If book and internet evidence conflict, explicitly distinguish "your source says..." from "internet sources say...".
 8. Only refuse in the rare case that no retrieved passage, outline, metadata, or internet result is relevant to the current query. In that case, briefly say what the retrieved material is about instead.
-9. A "Summary map" section (when present) is generated navigation/synthesis context — NOT evidence, and its contents are not verified facts. Use it only to know what the work covers and how it is organized. Never mention it in the answer. You may state a specific fact (name, date, number, quotation, plot event) ONLY when a "[Book passages]" entry (or internet result) states it, and then it must carry that [S#] (or [W#]) citation. If the map suggests content that no passage states, do not assert it as fact; instead use general, attributed synthesis language ("Based on the material retrieved...", "The work moves from ... to ..."). Citations may only reference "[Book passages]" (raw [S#] material) and internet results ([W#]).
 
 The current user query is authoritative. Use conversation history only for pronoun/reference resolution. Do not answer a previous topic if it differs from the current query.
 
 Do not say "I would need a passage that..." or "the user should provide the full text." The user cannot control retrieval. Work with the material available.
 
 Use natural Markdown. Do not follow a fixed template."""
+
+
+# Whole-source overview grounding constraints (Phase 3.1). Appended to the
+# same system prompt only when the planner sets retrieval_scope to
+# "whole_source": the model still emits internal [S#] markers, and the
+# presentation layer decides whether to show them. Summary hierarchy
+# content is never rendered into this prompt; Book Passages are the only
+# factual evidence the model sees.
+OVERVIEW_GROUNDING_BLOCK = """
+
+For a whole-source overview, synthesize the work's major structure,
+themes, arguments, or development from the supplied Book Passages.
+
+The Book Passages are the only factual evidence. Outlines, filenames,
+headings, and internal retrieval metadata may help organize the answer,
+but they are not evidence for specific facts.
+
+Every specific factual statement—including names, dates, numbers,
+quotations, causal events, and plot events—must be supported by at least
+one Book Passage and must carry its [S#] marker in the model output.
+If the retrieved passages do not support a detail, omit it rather than
+inferring it from general knowledge or document structure.
+
+Prefer a concise, high-level synthesis over a list of unsupported
+specifics. Cover multiple represented sections when possible, but do
+not claim complete coverage of the work unless the supplied passages
+justify that claim.
+
+Inline [S#] markers are used internally for grounding and may be hidden
+by the presentation layer."""
 
 
 # ---------------------------------------------------------------------------
@@ -95,9 +124,12 @@ class AgentAnswerGenerator:
             user_prompt += "\n\n(No tool results were provided. If you cannot ground an answer, briefly say no relevant material was retrieved.)"
 
         try:
+            system_prompt = AGENT_ANSWER_SYSTEM_PROMPT
+            if plan.retrieval_scope == "whole_source":
+                system_prompt += OVERVIEW_GROUNDING_BLOCK
             answer = self._llm.complete_chat(
                 messages=[
-                    {"role": "system", "content": AGENT_ANSWER_SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 max_tokens=1536,
@@ -346,25 +378,11 @@ class AgentAnswerGenerator:
                 )
             parts.append(outline_str)
 
-        # Summary map (hierarchical overview cards, roadmap Phase 3):
-        # navigation/synthesis context only. Rendered WITHOUT ids, citation
-        # labels, summaries, or point texts — titles and topic labels give
-        # the work's structure, and every shred of specific content is
-        # withheld so nothing from the map can be asserted as fact.
-        if tr.summary_context:
-            parts.append("[Summary map]")
-            for i, card in enumerate(tr.summary_context, 1):
-                title = card.get("title") or "Untitled"
-                doc_label = card.get("filename") or ""
-                line = f"  {i}. {title}"
-                if doc_label:
-                    line += f" ({doc_label})"
-                topics = card.get("major_topics")
-                if isinstance(topics, list) and topics:
-                    line += "\n     Topics: " + "; ".join(
-                        str(t.get("text", "")) for t in topics if t.get("text")
-                    )
-                parts.append(line)
+        # Summary map (hierarchical overview cards): deliberately NOT
+        # rendered into the generator prompt (Phase 3.1). The hierarchy
+        # only selects which raw chunks get hydrated; summary text, topic
+        # texts, and points are never shown to the model as evidence.
+        # `summary_context` remains on ToolResults for debug/eval.
 
         # Retrieved chunks (truncate to max)
         if tr.chunks:

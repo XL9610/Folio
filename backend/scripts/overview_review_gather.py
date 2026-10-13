@@ -88,7 +88,10 @@ def main() -> int:
             if m:
                 doc_ids.append(m["document_id"])
         a = _ask(args.api, q["question"], args.notebook_id, doc_ids)
-        answer = (a.get("answer") or "").strip()
+        # Grounding evaluation judges the internal answer: the model's own
+        # [S#] markers survive there even when the overview presentation
+        # layer hides them from users.
+        answer = (a.get("internal_answer") or a.get("answer") or "").strip()
         ask_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])
                    if not str(c.get("chunk_id", "")).startswith("web:")]
         passages = []
@@ -120,6 +123,7 @@ def main() -> int:
             "id": q.get("id"),
             "question": q.get("question"),
             "answer": answer,
+            "display_answer": (a.get("answer") or "").strip(),
             "agent_status": a.get("agent_status"),
             "hierarchical": next(
                 (t for t in a.get("tool_trace", [])

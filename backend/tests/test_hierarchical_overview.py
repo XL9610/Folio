@@ -238,18 +238,20 @@ def test_trace_does_not_leak_source_text(test_db, flag_on):
 
 
 def test_generator_separates_summary_map_from_passages(test_db, flag_on):
+    """Phase 3.1: the summary map is never rendered into the prompt; the
+    hydrated raw passages are the only evidence shown."""
     nb = create_notebook("NB")
     doc = _seed_book(nb)
     _build_hierarchy(nb["id"], doc["id"])
     results = _executor(nb["id"], [doc["id"]], "whole_source")
+    assert results.summary_context  # internal collection retained
     context = AgentAnswerGenerator(llm_client=None)._build_context(
         results, {"notebook_id": nb["id"], "document_ids": [doc["id"]]},
     )
-    assert "[Summary map]" in context
+    assert "[Summary map]" not in context
     assert "[Book passages]" in context
-    map_section = context.split("[Summary map]")[1].split("[Book passages]")[0]
-    # The summary map carries no citation labels.
-    assert "[S" not in map_section
+    assert all(card["document_id"] == doc["id"]
+               for card in results.summary_context)
 
 
 # ---------------------------------------------------------------------------

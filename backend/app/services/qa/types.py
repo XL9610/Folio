@@ -121,3 +121,6 @@ class AskResult:
     tool_trace: list[ToolTraceItem] = field(default_factory=list)
     retrieved_chunks: list[dict] = field(default_factory=list)
     source_metadata: list[dict] = field(default_factory=list)
+    # Debug/eval only (populated when debug_retrieval=True): the answer
+    # before the overview presentation layer hid its internal [S#] markers.
+    internal_answer: str = ""

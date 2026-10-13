@@ -150,3 +150,6 @@ class AskResponse(BaseModel):
     evidence_status: str = ""
     retrieved_chunks: list[RetrievedChunkDebugResponse] = []
     source_metadata: list[dict] = []
+    # Debug/eval only: the answer before the overview presentation layer
+    # hid internal [S#] markers (empty unless debug_retrieval was set).
+    internal_answer: str = ""

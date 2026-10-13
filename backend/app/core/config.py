@@ -119,6 +119,13 @@ class AppConfig:
     hierarchical_overview_enabled: bool = field(
         default_factory=lambda: os.getenv("HIERARCHICAL_OVERVIEW_ENABLED", "false").lower() == "true"
     )
+    # Eval-only (Phase 3.1 config C): whole-source overviews skip the 6/4
+    # coverage mix and use expanded raw relevance candidates reranked to the
+    # same final evidence budget — the "simple raw baseline" the hierarchy
+    # must beat. Default off; never enabled in production.
+    overview_expanded_raw: bool = field(
+        default_factory=lambda: os.getenv("OVERVIEW_EXPANDED_RAW", "false").lower() == "true"
+    )
 
     # -- BM25x Keyword Search -----------------------------------------------
     # Default off: ImprovedFTS5 is the deterministic, reproducible default.

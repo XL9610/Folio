@@ -2,11 +2,14 @@
 """Fair A/B grounding review for the Phase 3 unsupported-claim gate.
 
 Unlike the judge-flagged sheets used during development, this pipeline
-extracts ALL major factual claims from frozen flag-off and flag-on
-answers with one frozen extractor, semantically deduplicates them per
-answer, and (when needed) samples the same number of claims per question
-per configuration. The output is a blind human-review sheet plus a
-separate decode key; `--decode` computes the final metrics after scoring.
+extracts ALL major factual claims from frozen answers with one frozen
+extractor and semantically deduplicates them per answer. Balanced mode
+samples the same number of claims per question per configuration;
+--no-balance reviews every deduped claim of every answer (each answer
+weighted equally, nothing silently dropped). The output is a blind
+human-review sheet plus a separate decode key; `--decode` computes the
+final metrics after scoring (micro unsupported rate, per-answer density,
+macro density average, claims per answer, per-configuration gate lines).
 
 Frozen pipeline (do not tune per-configuration):
   - extractor prompt EXTRACTOR_PROMPT_VERSION = "1", temperature 0;
@@ -123,54 +126,71 @@ def _dedup_claims(claims: list[dict]) -> list[dict]:
     return kept
 
 
-def _build_sheet(off: dict, on: dict, args) -> None:
+def _build_sheet(configs: dict[str, list], args) -> None:
+    """Build one blind sheet balanced across N configurations.
+
+    ``configs`` maps a configuration name to its frozen capture list.
+    Per question, min(config claim counts) claims are sampled from every
+    configuration; samples are shuffled blind with a fixed seed.
+    """
     cfg = LLMConfig()
     cfg.temperature = 0.0
     judge = create_llm_client(cfg)
 
-    off_map = {e["id"]: e for e in off}
-    on_map = {e["id"]: e for e in on}
-    ids = sorted(set(off_map) & set(on_map))
+    by_config = {name: {e["id"]: e for e in capture}
+                 for name, capture in configs.items()}
+    ids = sorted(set.intersection(*(set(m) for m in by_config.values())))
     if not ids:
         sys.exit("no common question ids between captures")
 
     extracted: dict[str, dict[str, list[dict]]] = {}
     for qid in ids:
-        for config, capture in (("flag-off", off_map), ("flag-on", on_map)):
-            entry = capture[qid]
+        for name, entries in by_config.items():
+            entry = entries[qid]
             claims = _dedup_claims(
                 _extract_claims(judge, entry["question"], entry["answer"])
             )
-            extracted.setdefault(qid, {})[config] = claims
+            extracted.setdefault(qid, {})[name] = claims
 
-    # Balanced sampling: same count per question per configuration.
+    # Balanced sampling: same count per question across configurations.
+    # --no-balance keeps every deduped claim from every configuration
+    # (all-claims review; each answer is weighted equally and nothing is
+    # silently dropped).
     sampled: dict[str, dict[str, list[dict]]] = {}
     stats: list[dict] = []
     for qid in ids:
-        n = min(len(extracted[qid]["flag-off"]), len(extracted[qid]["flag-on"]))
+        if args.no_balance:
+            sampled[qid] = {
+                name: list(extracted[qid][name]) for name in configs
+            }
+            stats.append({
+                "id": qid,
+                "extracted": {name: len(extracted[qid][name]) for name in configs},
+                "sampled_per_config": None,
+            })
+            continue
+        n = min(len(extracted[qid][name]) for name in configs)
         if args.max_per_question and n > args.max_per_question:
             n = args.max_per_question
         sampled[qid] = {
-            "flag-off": extracted[qid]["flag-off"][:n],
-            "flag-on": extracted[qid]["flag-on"][:n],
+            name: extracted[qid][name][:n] for name in configs
         }
         stats.append({
             "id": qid,
-            "extracted_off": len(extracted[qid]["flag-off"]),
-            "extracted_on": len(extracted[qid]["flag-on"]),
+            "extracted": {name: len(extracted[qid][name]) for name in configs},
             "sampled_per_config": n,
         })
 
-    # Blind ordering: fixed shuffle across both configurations.
+    # Blind ordering: fixed shuffle across configurations.
     import random
     order: list[tuple[str, str]] = []
     for qid in ids:
-        for config in ("flag-off", "flag-on"):
-            order.append((qid, config))
+        for name in configs:
+            order.append((qid, name))
     random.Random(20261013).shuffle(order)
 
     lines = [
-        "# Phase 3 — fair blind human review: grounding A/B gate",
+        "# Fair blind human review: grounding gate",
         "",
         "**Reviewer instructions.** Each sample is one frozen answer with its cited",
         "source passages. Score EVERY claim below with exactly one box:",
@@ -180,8 +200,14 @@ def _build_sheet(off: dict, on: dict, args) -> None:
         "- `[ ] not a claim` — the item is connective/organizational text, not a major factual claim (excluded from the rate).",
         "",
         "Ignore minor stylistic or connective statements. Judge claims as written.",
-        "Claims were extracted from both configurations with one frozen pipeline",
-        "and balanced per question. Sample ids are blind; the decode key is in a",
+        "Claims were extracted from every configuration with one frozen pipeline"
+        + (
+            "; every deduped claim of every answer is reviewed — each answer"
+            " is weighted equally."
+            if args.no_balance else
+            " and balanced per question."
+        ),
+        " Sample ids are blind; the decode key is in a",
         "separate file — do not open it until all scoring is done.",
         "",
         "---",
@@ -189,14 +215,14 @@ def _build_sheet(off: dict, on: dict, args) -> None:
     key_lines = ["# Fair-review decode key — open only after scoring all samples", ""]
     sample_no = 0
     sample_map: list[tuple[int, str, str]] = []
-    for qid, config in order:
-        entry = (off_map if config == "flag-off" else on_map)[qid]
-        claims = sampled[qid][config]
+    for qid, name in order:
+        entry = by_config[name][qid]
+        claims = sampled[qid][name]
         if not claims:
             continue
         sample_no += 1
-        sample_map.append((sample_no, qid, config))
-        key_lines.append(f"- Sample {sample_no}: {config}  ({qid})")
+        sample_map.append((sample_no, qid, name))
+        key_lines.append(f"- Sample {sample_no}: {name}  ({qid})")
         lines.append(f'\n## Sample {sample_no}')
         lines.append(f'\n**Question:** {entry["question"]}')
         lines.append(f'\n**Answer:**\n\n{entry["answer"]}')
@@ -220,24 +246,19 @@ def _build_sheet(off: dict, on: dict, args) -> None:
     print(f"key:   {args.key}")
     print("extraction stats:")
     for s in stats:
-        print(f"  {s['id']}: extracted off={s['extracted_off']} on={s['extracted_on']} "
-              f"-> sampled {s['sampled_per_config']} per config")
-    total = sum(s["sampled_per_config"] * 2 for s in stats)
+        if s["sampled_per_config"] is None:
+            print(f"  {s['id']}: all-claims {s['extracted']}")
+        else:
+            print(f"  {s['id']}: extracted {s['extracted']} "
+                  f"-> sampled {s['sampled_per_config']} per config")
+    total = sum(
+        len(sampled[qid][name]) for qid in ids for name in configs
+    )
     print(f"total claims to review: {total}")
-    json.dump({"stats": stats, "sample_map": [
-        {"sample": n, "id": q, "config": c} for n, q, c in sample_map
-    ]}, open(str(Path(args.sheet).with_suffix(".meta.json")), "w", encoding="utf-8"),
-        indent=2)
 
 
-def _decode(sheet_path: Path, key_path: Path) -> None:
-    sheet = sheet_path.read_text(encoding="utf-8")
-    key = {}
-    for line in key_path.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"- Sample (\d+): (\S+)\s+\(([^)]+)\)", line)
-        if m:
-            key[int(m.group(1))] = (m.group(2), m.group(3))
-
+def _parse_sheet(sheet: str, key: dict[int, tuple[str, str]]):
+    """Parse a scored sheet into per-config totals and per-answer counts."""
     samples = re.split(r"\n## Sample (\d+)", sheet)[1:]
     scores: dict[str, dict] = {}
     per_answer: dict[tuple[str, str], dict] = {}
@@ -247,7 +268,18 @@ def _decode(sheet_path: Path, key_path: Path) -> None:
         if num not in key:
             continue
         config, qid = key[num]
-        claim_blocks = re.split(r"\n(\d+)\. ", body.split("**Claims to score**", 1)[1])[1:]
+        # Regex, not split: the header carries a count suffix, e.g.
+        # "**Claims to score (20):**".
+        m = re.search(
+            r"\*\*Claims to score(?: \(\d+\))?:\*\*\s*\n(.*?)(?=\n---|\Z)",
+            body, re.S,
+        )
+        if not m:
+            print(f"WARNING sample {num}: no claims section found")
+            continue
+        # Prepend a newline so a claim at the very start of the section is
+        # split correctly.
+        claim_blocks = re.split(r"\n(\d+)\. ", "\n" + m.group(1))[1:]
         n_sup = n_uns = n_not = 0
         for j in range(0, len(claim_blocks), 2):
             cbody = claim_blocks[j + 1]
@@ -271,53 +303,103 @@ def _decode(sheet_path: Path, key_path: Path) -> None:
         s["total"] += n_sup + n_uns + n_not
         per_answer[(config, qid)] = {
             "supported": n_sup, "unsupported": n_uns, "not_a_claim": n_not,
+            "n_scorable": n_sup + n_uns,
         }
+    return scores, per_answer
 
-    print("=== Fair A/B grounding gate ===")
-    for config in ("flag-off", "flag-on"):
-        s = scores[config]
+
+def _decode(sheet_path: Path, key_path: Path, baseline: str | None) -> None:
+    sheet = sheet_path.read_text(encoding="utf-8")
+    key = {}
+    for line in key_path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"- Sample (\d+): (\S+)\s+\(([^)]+)\)", line)
+        if m:
+            key[int(m.group(1))] = (m.group(2), m.group(3))
+
+    scores, per_answer = _parse_sheet(sheet, key)
+
+    print("=== Fair grounding gate ===")
+    for config, s in scores.items():
         scored = s["supported"] + s["unsupported"]
-        rate = s["unsupported"] / scored if scored else None
-        print(f"{config}: {s['supported']} supported, {s['unsupported']} unsupported, "
-              f"{s['not_a_claim']} not-a-claim -> unique unsupported rate "
-              f"= {rate:.4f}" if rate is not None else f"{config}: no scorable claims")
+        if scored:
+            rate = s["unsupported"] / scored
+            print(f"{config}: {s['supported']} supported, {s['unsupported']} "
+                  f"unsupported, {s['not_a_claim']} not-a-claim -> micro "
+                  f"unsupported rate = {rate:.4f}")
+        else:
+            print(f"{config}: no scorable claims")
     print("per-answer unsupported density (unsupported / scorable claims):")
+    densities: dict[str, list[float]] = {}
+    claims_per_answer: dict[str, list[int]] = {}
     for (config, qid), v in sorted(per_answer.items()):
         scored = v["supported"] + v["unsupported"]
         rate = v["unsupported"] / scored if scored else None
+        densities.setdefault(config, []).append(rate)
+        claims_per_answer.setdefault(config, []).append(scored)
         print(f"  {config} {qid}: {v['unsupported']}/{scored} = {rate}")
-    base = scores["flag-off"]
-    cand = scores["flag-on"]
-    bs = base["supported"] + base["unsupported"]
-    cs = cand["supported"] + cand["unsupported"]
-    if bs and cs:
+    print("macro density (mean of per-answer densities) and claims/answer:")
+    for config in densities:
+        ds = [d for d in densities[config] if d is not None]
+        cs = claims_per_answer[config]
+        macro = sum(ds) / len(ds) if ds else None
+        print(f"  {config}: macro = {macro:.4f} (n={len(ds)})"
+              if macro is not None else f"  {config}: no densities")
+        print(f"  {config}: claims/answer = {cs}")
+    if baseline and baseline in scores:
+        base = scores[baseline]
+        bs = base["supported"] + base["unsupported"]
+        if not bs:
+            print(f"gate: baseline {baseline} has no scorable claims")
+            return
         br = base["unsupported"] / bs
-        cr = cand["unsupported"] / cs
-        print(f"gate: candidate {cr:.4f} vs baseline {br:.4f} "
-              f"-> {'PASS' if cr <= br else 'FAIL'}")
+        bmacro = (sum(d for d in densities[baseline] if d is not None)
+                  / len([d for d in densities[baseline] if d is not None]))
+        for config, cand in scores.items():
+            if config == baseline:
+                continue
+            cs = cand["supported"] + cand["unsupported"]
+            if not cs:
+                print(f"gate: {config} has no scorable claims")
+                continue
+            cr = cand["unsupported"] / cs
+            cmacro = (sum(d for d in densities[config] if d is not None)
+                      / len([d for d in densities[config] if d is not None]))
+            print(f"gate {config} vs {baseline}: micro {cr:.4f} vs {br:.4f} "
+                  f"-> {'PASS' if cr <= br else 'FAIL'}; "
+                  f"macro {cmacro:.4f} vs {bmacro:.4f} "
+                  f"-> {'PASS' if cmacro <= bmacro else 'FAIL'}")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--off", type=Path, help="frozen flag-off capture JSON")
-    parser.add_argument("--on", type=Path, help="frozen flag-on capture JSON")
+    parser.add_argument("--captures", action="append", metavar="NAME=PATH",
+                        help="frozen capture per configuration (repeatable)")
     parser.add_argument("--sheet", type=Path, help="review sheet output path")
     parser.add_argument("--key", type=Path, help="decode key output path")
     parser.add_argument("--max-per-question", type=int, default=None,
-                        help="cap claims per question per config (default: balanced exhaustive)")
+                        help="cap claims per question per config (balanced mode only)")
+    parser.add_argument("--no-balance", action="store_true",
+                        help="review ALL deduped claims of every configuration "
+                             "(each answer weighted equally; nothing dropped)")
     parser.add_argument("--decode", nargs=2, type=Path, metavar=("SHEET", "KEY"),
                         help="decode a scored sheet: --decode sheet.md key.txt")
+    parser.add_argument("--baseline", default=None,
+                        help="baseline config name for gate lines (decode)")
     args = parser.parse_args()
 
     if args.decode:
-        _decode(args.decode[0], args.decode[1])
+        _decode(args.decode[0], args.decode[1], args.baseline)
         return 0
-    if not (args.off and args.on and args.sheet and args.key):
-        parser.error("--off --on --sheet --key are required (or use --decode)")
-    off = json.loads(args.off.read_text(encoding="utf-8"))
-    on = json.loads(args.on.read_text(encoding="utf-8"))
-    _build_sheet(off, on, args)
+    if not args.captures or not args.sheet or not args.key:
+        parser.error("--captures NAME=PATH (repeatable), --sheet, --key are required (or use --decode)")
+    configs: dict[str, list] = {}
+    for spec in args.captures:
+        name, _, path = spec.partition("=")
+        if not name or not path:
+            parser.error(f"bad --captures spec: {spec}")
+        configs[name] = json.loads(Path(path).read_text(encoding="utf-8"))
+    _build_sheet(configs, args)
     return 0
 
 
