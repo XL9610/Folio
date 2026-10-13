@@ -471,6 +471,21 @@ def ingest_source(
     except Exception as exc:
         logger.debug("BM25x sync skipped or failed: %s", exc)
 
+    # --- Step 11: Hierarchical overview construction (roadmap Phase 3) ---
+    # Non-destructive: a hierarchy failure appends a warning and never
+    # fails or removes the successfully ingested raw document. Only runs
+    # when the feature flag is on; content is never sent to a remote model
+    # when the existing LLM setting is disabled.
+    if (
+        config.hierarchical_overview_enabled
+        and final_status in ("completed", "fts_only", "indexed_partial")
+    ):
+        warning = _build_hierarchy_for_document(
+            source.notebook_id, doc_id, progress_callback,
+        )
+        if warning:
+            warnings.append(warning)
+
     if progress_callback:
         progress_callback("done", 100)
 
@@ -511,6 +526,46 @@ def ingest_source(
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _build_hierarchy_for_document(
+    notebook_id: str,
+    document_id: str,
+    progress_callback: Callable[[str, int], None] | None,
+) -> str | None:
+    """Construct the hierarchical overview index after ingestion (Phase 3).
+
+    Returns a warning string on failure/skip, or None when the hierarchy
+    was built (or silently skipped because the LLM is disabled — the flag
+    gate was already checked by the caller).
+    """
+    from ..llm import LLMConfig
+    from ..generation.hierarchical_summary_builder import HierarchicalSummaryBuilder
+
+    if not LLMConfig().is_configured:
+        return None  # never send source content anywhere without the setting
+    try:
+        if progress_callback:
+            progress_callback("summarizing", 95)
+        result = HierarchicalSummaryBuilder().build_document(
+            notebook_id, document_id,
+        )
+        if result.status == "built":
+            logger.info(
+                "Hierarchy built for %s: %d groups (%s), %d LLM calls",
+                document_id, result.group_count, result.grouping_mode,
+                result.llm_calls,
+            )
+            return None
+        if result.status == "up_to_date":
+            return None
+        return (
+            f"Hierarchical summaries not built ({result.status}): "
+            f"{result.reason}"
+        )
+    except Exception as exc:  # noqa: BLE001 — non-destructive by design
+        logger.warning("Hierarchy construction failed for %s: %s", document_id, exc)
+        return f"Hierarchical summaries failed: {exc}"
 
 
 def compute_extracted_content_hash(document: ExtractedDocument) -> str:

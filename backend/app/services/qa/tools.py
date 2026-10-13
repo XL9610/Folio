@@ -104,6 +104,10 @@ class ToolResults:
     target_section: str = ""  # e.g. "Chapter 1"
     trace: list[dict] = field(default_factory=list)
     tool_error: bool = False  # True when a tool raised (retrieval unavailable, not "no hit")
+    # Hierarchical overview (roadmap Phase 3): generated navigation/synthesis
+    # cards. Deliberately NOT RetrievedChunk instances and never receive
+    # citation labels — only hydrated raw chunks are citable evidence.
+    summary_context: list[dict] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -296,8 +300,67 @@ class QAToolExecutor:
                     "error": str(exc),
                 })
 
+        self._apply_hierarchical_overview(results, plan, notebook_id, doc_ids)
         self._finalize_chunk_citations(results)
         return results
+
+    # ------------------------------------------------------------------
+    # Hierarchical overview route (roadmap Phase 3)
+    # ------------------------------------------------------------------
+
+    def _apply_hierarchical_overview(
+        self,
+        results: ToolResults,
+        plan: PlanResult,
+        notebook_id: str,
+        doc_ids: list[str],
+    ) -> None:
+        """Deterministic hierarchical route for whole-source asks.
+
+        Only ``retrieval_scope == "whole_source"`` may use this path. When
+        the flag is on and every requested document has a current complete
+        hierarchy, replace the gathered tool evidence with hydrated
+        round-robin raw evidence and attach the summary map. Otherwise emit
+        a fallback trace item and keep the existing 6/4 results untouched.
+        """
+        if not config.hierarchical_overview_enabled:
+            return
+        if plan.retrieval_scope != "whole_source":
+            return
+        from .hierarchical_context import HierarchicalContextAdapter, hydrate_chunks
+
+        ctx = HierarchicalContextAdapter(notebook_id, doc_ids).prepare()
+        if ctx.status != "ready":
+            results.trace.append({
+                "name": "hierarchical_overview",
+                "status": "fallback",
+                "args": {"reason": ctx.reason or "missing_or_stale_index"},
+            })
+            return
+        try:
+            rows = hydrate_chunks(doc_ids, ctx.evidence_chunk_ids)
+        except ValueError as exc:
+            results.trace.append({
+                "name": "hierarchical_overview",
+                "status": "fallback",
+                "args": {"reason": f"hierarchy_validation_failed: {exc}"},
+            })
+            return
+        results.chunks = [RetrievedChunk(
+            chunk_id=rec["id"],
+            document_id=rec["document_id"],
+            text=rec["text"],
+            title=rec.get("title", ""),
+            section_path=rec.get("section_path", ""),
+            page_start=rec.get("page_start", -1),
+            page_end=rec.get("page_end", -1),
+        ) for rec in rows]
+        results.summary_context = ctx.summary_context
+        results.trace.append({
+            "name": "hierarchical_overview",
+            "status": "ok",
+            "args": ctx.trace_args,
+        })
 
     # ------------------------------------------------------------------
     # Tool implementations

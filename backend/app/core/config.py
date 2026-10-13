@@ -112,6 +112,14 @@ class AppConfig:
         default_factory=lambda: os.getenv("CHUNKING_LLM_TOC_FILTER", "true").lower() == "true"
     )
 
+    # -- Hierarchical overview index (roadmap Phase 3) ----------------------
+    # Feature-flagged two-level summary hierarchy above the raw chunks.
+    # Defaults off until the evaluation gate passes (see
+    # .scratch/retrieval-quality-roadmap/issues/07-phase3-hierarchical-overview-index.md).
+    hierarchical_overview_enabled: bool = field(
+        default_factory=lambda: os.getenv("HIERARCHICAL_OVERVIEW_ENABLED", "false").lower() == "true"
+    )
+
     # -- BM25x Keyword Search -----------------------------------------------
     # Default off: ImprovedFTS5 is the deterministic, reproducible default.
     # BM25x is opt-in and requires a separately installed `bm25x` wheel

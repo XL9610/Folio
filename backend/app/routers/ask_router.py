@@ -434,6 +434,11 @@ def _merge_tool_results(into: ToolResults, from_round: ToolResults) -> None:
     if from_round.target_section and not into.target_section:
         into.target_section = from_round.target_section
 
+    # Summary context (hierarchical overview cards) from the round that
+    # produced it; later rounds never append to it.
+    if from_round.summary_context and not into.summary_context:
+        into.summary_context = list(from_round.summary_context)
+
     # Retrieval failure is sticky across rounds: once a backend errored, the
     # merged result must still report it so the evaluator returns
     # retrieval_unavailable instead of treating it as a zero-hit.
