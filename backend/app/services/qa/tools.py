@@ -339,7 +339,8 @@ class QAToolExecutor:
             return
         try:
             rows = hydrate_chunks(doc_ids, ctx.evidence_chunk_ids)
-        except ValueError as exc:
+        except Exception as exc:  # noqa: BLE001 — any route failure falls back
+            logger.warning("Hierarchical overview hydration failed: %s", exc)
             results.trace.append({
                 "name": "hierarchical_overview",
                 "status": "fallback",

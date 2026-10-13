@@ -344,6 +344,7 @@ def _dedupe_notebook_names(conn: sqlite3.Connection) -> None:
             for tbl in (
                 "source_documents", "saved_artifacts", "review_items",
                 "saved_conversations", "ingestion_jobs",
+                "document_summary_nodes",
             ):
                 try:
                     conn.execute(

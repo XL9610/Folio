@@ -202,6 +202,7 @@ def delete_notebook(notebook_id: str) -> bool:
         ):
             conn.execute("DELETE FROM chunks WHERE document_id = ?", (doc_id,))
             conn.execute("DELETE FROM document_extractions WHERE document_id = ?", (doc_id,))
+            conn.execute("DELETE FROM document_summary_nodes WHERE document_id = ?", (doc_id,))
         conn.execute("DELETE FROM source_documents WHERE notebook_id = ?", (notebook_id,))
         conn.execute("DELETE FROM notebooks WHERE id = ?", (notebook_id,))
         conn.commit()

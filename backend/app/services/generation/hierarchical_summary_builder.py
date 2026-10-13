@@ -48,18 +48,18 @@ logger = logging.getLogger(__name__)
 
 # Frozen build identities. Increment PROMPT_VERSION whenever a prompt below
 # changes meaningfully (it invalidates caches via the build signature).
-BUILDER_VERSION = "1"
-PROMPT_VERSION = "2"
+BUILDER_VERSION = "2"
+PROMPT_VERSION = "3"
 
 # Bounded, deterministic budgets (frozen for evaluation runs).
 SECTION_BATCH_CHUNKS = 12   # chunks per section-summarization prompt batch
-DOCUMENT_BATCH_CARDS = 8    # section cards per document-card prompt batch
+DOCUMENT_BATCH_CARDS = 6    # section cards per document-card prompt batch
 WINDOW_SIZE = 10            # contiguous fallback window (allowed range 8-12)
 MAX_CARD_RETRIES = 1        # one bounded retry for malformed structured output
 # Output budgets for structured cards: the app-wide LLM_MAX_TOKENS is tuned
 # for compact planner JSON and truncates full card output (finish=length).
 SECTION_CARD_MAX_TOKENS = 4096
-DOCUMENT_CARD_MAX_TOKENS = 2048
+DOCUMENT_CARD_MAX_TOKENS = 4096
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +337,33 @@ def _merge_partial_documents(partials: list[dict]) -> dict:
     }
 
 
+def _enrich_document_card_provenance(
+    doc_card: dict,
+    section_cards: list[tuple[SectionGroupManifest, dict]],
+    section_node_ids: list[str],
+) -> None:
+    """Ensure every document-card topic carries raw-chunk provenance.
+
+    Topics that cite only section nodes get the union of those sections'
+    validated raw provenance (bounded). Deterministic — no extra LLM work.
+    """
+    chunk_ids_by_node: dict[str, list[str]] = {}
+    for (_group, card), node_id in zip(section_cards, section_node_ids):
+        ids: list[str] = []
+        for p in card.get("points", []):
+            ids.extend(p.get("source_chunk_ids", []))
+        chunk_ids_by_node[node_id] = list(dict.fromkeys(ids))
+    for t in doc_card.get("major_topics", []):
+        if t.get("source_chunk_ids"):
+            continue
+        derived: list[str] = []
+        for node_id in t.get("section_node_ids", []):
+            for cid in chunk_ids_by_node.get(node_id, []):
+                if cid not in derived:
+                    derived.append(cid)
+        t["source_chunk_ids"] = derived[:4]
+
+
 # ---------------------------------------------------------------------------
 # Prompts (PROMPT_VERSION above covers changes to these)
 # ---------------------------------------------------------------------------
@@ -377,7 +404,8 @@ Rules:
 1. Use ONLY the section cards provided. Do not invent content.
 2. Every major topic MUST cite at least one section node id or raw passage id from the cards below. Copy ids verbatim.
 3. Do not invent node ids or passage ids.
-4. Prefer topics that connect multiple sections."""
+4. Prefer topics that connect multiple sections.
+5. Keep the output compact: at most 6 topics, each 1-2 sentences."""
 
 
 def _section_batch_user_prompt(
@@ -514,10 +542,14 @@ class HierarchicalSummaryBuilder:
         chunk_ids = {r["id"] for r in chunk_rows}
         by_id = {r["id"]: r for r in chunk_rows}
 
+        # ponytail: per-section LLM cost is linear in section count (a
+        # 246-chunk slide deck costs ~sections + sections/8 calls). Accepted
+        # at single-user desktop scale with per-document cost reporting; add
+        # a build budget or batched construction if it ever becomes one.
         llm_calls = 0
         section_cards: list[tuple[SectionGroupManifest, dict]] = []
         for group in manifest.groups:
-            card, calls = self._summarize_group(group, by_id, chunk_ids)
+            card, calls = self._summarize_group(group, by_id)
             llm_calls += calls
             if card is None:
                 return BuildResult(
@@ -545,6 +577,11 @@ class HierarchicalSummaryBuilder:
                 llm_calls=llm_calls,
                 reason="document card validation failed",
             )
+        # The document card must carry raw-chunk provenance in addition to
+        # section-node provenance. When a topic cites only section nodes,
+        # derive the raw ids deterministically from those sections' own
+        # validated provenance.
+        _enrich_document_card_provenance(doc_card, section_cards, section_node_ids)
 
         nodes: list[dict] = []
         for (group, card), node_id in zip(section_cards, section_node_ids):
@@ -601,7 +638,6 @@ class HierarchicalSummaryBuilder:
         self,
         group: SectionGroupManifest,
         by_id: dict,
-        chunk_ids: set[str],
     ) -> tuple[dict | None, int]:
         """Summarize one group in bounded batches; reduce partials into one card."""
         calls = 0
@@ -609,10 +645,15 @@ class HierarchicalSummaryBuilder:
         passages = [by_id[cid] for cid in group.chunk_ids]
         for i in range(0, len(passages), SECTION_BATCH_CHUNKS):
             batch = passages[i:i + SECTION_BATCH_CHUNKS]
+            # Provenance is validated against the prompt batch, so a point
+            # can only cite a passage the model actually saw ("supporting
+            # chunk IDs from that batch"); unknown and cross-document ids
+            # are discarded by the same check.
+            batch_ids = {p["id"] for p in batch}
             card, n = self._llm_structured_card(
                 system=_SECTION_CARD_SYSTEM_PROMPT,
                 user=_section_batch_user_prompt(group.key, batch),
-                validate=lambda raw: _validate_section_card(raw, chunk_ids),
+                validate=lambda raw: _validate_section_card(raw, batch_ids),
                 max_tokens=SECTION_CARD_MAX_TOKENS,
             )
             calls += n

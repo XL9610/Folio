@@ -141,6 +141,21 @@ def get_chunk_by_id(chunk_id: str) -> dict[str, Any] | None:
     return dict(row) if row else None
 
 
+def get_chunk_identity_by_document(document_id: str) -> list[dict[str, Any]]:
+    """Ordered (id, content_hash) pairs for one document — no chunk text.
+
+    Lightweight input for cache-signature computation and provenance
+    validation on warm query paths.
+    """
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT id, content_hash FROM chunks "
+        "WHERE document_id = ? ORDER BY chunk_index",
+        (document_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_chunks_by_document(document_id: str) -> list[dict[str, Any]]:
     """List all chunks for a document, ordered by chunk_index."""
     conn = get_connection()

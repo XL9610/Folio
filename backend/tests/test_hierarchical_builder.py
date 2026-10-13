@@ -19,7 +19,10 @@ from app.db.schema import create_tables
 from app.repositories.chunk_repository import get_chunks_by_document, insert_chunks
 from app.repositories.document_repository import create_source_document
 from app.repositories.notebook_repository import create_notebook
-from app.repositories.summary_node_repository import get_document_nodes
+from app.repositories.summary_node_repository import (
+    count_document_nodes,
+    get_document_nodes,
+)
 from app.services.generation.hierarchical_summary_builder import (
     PROMPT_VERSION,
     HierarchicalSummaryBuilder,
@@ -251,6 +254,12 @@ def test_fake_build_end_to_end(test_db):
     assert docs[0]["child_node_ids"] == [n["id"] for n in sections]
     topic = doc_card["major_topics"][0]
     assert set(topic["section_node_ids"]) <= {n["id"] for n in sections}
+    # The plan requires the document card to carry raw-chunk provenance too:
+    # the fake cites only section nodes, so the raw ids are derived from the
+    # cited sections' validated provenance.
+    assert topic["source_chunk_ids"]
+    assert set(topic["source_chunk_ids"]) <= chunk_ids
+    assert docs[0]["source_chunk_ids"]
 
     # Second build is a cache hit (no new LLM calls) unless forced.
     again = HierarchicalSummaryBuilder(llm_client=fake).build_document(
@@ -349,9 +358,9 @@ def test_document_card_reduction_uses_all_sections_in_order(test_db):
     )
     assert result.status == "built"
     assert result.group_count == 30
-    # 30 section calls + 4 document reduction calls, covering 8+8+8+6 cards.
-    assert fake.calls == 34
-    assert fake.doc_batches == [8, 8, 8, 6]
+    # 30 section calls + 5 document reduction calls (batch size 6).
+    assert fake.calls == 35
+    assert fake.doc_batches == [6, 6, 6, 6, 6]
     nodes = get_document_nodes(nb["id"], doc["id"])
     doc_node = [n for n in nodes if n["level"] == "document"][0]
     assert len(doc_node["child_node_ids"]) == 30
@@ -381,3 +390,66 @@ def test_wrong_notebook_fails_scope(test_db):
     )
     assert result.status == "failed"
     assert "notebook" in result.reason
+
+
+def test_batch_scoped_provenance_rejects_foreign_batch_ids(test_db):
+    """A point may only cite passages from the prompt batch it saw."""
+    nb = create_notebook("NB")
+    doc = create_source_document(nb["id"], "two.pdf", content_hash="h",
+                                 structure_status="embedded_toc")
+    insert_chunks(doc["id"], [{
+        "chunk_index": i, "text": f"chapter {i // 10 + 1} content. " * 10,
+        "title": f"Chapter {i // 10 + 1}",
+        "section_path": f"Chapter {i // 10 + 1}",
+        "page_start": i + 1, "page_end": i + 1, "chunk_strategy": "test",
+    } for i in range(14)])
+
+    rows = get_chunks_by_document(doc["id"])
+    chapter1_ids = [r["id"] for r in rows if r["section_path"] == "Chapter 1"]
+    chapter2_ids = [r["id"] for r in rows if r["section_path"] == "Chapter 2"]
+
+    class CrossBatchLLM(FakeLLM):
+        def complete_json(self, system_prompt, user_prompt, max_tokens=None):
+            if "section cards" in system_prompt:
+                return super().complete_json(system_prompt, user_prompt,
+                                             max_tokens=max_tokens)
+            self.calls += 1
+            return _resp({
+                "title": "Chapter 1",
+                "summary": "s",
+                # Cites one id from the current batch and one from Chapter 2
+                # (a different section, never shown in this prompt).
+                "points": [
+                    {"text": "ok point", "source_chunk_ids": chapter1_ids[:1]},
+                    {"text": "bad point", "source_chunk_ids": chapter2_ids[:1]},
+                ],
+            })
+
+    fake = CrossBatchLLM()
+    result = HierarchicalSummaryBuilder(llm_client=fake).build_document(
+        nb["id"], doc["id"],
+    )
+    assert result.status == "built"
+    nodes = get_document_nodes(nb["id"], doc["id"])
+    sections = {n["section_key"]: n for n in nodes if n["level"] == "section"}
+    ch1 = sections["Chapter 1"]
+    assert set(ch1["source_chunk_ids"]) <= set(chapter1_ids)
+    assert not (set(chapter2_ids) & set(ch1["source_chunk_ids"]))
+    card = json.loads(ch1["summary_json"])
+    texts = [p["text"] for p in card["points"]]
+    assert "ok point" in texts and "bad point" not in texts
+
+
+def test_notebook_delete_removes_summary_nodes(test_db):
+    """delete_notebook must not hit the summary-node FK and must clean up."""
+    nb = create_notebook("NB")
+    doc = _seed_doc(test_db, nb["id"])
+    HierarchicalSummaryBuilder(llm_client=FakeLLM()).build_document(
+        nb["id"], doc["id"],
+    )
+    from app.repositories.notebook_repository import delete_notebook
+    assert delete_notebook(nb["id"]) is True
+    assert count_document_nodes(nb["id"], doc["id"]) == {}
+    # The document itself is gone too (whole notebook delete succeeded).
+    from app.repositories.document_repository import get_document
+    assert get_document(doc["id"]) is None

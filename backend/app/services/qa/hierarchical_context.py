@@ -20,7 +20,10 @@ import json
 import logging
 from dataclasses import dataclass, field
 
-from ...repositories.chunk_repository import get_chunk_by_id, get_chunks_by_document
+from ...repositories.chunk_repository import (
+    get_chunk_by_id,
+    get_chunk_identity_by_document,
+)
 from ...repositories.document_repository import get_document
 from ...repositories.summary_node_repository import get_document_nodes
 from ..generation.hierarchical_summary_builder import compute_build_signature
@@ -146,11 +149,14 @@ class HierarchicalContextAdapter:
         doc = get_document(doc_id)
         if not doc or doc.get("notebook_id") != self._notebook_id:
             return None  # never broaden authorization boundaries
-        chunk_rows = get_chunks_by_document(doc_id)
-        if not chunk_rows:
+        # Identity-only read: the signature needs ordered ids + content
+        # hashes, and provenance validation needs the id set. Full chunk
+        # text is hydrated later, only for the evidence actually selected.
+        identity_rows = get_chunk_identity_by_document(doc_id)
+        if not identity_rows:
             return None
         signature = compute_build_signature(
-            doc.get("content_hash", ""), chunk_rows,
+            doc.get("content_hash", ""), identity_rows,
         )
         nodes = get_document_nodes(self._notebook_id, doc_id)
         doc_nodes = [n for n in nodes if n["level"] == "document"]
@@ -171,7 +177,7 @@ class HierarchicalContextAdapter:
         if not _valid_document_card_shape(doc_card):
             return None
         # Stored provenance must resolve to real chunks in this document.
-        valid_ids = {r["id"] for r in chunk_rows}
+        valid_ids = {r["id"] for r in identity_rows}
         if not set(doc_node["source_chunk_ids"]) <= valid_ids:
             return None
         for n in section_nodes:
@@ -210,13 +216,26 @@ class HierarchicalContextAdapter:
                 ],
                 "grouping_mode": e["grouping_mode"],
             }
-            summary.append(_fit_to_budget(item, budget - total))
-            total += _render_card_chars(item)
+            fitted = _fit_to_budget(item, budget - total)
+            if fitted is None:
+                # Never silently drop a whole document: keep a minimal card.
+                fitted = {
+                    "document_id": item["document_id"],
+                    "filename": item["filename"],
+                    "title": item["title"],
+                    "grouping_mode": item["grouping_mode"],
+                }
+                if _render_card_chars(fitted) > budget - total:
+                    fitted["title"] = fitted["title"][:24]
+            summary.append(fitted)
+            total += _render_card_chars(fitted)
 
-        # Section cards fill the remainder, fairly across documents.
+        # Section cards fill the remainder, fairly across documents. A card
+        # that cannot fit is requeued so other documents' smaller cards can
+        # still be added; the loop ends only when a full pass adds nothing.
         queues = [list(e["section_cards"]) for e in per_doc]
         while total < budget:
-            added = False
+            progressed = False
             for i, queue in enumerate(queues):
                 if not queue:
                     continue
@@ -233,11 +252,11 @@ class HierarchicalContextAdapter:
                 fitted = _fit_to_budget(item, budget - total)
                 if fitted is None:
                     queues[i] = [card, *queue]
-                    break
+                    continue
                 summary.append(fitted)
                 total += _render_card_chars(fitted)
-                added = True
-            if not added:
+                progressed = True
+            if not progressed:
                 break
 
         return summary, total
