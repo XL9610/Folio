@@ -169,7 +169,7 @@ class AgenticAskPipeline:
         tool_trace.append(ToolTraceItem(
             name="planner",
             status="ok",
-            args={"task": plan.task},
+            args={"task": plan.task, "retrieval_scope": plan.retrieval_scope},
         ))
 
         # If planner itself says clarify

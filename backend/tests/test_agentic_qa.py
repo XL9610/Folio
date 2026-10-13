@@ -52,6 +52,7 @@ class FakeLLM:
 def test_planner_overview():
     llm = FakeLLM({
         "task": "overview",
+        "retrieval_scope": "whole_source",
         "tool_calls": [
             {"name": "get_source_metadata", "args": {"document_ids": ["d1"]}},
             {"name": "get_source_outline", "args": {"document_ids": ["d1"]}},
@@ -60,9 +61,10 @@ def test_planner_overview():
     planner = AgentPlanner(llm)
     result = planner.plan("What is this book about?", None, ["d1"])
     assert result.task == "overview"
+    assert result.retrieval_scope == "whole_source"
     # Overview augmentation adds a body-chunk retrieval so the answer is grounded.
     assert [t.name for t in result.tool_calls] == [
-        "get_source_metadata", "get_source_outline", "get_source_chunks",
+        "get_source_metadata", "get_source_outline", "retrieve_chunks", "get_source_chunks",
     ]
 
 
@@ -102,6 +104,7 @@ def test_planner_overview_skips_named_section_query():
 def test_planner_concept_question():
     llm = FakeLLM({
         "task": "explain_concept",
+        "retrieval_scope": "fact",
         "tool_calls": [
             {"name": "retrieve_chunks", "args": {"query": "data structure definition", "document_ids": ["d1"], "top_k": 8}}
         ]
@@ -109,6 +112,7 @@ def test_planner_concept_question():
     planner = AgentPlanner(llm)
     result = planner.plan("What is a data structure?", None, ["d1"])
     assert result.task == "explain_concept"
+    assert result.retrieval_scope == "fact"
     assert result.tool_calls[0].name == "retrieve_chunks"
 
 
@@ -179,6 +183,61 @@ def test_planner_unknown_task_defaults():
     planner = AgentPlanner(llm)
     result = planner.plan("query", None, ["d1"])
     assert result.task == "answer_directly"  # unknown → default
+
+
+def test_planner_whole_source_scope_routes_without_regex_phrase():
+    llm = FakeLLM({
+        "planner_label": "explain",
+        "retrieval_scope": "whole_source",
+        "tool_calls": [
+            {
+                "name": "retrieve_chunks",
+                "args": {"query": "political allegory", "document_ids": ["d1"]},
+            },
+        ],
+    })
+    result = AgentPlanner(llm).plan(
+        "How does the protagonist's journey develop the novel's themes?",
+        None,
+        ["d1"],
+    )
+    assert result.retrieval_scope == "whole_source"
+    assert [t.name for t in result.tool_calls] == [
+        "retrieve_chunks", "get_source_chunks",
+    ]
+    assert result.tool_calls[1].args["_coverage"] is True
+
+
+def test_planner_section_scope_overrides_whole_source_wording():
+    llm = FakeLLM({
+        "planner_label": "summarize",
+        "retrieval_scope": "section",
+        "tool_calls": [
+            {
+                "name": "find_sections",
+                "args": {"section_query": "methods", "document_ids": ["d1"]},
+            },
+            {
+                "name": "get_section_chunks",
+                "args": {"section_paths": [], "document_ids": ["d1"]},
+            },
+        ],
+    })
+    result = AgentPlanner(llm).plan(
+        "Give an overview of the methods section.", None, ["d1"]
+    )
+    assert result.retrieval_scope == "section"
+    assert "get_source_chunks" not in [t.name for t in result.tool_calls]
+
+
+def test_planner_invalid_scope_falls_back_to_unknown():
+    llm = FakeLLM({
+        "planner_label": "answer",
+        "retrieval_scope": "everything_everywhere",
+        "tool_calls": [],
+    })
+    result = AgentPlanner(llm).plan("Hello", None, ["d1"])
+    assert result.retrieval_scope == "unknown"
 
 
 # ──────────────────────────────────────────────────────────────────────

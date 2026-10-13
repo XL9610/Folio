@@ -43,6 +43,10 @@ class TestShouldRerank:
         from app.services.qa.tools import _should_rerank
         assert _should_rerank("explain_concept") is True
 
+    def test_whole_source_scope_suppresses_pointwise_rerank(self):
+        from app.services.qa.tools import _should_rerank
+        assert _should_rerank("explain_concept", "whole_source") is False
+
     def test_compare_rerank(self):
         from app.services.qa.tools import _should_rerank
         assert _should_rerank("compare") is True

@@ -1,0 +1,524 @@
+[
+  {
+    "id": "h-frankenstein-overview",
+    "question": "Give a high-level account of the novel's narrative, major relationships, and central concerns.",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+    "document_filename": "Frankenstein_Project_Gutenberg_84.txt",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "886bc2593f98e34bc4bcb134062b4812280273c3fdc4da0dbc24d20aceba955d",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "wanderer? You would not if you saw him. You have been tutored and refined by books and retirement from the world, and you are therefore somewhat fastidious; but this only renders you the more fit to appreciate the extraordinary merits of th"
+      },
+      {
+        "chunk_content_hash": "b84963f20398dff410e3d4ee0ab708e4a95ac856c7ee4f6880fb7cf7a36b8025",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "leaves of that year had withered before my work drew near to a close, and now every day showed me more plainly how well I had succeeded. But my enthusiasm was checked by my anxiety, and I appeared rather like one doomed by slavery to toil i"
+      },
+      {
+        "chunk_content_hash": "ecc8778656324e870318ae1d3dc1f69f5bd9e38bf247326424ac19fed1c114d8",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "ice, wound among its dependent mountains, whose aerial summits hung over its recesses. Their icy and glittering peaks shone in the sunlight over the clouds. My heart, which was before sorrowful, now swelled with something like joy; I exclai"
+      },
+      {
+        "chunk_content_hash": "632bfb0c84f0852871c2a5c8c500e09cacb8fe28b691e62e876430734be3003f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "Safie, Agatha, and Felix departed on a long country walk, and the old man, at his own desire, was left alone in the cottage. When his children had departed, he took up his guitar and played several mournful but sweet airs, more sweet and mo"
+      },
+      {
+        "chunk_content_hash": "6fb93f7ca59291ab2cf85ed81d603f6faad2544750fad67d4fc0c2df34aac29c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "myself would not deny herself to me. My companion must be of the same species and have the same defects. This being you must create.” Chapter 17 The being finished speaking and fixed his looks upon me in the expectation of a reply. But I wa"
+      },
+      {
+        "chunk_content_hash": "9ca43c1c48d9133a88988cf4ab8b82d41e5ecebac5d2c156a29c4a59b0aa3c1b",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": ", of the existence of the whole human race. I trembled and my heart failed within me, when, on looking up, I saw by the light of the moon the dæmon at the casement. A ghastly grin wrinkled his lips as he gazed on me, where I sat fulfilling "
+      },
+      {
+        "chunk_content_hash": "14dfba50d25d48b19ece6d0717c451f0f2bc6b264ff4deb53bf337846f93d605",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "me or any other living thing. I have devoted my creator, the select specimen of all that is worthy of love and admiration among men, to misery; I have pursued him even to that irremediable ruin. There he lies, white and cold in death. You h"
+      }
+    ]
+  },
+  {
+    "id": "h-time-machine-overview",
+    "question": "Describe the work as a whole, including its journey, future societies, and larger social ideas.",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "83cf87cf2c735bf6ad8d1ecbab6229dc73dfdbc159fa8f51f615a6d8ae3620c9",
+    "document_filename": "The_Time_Machine_H_G_Wells_z_library_sk,_1lib_sk,_z_lib_sk.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "16d7bb683f4a445f42b47cc839e9428d2c6af7b8ca36c189a346fc4d44a9c840",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter I",
+        "excerpt": "distinction between the former three dimensions and the latter, because it happens that our consciousness moves intermittently in one direction along the latter from the beginning to the end of our lives.” “That,” said a very young man, mak"
+      },
+      {
+        "chunk_content_hash": "d898561101a97cb4ed4327ff1769a9f41a1cce5c1e8990b315a4122647b0d9aa",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": "of cloud whirled into nothingness. The great buildings about me stood out clear and distinct, shining with the wet of the thunderstorm, and picked out in white by the unmelted hailstones piled along their courses. I felt naked in a strange "
+      },
+      {
+        "chunk_content_hash": "45005246d44c5f41ace4b83a5ac3bb35b36f050f0da8440357c0c3182531f8a5",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter V",
+        "excerpt": "was wrong. “This happened in the morning. In the afternoon I met my little woman, as I believe it was, as I was returning towards my centre from an exploration, and she received me with cries of delight and presented me with a big garland o"
+      },
+      {
+        "chunk_content_hash": "63ed4b6753503f6670c70ea1eef681ca665f42eb7a906371503ced949adf6e09",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter V",
+        "excerpt": "the shape of my theory; though, for myself, I very soon felt that it fell far short of the truth. “At first, proceeding from the problems of our own age, it seemed clear as daylight to me that the gradual widening of the present merely temp"
+      },
+      {
+        "chunk_content_hash": "3db3dd9d5013c6a4d43e177fb0e59354bf9b3acaac0a280767838a597aa413fb",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter VII",
+        "excerpt": "little Upper-world people for the dark. I wondered vaguely what foul villainy it might be that the Morlocks did under the new moon. I felt pretty sure now that my second hypothesis was all wrong. The Upper-world people might once have been "
+      },
+      {
+        "chunk_content_hash": "b12aed8096949d3e027332fe4add76c02f733201ffa9cb536ed0ad5d3106b5be",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter XI",
+        "excerpt": "I noticed that I was breathing very fast. The sensation reminded me of my only experience of mountaineering, and from that I judged the air to be more rarefied than it is now. “Far away up the desolate slope I heard a harsh scream, and saw "
+      },
+      {
+        "chunk_content_hash": "99b3c188d64505bfa0581d3bd5b767e6b35b3683897490e2a83213a6245f39a2",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter XII",
+        "excerpt": "Chapter XII XII “S O I CAME BACK. For a long time I must have been insensible upon the machine. The blinking succession of the days and nights was resumed, the sun got golden again, the sky blue. I breathed with greater freedom. The fluctua"
+      }
+    ]
+  },
+  {
+    "id": "h-origin-overview",
+    "question": "Outline the scientific case developed across this book and the main kinds of evidence used.",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "c329be73f04d5900b1927e4511c30c449dc06d7aa7f7abb05edfa2d83de6590d",
+    "document_filename": "The_Origin_Of_Species_150th_Anniversa_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "1433168bd60f5cc722cbbdbea70472702e63a7f444c0166ce4e7af18a9ae3536",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER I - VARIATION UNDER DOMESTICATION",
+        "excerpt": "CHAPTER I - VARIATION UNDER DOMESTICATION CHAPTER I VARIATION UNDER DOMESTICATION Causes of variability—Effects of habit and the use or disuse of parts—-Correlated variation—Inheritance—Character of domestic varieties—Difficulty of distingu"
+      },
+      {
+        "chunk_content_hash": "66cd914dbf308cdd94619a3c7c77154cfddcb93bcaa4b3e2fc35a23b52f11215",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER III - STRUGGLE FOR EXISTENCE",
+        "excerpt": "CHAPTER III - STRUGGLE FOR EXISTENCE CHAPTER III STRUGGLE FOR EXISTENCE Its bearing on natural selection-The term used in a wide sense-Geometncal ratio of increase-Rapid increase of naturalised animals and plants-Nature of the checks to inc"
+      },
+      {
+        "chunk_content_hash": "767a0f67b127669078ce7d135964dcfcda5b7ca8502f6d139f5a4e7a472d7384",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER IV - NATURAL SELECTION; OR THE SURVIVAL OF THE FITTEST",
+        "excerpt": "others, would have the best chance of surviving and of procreating their kind? On the other hand, we may feel sure that any variation in the least degree injurious would be rigidly destroyed. This preservation of favourable individual diffe"
+      },
+      {
+        "chunk_content_hash": "d14cf0362079d4df13280878e9e97f7014ff20fc19aaa354ce17c43cef623093",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER VI - DIFFICULTIES OF THE THEORY",
+        "excerpt": "them, well defined? Secondly, is it possible that an animal having, for instance, the structure and habits of a bat, could have been formed by the modification of some other animal with widely different habits and structure? Can we believe "
+      },
+      {
+        "chunk_content_hash": "9e5f6536950327ff969fac0ee416776682403c3e6ce29dfe4a50ae485d5eba52",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER X - ON THE IMPERFECTION OF THE GEOLOGICAL RECORD",
+        "excerpt": "CHAPTER X - ON THE IMPERFECTION OF THE GEOLOGICAL RECORD CHAPTER X ON THE IMPERFECTION OF THE GEOLOGICAL RECORD On the absence of intermediate varieties at the present day—On the nature of extinct intermediate varieties; on their number—On "
+      },
+      {
+        "chunk_content_hash": "f3b7fd19b3a630a64d3bfe5c992673afe1e0d6e58cd9924cf992ffa2b0bac62f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER XII - GEOGRAPHICAL DISTRIBUTION",
+        "excerpt": "CHAPTER XII - GEOGRAPHICAL DISTRIBUTION CHAPTER XII GEOGRAPHICAL DISTRIBUTION Present distribution cannot be accounted for by differences in physical conditions—Importance of barriers—Affinity of the productions of the same continent—Centre"
+      },
+      {
+        "chunk_content_hash": "7aa8c3b1041b8d0c75198245690f4b574e36b9d51409459fa9c67bde9e3a545f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER XV - RECAPITULATION AND CONCLUSION",
+        "excerpt": "CHAPTER XV - RECAPITULATION AND CONCLUSION CHAPTER XV RECAPITULATION AND CONCLUSION Recapitulation of the objections to the theory of natural selection-Recapitulation of the general and special circumstances in its favour-Causes of the gene"
+      }
+    ]
+  },
+  {
+    "id": "h-republic-overview",
+    "question": "What broad philosophical project unfolds across this dialogue?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "398a85e1e8a8014b930173201b2bd8e0442f6e61f96087db171e17ca6388ee78",
+    "document_filename": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "38c46febd625889867a3fc47a6314363961e23ed3f7e1fa705d19724819d0947",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "we laid down — and often repeated, if you remember — was that each tndi- vidual should follow, out of the occupations available in the city, the one for which his natural character best fitted him,’\" “Yes, we did say that.’ ‘And we have oft"
+      },
+      {
+        "chunk_content_hash": "ba96dec65205b33c4dd8fa9c67ea5f39928965c8fa561f759e411b7e03f302ab",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": ", then we shall go back to the city again, and test it on that, If we look at the two side by side, perhaps we can get a spark from them. * See qhke. 12g Socrates, Glancon fhe Republic Like rubbing dry sticks together. If that makes justice"
+      },
+      {
+        "chunk_content_hash": "d1540a204d7eed1db36222717bd2b6376b5db0ed5e9defa9f2f7629c45e64680",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "even tf it is literally the laughter of the waves which is going to engulf me in ridicule and humil- tation. Listen carefully to what | am about to say.’ “Tell me.’ “There is no end to suffering, Glaucon, for our cities, and none, I d suspe"
+      },
+      {
+        "chunk_content_hash": "7ec1b40257a5a3ad36e705361d5e3b792c2217e76dc975e21be98b8bf5cd215c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "line and the location of its first cur. Whether Plata intended this fret to be significant is much disputed. Imagine, for example, that the line is nine units long, and is cur first at the three-unit mark. It Taust then be cut at the one- a"
+      },
+      {
+        "chunk_content_hash": "1cd3af4410daa3b288bbd16b87b12c92a9f41647919c76623b939950c0176989",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "then, to describe the ones who are less good — the lover of victory and honour, who corresponds to the Spartan regime, and then in turn the oligarchic character, the democratic, and the tvranmical? That way we can contrast the most unjust, "
+      },
+      {
+        "chunk_content_hash": "69f7193cd780d1ecd76e1bf22026cf951ba189ac2f7484834a39ec2e88be64ea",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "*in number or magnitude, when com- pared with the rewards and punishments which await each of them after death. You ought to hear those too, if each is to receive in full the payment the argument owes him.’ “Please tell us,” he said. ‘I can"
+      }
+    ]
+  },
+  {
+    "id": "h-souls-overview",
+    "question": "What subjects and recurring arguments connect the essays in this collection?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "cefa1889bd03ad75707510bb42ddc8d1258bd6dc1a556a72e99f83aeace6160f",
+    "document_filename": "The_Souls_of_Black_Folk_W_E_B_Du_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "83af40d36647d4c41aa3aa5c5ca334dd8b64c098c7aae81201bb913030d14508",
+        "page_start": 42,
+        "page_end": 50,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > I. Of Our Spiritual Strivings",
+        "excerpt": "ale world about them and mocking distrust of everything white; or wasted itself in a bitter cry, Why did God make me an outcast and a stranger in mine own house? The shades of the prison-house closed round about us all: walls strait and stu"
+      },
+      {
+        "chunk_content_hash": "42337b2ff434d82db9e043dbf41a77941cf42719fc4969e23780265c72b4e9d5",
+        "page_start": 51,
+        "page_end": 71,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > II. Of the Dawn of Freedom",
+        "excerpt": "despite effort and disclaimer. No sooner had Northern armies touched Southern soil than this old question, newly guised, sprang from the earth,—What shall be done with Negroes? Peremptory military commands, this way and that, could not answ"
+      },
+      {
+        "chunk_content_hash": "5e32a6489942d2e443b9f639e1bfe49901cca70984df4f20f0102681a0e075e8",
+        "page_start": 72,
+        "page_end": 85,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > III. Of Mr. Booker T. Washington and Others",
+        "excerpt": "and yet one as the hand in all things essential to mutual progress.” This “Atlanta Compromise” is by all odds the most notable thing in Mr. Washington’s career. The South interpreted it in different ways: the radicals received it as a compl"
+      },
+      {
+        "chunk_content_hash": "6aa407a914f3538efc7631724fb1b66c4397806cfb941f981183b37a5f9eee30",
+        "page_start": 107,
+        "page_end": 122,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > VI. Of the Training of Black Men",
+        "excerpt": "write, and cipher; and they must have higher schools to teach teachers for the common schools. The white teachers who fl ocked South went to establish such a common-school system. Few held the idea of founding colleges; most of them at fi r"
+      },
+      {
+        "chunk_content_hash": "c32741dca58237d243c801e0bfc1179ef00a00b2d53b060b9fc228e9252ac3bd",
+        "page_start": 123,
+        "page_end": 140,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > VII. Of the Black Belt",
+        "excerpt": "of the Creek Indians; and a hard time the Georgians had to seize it. The towns grow more frequent and more interest- ing, and brand-new cotton mills rise on every side. Below Macon the world grows darker; for now we approach the Black Belt,"
+      },
+      {
+        "chunk_content_hash": "3228620b1d12a9e841b3eb1a59e7baf41b54f38444064ea111f409278951319e",
+        "page_start": 181,
+        "page_end": 194,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > X. Of the Faith of the Fathers",
+        "excerpt": "regular weekly religious services. Considerable sums of money are collected and expended here, employment is found for the idle, strangers are introduced, news is disseminated and charity distributed. At the same time this social, intellect"
+      },
+      {
+        "chunk_content_hash": "ebb1ea9d305f16add4e435830eb9cb56fe2c50e7bb62f1e25e1a4a4c17ae09f0",
+        "page_start": 227,
+        "page_end": 238,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > XIV. The Sorrow Songs",
+        "excerpt": "sea, before Queen and Kaiser, in Scotland and Ireland, Holland and Switzerland. Seven years they sang, and brought back a hundred and fi fty thousand dollars to found Fisk University. Since their day they have been imitated—sometimes well, "
+      }
+    ]
+  },
+  {
+    "id": "h-douglass-overview",
+    "question": "Provide an overall account of Douglass's life story and the ideas developed through it.",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "a5818fad42442c9efe1bcd56e1d274cb665c51afa86f6f8f10c2695453c2524d",
+    "document_filename": "Narrative_of_the_Life_of_Frederick_Do_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "ab44f88f8357167a4a14d5cff6ad946cff952f82b57e3ff4b6ecd3d8d8452323",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "too old for field labor. For what this separation is done, I do not know, unless it be to hinder the development of the child's affection toward its mother, and to blunt and destroy the natural affection of the mother for the child. This is"
+      },
+      {
+        "chunk_content_hash": "808b20e4a6f6d1f41979c3e70a86959e532bde037e95e70fd2f909539054d4a4",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "obey his master—to do as he is told to do. Learning would spoil the best nigger in the world. Now,\" said he, \"if you teach that nigger (speaking of myself) how to read, there would be no keeping him. It would forever unfit him to be a slave"
+      },
+      {
+        "chunk_content_hash": "04dd1dd6fe785ff624338489fcc173c9cc9e97e99e1a818d080d62715ace25b9",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "be something more than I at first had taken it to be. All went well till Monday morning. On this morning, the virtue of the ROOT was fully tested. Long before daylight, I was called to go and rub, curry, and feed, the horses. I obeyed, and "
+      },
+      {
+        "chunk_content_hash": "d08ab84fe04955ffe13a3337fa2f1bfe5b291fe6bd68ec6692c4314cf66b2dd5",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": ". The rest of his hands he hired. These consisted of myself, Sandy Jenkins, [1] and Handy Caldwell. Henry and John were quite intelligent, and in a very little while after I went there, I succeeded in creating in them a strong desire to lea"
+      },
+      {
+        "chunk_content_hash": "6db902467b09e1d97756f778898aa14fe33838d1b28287cd54cedc2bb0f7ecae",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "had been in New York but a few days, when Mr. Ruggles sought me out, and very kindly took me to his boarding–house at the corner of Church and Lespenard Streets. Mr. Ruggles was then very deeply engaged in the memorable Darg case, as well a"
+      },
+      {
+        "chunk_content_hash": "247ac2e510e063e0163700b50feb10ca43ed850617634551e2a913eafa8e684e",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "timid than themselves, and the betrayer escaped their vengeance, and has not been seen in New Bedford since. I believe there have been no more such threats, and should there be hereafter, I doubt not that death would be the consequence. I f"
+      }
+    ]
+  },
+  {
+    "id": "h-frankenstein-pinpoint",
+    "question": "Why does the creature ask Victor to create a companion?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+    "document_filename": "Frankenstein_Project_Gutenberg_84.txt",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "c5d7e1b86c9a8f93922938e743841265ecfb0c277a11795c4187c28999260af1",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "beloved, awake!’ “The sleeper stirred; a thrill of terror ran through me. Should she indeed awake, and see me, and curse me, and denounce the murderer? Thus would she assuredly act if her darkened eyes opened and she beheld me. The thought "
+      },
+      {
+        "chunk_content_hash": "6fb93f7ca59291ab2cf85ed81d603f6faad2544750fad67d4fc0c2df34aac29c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "myself would not deny herself to me. My companion must be of the same species and have the same defects. This being you must create.” Chapter 17 The being finished speaking and fixed his looks upon me in the expectation of a reply. But I wa"
+      },
+      {
+        "chunk_content_hash": "826ac779812fa1bbb3668c97a65afbb5c94a13eb8bb0900ae06f07fdcbbf73ed",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Frankenstein_Project_Gutenberg_84.txt",
+        "excerpt": "too horrible for human eyes to behold; but presently he calmed himself and proceeded— “I intended to reason. This passion is detrimental to me, for you do not reflect that _you_ are the cause of its excess. If any being felt emotions of ben"
+      }
+    ]
+  },
+  {
+    "id": "h-time-machine-pinpoint",
+    "question": "What distinguishes the Eloi from the Morlocks?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "83cf87cf2c735bf6ad8d1ecbab6229dc73dfdbc159fa8f51f615a6d8ae3620c9",
+    "document_filename": "The_Time_Machine_H_G_Wells_z_library_sk,_1lib_sk,_z_lib_sk.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "0cf930556b759f55c9984e806d800a37f836f4d0137f2f55f0f990e7ad5b31fd",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter V",
+        "excerpt": "was so like a human spider! It was clambering down the wall, and now I saw for the first time a number of metal foot and hand rests forming a kind of ladder down the shaft. Then the light burned my fingers and fell out of my hand, going out"
+      },
+      {
+        "chunk_content_hash": "63ed4b6753503f6670c70ea1eef681ca665f42eb7a906371503ced949adf6e09",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter V",
+        "excerpt": "the shape of my theory; though, for myself, I very soon felt that it fell far short of the truth. “At first, proceeding from the problems of our own age, it seemed clear as daylight to me that the gradual widening of the present merely temp"
+      },
+      {
+        "chunk_content_hash": "3db3dd9d5013c6a4d43e177fb0e59354bf9b3acaac0a280767838a597aa413fb",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter VII",
+        "excerpt": "little Upper-world people for the dark. I wondered vaguely what foul villainy it might be that the Morlocks did under the new moon. I felt pretty sure now that my second hypothesis was all wrong. The Upper-world people might once have been "
+      }
+    ]
+  },
+  {
+    "id": "h-origin-pinpoint",
+    "question": "How does Darwin explain natural selection?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "c329be73f04d5900b1927e4511c30c449dc06d7aa7f7abb05edfa2d83de6590d",
+    "document_filename": "The_Origin_Of_Species_150th_Anniversa_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "e211b6c3bd68464018f2d4f9bef7892e0e5d031f86a72b6ad60d52122094d592",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER IV - NATURAL SELECTION; OR THE SURVIVAL OF THE FITTEST",
+        "excerpt": "variations and individual differences occurring in our domestic productions, and, in a lesser degree, in those under nature, be borne in mind; as well as the strength of the hereditary tendency. Under domestication, it may be truly said tha"
+      },
+      {
+        "chunk_content_hash": "767a0f67b127669078ce7d135964dcfcda5b7ca8502f6d139f5a4e7a472d7384",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "CHAPTER IV - NATURAL SELECTION; OR THE SURVIVAL OF THE FITTEST",
+        "excerpt": "others, would have the best chance of surviving and of procreating their kind? On the other hand, we may feel sure that any variation in the least degree injurious would be rigidly destroyed. This preservation of favourable individual diffe"
+      }
+    ]
+  },
+  {
+    "id": "h-republic-pinpoint",
+    "question": "What does the allegory of the cave illustrate?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "398a85e1e8a8014b930173201b2bd8e0442f6e61f96087db171e17ca6388ee78",
+    "document_filename": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "7ec1b40257a5a3ad36e705361d5e3b792c2217e76dc975e21be98b8bf5cd215c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "line and the location of its first cur. Whether Plata intended this fret to be significant is much disputed. Imagine, for example, that the line is nine units long, and is cur first at the three-unit mark. It Taust then be cut at the one- a"
+      },
+      {
+        "chunk_content_hash": "a06459cc2dee63292393513f4cf981a12acd480d6d8a61cae8efec44ec104b59",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": "puppet show, and above which they make the Puppets appear,” “res, | can picture all that,’ he said. ‘Picture also, along the length of the wall, people carrying all sorts of implements which project above it, and statues of people, and anim"
+      },
+      {
+        "chunk_content_hash": "74439379cc663e562627fd3074b2ef2f9592694f51c75a6fef55cb9692580227",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Plato_The_Republic_Plato,_G_R_F_F_z_library_sk,_1lib_sk,.pdf",
+        "excerpt": ".’ “Yes. What vou sav 1s entirely reasonable.* \"Well, I said, ‘if it’s true, there’s one conclusion we can't avoid. Education is not what some people proclaim it to be. What they say, roughly speaking, is that they are able to put knowledge"
+      }
+    ]
+  },
+  {
+    "id": "h-souls-pinpoint",
+    "question": "What does Du Bois mean by double consciousness?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "cefa1889bd03ad75707510bb42ddc8d1258bd6dc1a556a72e99f83aeace6160f",
+    "document_filename": "The_Souls_of_Black_Folk_W_E_B_Du_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "83af40d36647d4c41aa3aa5c5ca334dd8b64c098c7aae81201bb913030d14508",
+        "page_start": 42,
+        "page_end": 50,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > I. Of Our Spiritual Strivings",
+        "excerpt": "ale world about them and mocking distrust of everything white; or wasted itself in a bitter cry, Why did God make me an outcast and a stranger in mine own house? The shades of the prison-house closed round about us all: walls strait and stu"
+      },
+      {
+        "chunk_content_hash": "caea02f3d42388fdde99ec2830d60a42a9a0961ea6f880c9841e8a6e5b12aa76",
+        "page_start": 42,
+        "page_end": 50,
+        "section_path": "THE SOULS OF BLACK FOLK > The Forethought > I. Of Our Spiritual Strivings",
+        "excerpt": "Negro; two souls, two thoughts, two unreconciled strivings; two warring ideals in one dark body, whose dogged strength alone keeps it from being torn asunder. The history of the American Negro is the history of this strife— this longing to "
+      }
+    ]
+  },
+  {
+    "id": "h-douglass-pinpoint",
+    "question": "Why does Douglass consider learning to read a threat to slavery?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "a5818fad42442c9efe1bcd56e1d274cb665c51afa86f6f8f10c2695453c2524d",
+    "document_filename": "Narrative_of_the_Life_of_Frederick_Do_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "808b20e4a6f6d1f41979c3e70a86959e532bde037e95e70fd2f909539054d4a4",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The Narrative of the Life of Frederick Douglass",
+        "excerpt": "obey his master—to do as he is told to do. Learning would spoil the best nigger in the world. Now,\" said he, \"if you teach that nigger (speaking of myself) how to read, there would be no keeping him. It would forever unfit him to be a slave"
+      }
+    ]
+  }
+]

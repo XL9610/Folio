@@ -1,0 +1,444 @@
+[
+  {
+    "id": "h2-animal-overview",
+    "question": "How does the novel develop its political allegory from the animals' rebellion to the final transformation of the farm?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "b80756f5d38148ca5a6a9d007b51eb769148073b765373037001b2bff7663e00",
+    "document_filename": "Animal_Farm_George_Orwell_z_library_sk,_1lib_sk,_z_lib_sk.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "7bf80849523dd032385bf4d06734b063819435f93394ccddd9d477b709af42eb",
+        "page_start": 3,
+        "page_end": 6,
+        "section_path": "Animal Farm > I",
+        "excerpt": "within a year. To that horror we all must come−cows, pigs, hens, sheep, everyone. Even the horses and the dogs have no better fate. You, Boxer, the very day that those great muscles of yours lose their power, Jones will "
+      },
+      {
+        "chunk_content_hash": "edae76f7fed54cc79ed1b71be70968a85246043399454ee44afb7f9d0c8f0040",
+        "page_start": 7,
+        "page_end": 10,
+        "section_path": "Animal Farm > II",
+        "excerpt": ", they flung themselves upon their tormentors. Jones and his men suddenly found themselves being butted and kicked from all sides. The situation was quite out of their control. They had never seen animals behave like thi"
+      },
+      {
+        "chunk_content_hash": "b05f5bf39bcf49e8cedee4ff1c25b4df225165ddb0224590ee01f65eeb1efbc7",
+        "page_start": 16,
+        "page_end": 19,
+        "section_path": "Animal Farm > V",
+        "excerpt": "believes more firmly than Comrade Napoleon that all animals are equal. He would be only too happy to let you make your decisions for yourselves. But sometimes you might make the wrong decisions, comrades, and then where "
+      },
+      {
+        "chunk_content_hash": "7b549bdf2eab23dda8b677e40e0152170a8766a9215b94ca4db6af122af91838",
+        "page_start": 20,
+        "page_end": 23,
+        "section_path": "Animal Farm > VI",
+        "excerpt": "always right!\", but Clover, who thought she remembered a definite ruling against beds, went to the end of the barn and tried to puzzle out the Seven Commandments which were inscribed there. Finding herself unable to read"
+      },
+      {
+        "chunk_content_hash": "8728923a746bcc21ae61ac31631fa7dd9d8b1331ca3724d74e64e8133944b537",
+        "page_start": 24,
+        "page_end": 28,
+        "section_path": "Animal Farm > VII",
+        "excerpt": "this farm to keep his eyes very wide open. For we have reason to think that some of Snowball's secret agents are lurking among us at this moment! \" Animal Farm VII 24 Four days later, in the late afternoon, Napoleon orde"
+      },
+      {
+        "chunk_content_hash": "8c04493344503a12f4b7bcad1888088e99ebb537b0f774a412eda61a8a003d99",
+        "page_start": 35,
+        "page_end": 39,
+        "section_path": "Animal Farm > IX",
+        "excerpt": "chorused, \"good−bye!\" \"Fools! Fools!\" shouted Benjamin, prancing round them and stamping the earth with his small hoofs. \"Fools! Do you not see what is written on the side of that van?\" That gave the animals pause, and t"
+      },
+      {
+        "chunk_content_hash": "06f5e9fee687ac87de643b33b5d9fc14fc652c163cde12a9742d5d959e71a3b9",
+        "page_start": 40,
+        "page_end": 44,
+        "section_path": "Animal Farm > X",
+        "excerpt": "continued the game that had been interrupted, and the animals crept silently away. But they had not gone twenty yards when they stopped short. An uproar of voices was coming from the farmhouse. They rushed back and looke"
+      }
+    ]
+  },
+  {
+    "id": "h2-baseball-overview",
+    "question": "What does this book teach a newcomer about baseball, from basic rules and skills to the sport's history and culture?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "01a70c2b4e7797a73923cd1ab4e412d63208e43738164b97136293c22483e897",
+    "document_filename": "Baseball ( etc.) (z-library.sk, 1lib.sk, z-lib.sk).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "8559be1828a22268adfd31b2e94d47bb87b8f745f0396a09b87c1d8ef05c3196",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "1. Baseball",
+        "excerpt": "1. Baseball Baseball is often called America’s national pastime. That is because baseball fans all over the country love to play and watch this great game. They think baseball is the best sport in America…and maybe in th"
+      },
+      {
+        "chunk_content_hash": "0a36795bf1176d4bb2bb6fc4da38788b8fc17c3ea4b4aba9eaa6bf1e6c080f38",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "1. Baseball",
+        "excerpt": ". There are four main ways a batter or runner can be out. Strikeout A pitcher throws a ball that the batter tries to hit. If the batter swings and misses, it’s a strike. If the batter does not swing but the umpire says t"
+      },
+      {
+        "chunk_content_hash": "474dd81ad074f2f864248810adf94447a940a8ceb443b30af88af3e2a398cbf0",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "2. History of Baseball",
+        "excerpt": "2. History of Baseball Games with balls and bats have been around for a long time. About 3,500 years ago, the ancient Egyptians wrote about playing “hit catch” with bats, balls, and bases! In the 1600s, settlers sailed f"
+      },
+      {
+        "chunk_content_hash": "662732106433dcbd5c28c08be9830c11743bc96fa26d77591b333f5d6ccc388f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "3. The Great Jackie Robinson",
+        "excerpt": "3. The Great Jackie Robinson Jackie Robinson was born in Georgia in 1919. His grandparents had been slaves, and the family were poor farmers. No one could have guessed that this African American baby would grow up to cha"
+      },
+      {
+        "chunk_content_hash": "2009045ea58b55d78dc82185203d80adfbd579f87e64fba3c68b8f766d9992a9",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "4. National Baseball Hall of Fame",
+        "excerpt": "4. National Baseball Hall of Fame Every year about 300,000 baseball fans head to the National Baseball Hall of Fame and Museum in Cooperstown, New York. It’s the best place in the country to learn about the history of ba"
+      },
+      {
+        "chunk_content_hash": "a738a2f9bfabb2e3033cb04c507d19dfc4a3f994dabb0a784f46267129ecd09c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5. Chewing Gum, Balls, and Bats",
+        "excerpt": "5. Chewing Gum, Balls, and Bats Baseball players often follow rituals for good luck. If a team is behind, players will sometimes put on their “rally caps.” This means they turn their hats inside out and backward or wear "
+      },
+      {
+        "chunk_content_hash": "6126d97bcf30a067bd8c9b565b26037ccbaaf6a933decb31ce65302872273379",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "6. An Exciting, Wonderful Game",
+        "excerpt": "6. An Exciting, Wonderful Game No matter where they are from or the color of their skin, baseball brings people together. When a city’s team wins the World Series, all fans cheer and celebrate. And players from all backg"
+      }
+    ]
+  },
+  {
+    "id": "h2-car-overview",
+    "question": "What major design movements, technologies, and landmark cars shape the history presented in this book?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "0a9df524fd95568a11acbb872940858b76d33d13bce57be594e87ace4b9cc786",
+    "document_filename": "Speed_Read_Car_Design_The_History,_P_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "5a58387ce59f86d161567478affd28dae4ec3262ddea830c42de6775d956cbd2",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 1 THE BIRTH OF CAR DESIGN > THE BIRTH OF CAR DESIGN > DESIGN—THE GREAT DIFFERENTIATOR",
+        "excerpt": "DESIGN—THE GREAT DIFFERENTIATOR Design had little or no part to play when the very first automobiles sputtered to life. Even engineering—if it could be flattered with such a term—was in short supply as pioneer inventors "
+      },
+      {
+        "chunk_content_hash": "30f7eb577f66741d583d516840184d8a073f26890d5983e67275ec08effc1596",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 1 THE BIRTH OF CAR DESIGN > THE BIRTH OF CAR DESIGN > THE GOLDEN AGE OF CAR DESIGN",
+        "excerpt": "THE GOLDEN AGE OF CAR DESIGN If ever there was something that could be called a golden age for sheer style, it must be the 1920s and 1930s—the Jazz Age. For cars, it had all the right ingredients: they were the newest an"
+      },
+      {
+        "chunk_content_hash": "168b7a58dd519fe7d3fe34c19115be9f8ab5f70084beed5a599c48bd52d41a02",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 2 A CENTURY OF CHANGING SHAPES > A CENTURY OF CHANGING SHAPES > THEMES, STYLES AND TRENDS",
+        "excerpt": "THEMES, STYLES AND TRENDS Just as there are different movements and fashions in architecture, so is the world of car design steered by social trends and shifts in consumer taste. And as with the evolution of building sty"
+      },
+      {
+        "chunk_content_hash": "c4a5117a3ab4a87003bb26f5f1644acc613f648d4e9b747951c1c67dab2cc581",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 3 INNOVATION > INNOVATION > PUSHING THE BOUNDARIES",
+        "excerpt": "PUSHING THE BOUNDARIES Some industries progress in smooth, barely discernible, incremental steps; others, such as computers or electronics, advance in a series of dramatic leaps and bounds, where everything that went bef"
+      },
+      {
+        "chunk_content_hash": "39ad80f19df9ca4b8740b3571ad262ba5f194ba50f9768e6eb7cd0d421602992",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 4 THE ELEMENTS OF STYLE > THE ELEMENTS OF STYLE > STYLE, SUBSTANCE AND STATURE",
+        "excerpt": "STYLE, SUBSTANCE AND STATURE It’s true for people, and it’s just as true for cars: some have real style, while others clearly don’t. Style is notoriously tricky to define, yet everyone knows it as soon as they see it. Ca"
+      },
+      {
+        "chunk_content_hash": "d9edcb7d625810df561efe8f8d09d6094641a44a0e5cd7feccd273da84969162",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 5 ENGINEERING, INTERIORS, AND SPACE > ENGINEERING, INTERIORS AND SPACE > ENGINEERING, PACKAGING AND SPACE EFFICIENCY",
+        "excerpt": "ENGINEERING, PACKAGING AND SPACE EFFICIENCY In car design it is engineering that, even though hidden well away below shiny surfacing, determines almost everything. Dimensions laid down by chassis engineers provide the ba"
+      },
+      {
+        "chunk_content_hash": "b624ac08c7c1d617d615ceee359c5764e17663f3deba7c743f171f07afe940b6",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 7 AND WHAT COMES NEXT? > AND WHAT COMES NEXT? > THE ROAD AHEAD",
+        "excerpt": "THE ROAD AHEAD As we approach the end of the second decade of the 21st century we can look back at the 130 years of car design that have given shape to the automotive culture we hold so dear (many of the finest examples "
+      }
+    ]
+  },
+  {
+    "id": "h2-catcher-overview",
+    "question": "How does Holden's journey through the novel develop its themes of alienation, grief, and resistance to adulthood?",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "5003be83ca89e55190a7d3257c6cd8e92818fb5d3e2524e81864564cfc4a3ab3",
+    "document_filename": "The_Catcher_in_the_Rye_J_D_Salinger_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "6d5901f5cc19000ed072d2406ea5ce374d2d705b8d1d4f3b5eefe32c512d3b55",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "1",
+        "excerpt": "1 &#13; I F YOU REALLY WANT TO HEAR about it, the first thing you’ll probably want to know is where I was born, and what my lousy childhood was like, and how my parents were occupied and all before they had me, and all t"
+      },
+      {
+        "chunk_content_hash": "5d1c10b56ecd56b1f7075374565fa2a8f7d1774ff60cd471bc1afb0385adf624",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "5",
+        "excerpt": "only thirteen, and they were going to have me psychoanalyzed and all, because I broke all the windows in the garage. I don’t blame them. I really don’t. I slept in the garage the night he died, and I broke all the goddam"
+      },
+      {
+        "chunk_content_hash": "638a9df1fda13d771f7ba2561dd45f4131e04145726a6ef1fa81142a8914777f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "7",
+        "excerpt": "7 &#13; A TINY BIT OF LIGHT came through the shower curtains and all from our room, and I could see him lying in bed. I knew damn well he was wide awake. “Ackley?” I said. “Y’awake?” &#13; “Yeah.” &#13; It was pretty dar"
+      },
+      {
+        "chunk_content_hash": "987c8287b99d699db25584c9ff1f55cf3f2acfe8178119ee6c7730f7fa38a38a",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "16",
+        "excerpt": "16 &#13; A FTER I HAD MY BREAKFAST , it was only around noon, and I wasn’t meeting old Sally till two o’clock, so I started taking this long walk. I couldn’t stop thinking about those two nuns. I kept thinking about that"
+      },
+      {
+        "chunk_content_hash": "fde08d01148c6a221c360ad855da38c5ce14f80a3b9af3d77bd5117ce452dabd",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "22",
+        "excerpt": "coming through the rye.” I didn’t know it then, though. &#13; “I thought it was ‘If a body catch a body,’” I said. “Anyway, I keep picturing all these little kids playing some game in this big field of rye and all. Thous"
+      },
+      {
+        "chunk_content_hash": "fd0fd13790ef09584a9e874db9d8ad29843f2572d8fd9192327992a95bcd7791",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "25",
+        "excerpt": "thought you were supposed to be in a play at school and all. I thought you were supposed to be Benedict Arnold in that play and all,” I said. I said it very nasty. “Wuddaya want to do? Not be in the play, for God’s sake?"
+      },
+      {
+        "chunk_content_hash": "e9fec06f42923d630cf74826b2a512ba11ae7e526fdd65af1ebf3153e82ad16f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "26",
+        "excerpt": "26 &#13; T HAT’S ALL I’m going to tell about. I could probably tell you what I did after I went home, and how I got sick and all, and what school I’m supposed to go to next fall, after I get out of here, but I don’t feel"
+      }
+    ]
+  },
+  {
+    "id": "h2-color-overview",
+    "question": "Trace the major changes in Celie's life, voice, and relationships throughout the novel.",
+    "category": "overview_holdout",
+    "difficulty": "hard",
+    "document_hash": "07ced1c7152339044f3de4330f1f01bf5a1b0275b7048c33e0066874e880d736",
+    "document_filename": "The_Color_Purple_Alice_Walker_z_library_sk,_1lib_sk,_z_lib_sk.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a58d8ae7eb5f4e416ba4b2974eddaafef22284a4263a01933d4e1fe000911535",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "Without whose assistance Neither this book Nor I Would have been Written. iii Show me how to do like you Show me how to do it. ?Stevie Wonder 1 You better not never tell nobody but God. Ifd killyour. mammy. Dear God, I a"
+      },
+      {
+        "chunk_content_hash": "e8a03da5f47a462192504932313ba0a027ae56f8df421de64455d6f79a9d0d7d",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "woman should have been your mammy, he say. Shug Avery? Harpo ast. He look up at me. Help me git her in the house, Mr. ??? say. I think my heart gon fly out my mouth when I see one of her foots come poking out. She not ly"
+      },
+      {
+        "chunk_content_hash": "208e5857224cd7b0dfe4f4b2934b82c63f95a49e8c5cf684bd06b5ecc2fb9cd9",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "'em. You reckon that's the truth? say Mary Agnes. She all big eyed and delight. I don't know if I want her to sing, say Harpo. How come? ast Shug. That woman you got singing now can't git her ass outthe church. Folks don"
+      },
+      {
+        "chunk_content_hash": "a93dc1cd3d39d6d95277beb3ac877fd7bbd322fc51317aab0e6c9d305d54d57c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "I don't write to God no more, I write to you. What happen to God? ast Shug. Who that? I say. She look at me serious. Big a devil as you is, I say, you not worried bout no God, surely. She say, Wait a minute. Hold on just"
+      },
+      {
+        "chunk_content_hash": "3d705429e7a5bfe38d10b0729634fe36194e8a649bb56d13d0211c1261fc2e3f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "214 ???. Stop Albert, she say. Don't say no more. You just going to make it harder on yourself. I'll fix her wagon! say Mr. ???, and spring toward me. A dust devil flew up on the porch between us, fill my mouth with dirt"
+      },
+      {
+        "chunk_content_hash": "b25da7068e01f78e71424d71de8426c2d5f173e9d3d5eed133c3514279c8b64c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "Nettie, I am making some pants for you to beat the heat in Africa. Soft, white, thin. Drawstring waist. You won't ever have to feel too hot and overdress again. I plan to make them by hand. Every stitch I sew will be a k"
+      },
+      {
+        "chunk_content_hash": "b6bef3afdd9319e3e91f1d9abd78c72707cd7583a8b0221209b21098a2ace3ae",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "a grandson. What you and Albert been up to? she ast. Nothing much, I say. She say, I know Albert and I bet he been up to something, with you looking as fine as you look. Us sew, I say. Make idle conversation. How idle? s"
+      }
+    ]
+  },
+  {
+    "id": "h2-animal-pinpoint",
+    "question": "Why do the pigs revise the commandment about sleeping in a bed?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "b80756f5d38148ca5a6a9d007b51eb769148073b765373037001b2bff7663e00",
+    "document_filename": "Animal_Farm_George_Orwell_z_library_sk,_1lib_sk,_z_lib_sk.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "7b549bdf2eab23dda8b677e40e0152170a8766a9215b94ca4db6af122af91838",
+        "page_start": 20,
+        "page_end": 23,
+        "section_path": "Animal Farm > VI",
+        "excerpt": "always right!\", but Clover, who thought she remembered a definite ruling against beds, went to the end of the barn and tried to puzzle out the Seven Commandments which were inscribed there. Finding herself unable to read"
+      },
+      {
+        "chunk_content_hash": "4d452ecae1483602df241678f7c23ac6d5a62e2242f8cf572e80002cf842b3fb",
+        "page_start": 20,
+        "page_end": 23,
+        "section_path": "Animal Farm > VI",
+        "excerpt": "And why not? You did not suppose, surely, that there was ever a ruling against beds? A bed merely means a place to sleep in. A pile of straw in a stall is a bed, properly regarded. The rule was against sheets, which are "
+      }
+    ]
+  },
+  {
+    "id": "h2-baseball-pinpoint",
+    "question": "How many strikes make an out?",
+    "category": "pinpoint_control",
+    "difficulty": "easy",
+    "document_hash": "01a70c2b4e7797a73923cd1ab4e412d63208e43738164b97136293c22483e897",
+    "document_filename": "Baseball ( etc.) (z-library.sk, 1lib.sk, z-lib.sk).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "0a36795bf1176d4bb2bb6fc4da38788b8fc17c3ea4b4aba9eaa6bf1e6c080f38",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "1. Baseball",
+        "excerpt": ". There are four main ways a batter or runner can be out. Strikeout A pitcher throws a ball that the batter tries to hit. If the batter swings and misses, it’s a strike. If the batter does not swing but the umpire says t"
+      }
+    ]
+  },
+  {
+    "id": "h2-car-pinpoint",
+    "question": "Why did aerodynamic streamlining become important in car design?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "0a9df524fd95568a11acbb872940858b76d33d13bce57be594e87ace4b9cc786",
+    "document_filename": "Speed_Read_Car_Design_The_History,_P_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "dedb7052425eb5e1c369a988c12a8a08a13c140584148174a3c5e6703806a494",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 2 A CENTURY OF CHANGING SHAPES > A CENTURY OF CHANGING SHAPES > STREAMLINING: A VISION OF THE FUTURE",
+        "excerpt": "STREAMLINING: A VISION OF THE FUTURE The aerodynamic form has been an enduring fascination amongst automobile designers from the earliest days. The streamlining obsession truly took hold in the 1920s—initially inspired b"
+      },
+      {
+        "chunk_content_hash": "e7e9599575d9cddf77f2d6c32da069a903ecb27ea65a12d26d0f9c208584b756",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "SECTION 2 A CENTURY OF CHANGING SHAPES > A CENTURY OF CHANGING SHAPES > STREAMLINING: A VISION OF THE FUTURE",
+        "excerpt": "herent and old-fashioned, and for a further quarter century the French company led the way in aerodynamics. The 1961 Jaguar E-Type was brilliantly successful in translating the voluptuous aerodynamic shape of Jaguar’s Le"
+      }
+    ]
+  },
+  {
+    "id": "h2-catcher-pinpoint",
+    "question": "Why does Holden decide not to leave after Phoebe brings her suitcase?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "5003be83ca89e55190a7d3257c6cd8e92818fb5d3e2524e81864564cfc4a3ab3",
+    "document_filename": "The_Catcher_in_the_Rye_J_D_Salinger_z_library_sk,_1lib_sk,.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "66d2984a36348eefa99bb456dbeb933c855e692897507a3372231946ffb6a4a5",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "25",
+        "excerpt": ". &#13; I went out the doors and started down these stone stairs to meet her. The thing I couldn’t understand, she had this big suitcase with her. She was just coming across Fifth Avenue, and she was dragging this goddam"
+      },
+      {
+        "chunk_content_hash": "6daaa9483f40c5dcb6526ef48b1c37f60beb600b0dba1534cbb957806b65fc80",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "25",
+        "excerpt": ". All I have in it is two dresses and my moccasins and my underwear and socks and some other things. Feel it. It isn’t heavy. Feel it once… Can’t I go with you? Holden? Can’t I? Please .” &#13; “No. Shut up.” &#13; I tho"
+      },
+      {
+        "chunk_content_hash": "fd0fd13790ef09584a9e874db9d8ad29843f2572d8fd9192327992a95bcd7791",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "25",
+        "excerpt": "thought you were supposed to be in a play at school and all. I thought you were supposed to be Benedict Arnold in that play and all,” I said. I said it very nasty. “Wuddaya want to do? Not be in the play, for God’s sake?"
+      }
+    ]
+  },
+  {
+    "id": "h2-color-pinpoint",
+    "question": "What causes Celie to stop writing letters to God?",
+    "category": "pinpoint_control",
+    "difficulty": "medium",
+    "document_hash": "07ced1c7152339044f3de4330f1f01bf5a1b0275b7048c33e0066874e880d736",
+    "document_filename": "The_Color_Purple_Alice_Walker_z_library_sk,_1lib_sk,_z_lib_sk.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "830a4fa72e60a762d53bc29b8df0c3633cdc4537c1138779abf95103c837370e",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": ", so I was glad to have Corrine's things. At the same time, I dreaded putting them on. I remembered her saying we should stop wearing each other's clothes. And the memory pained me. Are you sure Sister Corrine would want"
+      },
+      {
+        "chunk_content_hash": "a93dc1cd3d39d6d95277beb3ac877fd7bbd322fc51317aab0e6c9d305d54d57c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "I don't write to God no more, I write to you. What happen to God? ast Shug. Who that? I say. She look at me serious. Big a devil as you is, I say, you not worried bout no God, surely. She say, Wait a minute. Hold on just"
+      },
+      {
+        "chunk_content_hash": "aeca05b8cec1f5c07aa0d3fb4b8dc1556915efb096abb5b51ba893d06dccae9c",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "The color purple",
+        "excerpt": "If he ever listened to poor 200 colored women the world would be a different place, I can tell you. She talk and she talk, trying to budge me way from blasphemy. But I blaspheme much as I want to. All my life I never car"
+      }
+    ]
+  }
+]

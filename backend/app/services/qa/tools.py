@@ -82,10 +82,12 @@ _RERANK_TASKS: set[str] = {"explain_concept", "compare", "specific_search"}
 _profile_selector = ProfileSelector()
 
 
-def _should_rerank(task: str) -> bool:
+def _should_rerank(task: str, retrieval_scope: str = "unknown") -> bool:
     """Return True if the planner task benefits from LLM reranking."""
     if config.rerank_force_all:  # eval-only override (RERANK_FORCE_ALL)
         return True
+    if retrieval_scope == "whole_source":
+        return False
     return task in _RERANK_TASKS
 
 
@@ -226,7 +228,9 @@ class QAToolExecutor:
                 tc.args["_expanded_query"] = expanded.expanded_query
                 tc.args["_injected_terms"] = expanded.injected_terms
                 # Conditional reranker: per-request SearchOptions
-                tc.args["_rerank_enabled"] = _should_rerank(plan.task)
+                tc.args["_rerank_enabled"] = _should_rerank(
+                    plan.task, plan.retrieval_scope
+                )
                 tc.args["_rerank_top_n"] = 20
                 # Profile selection
                 profile_name = _profile_selector.select(
@@ -540,7 +544,10 @@ class QAToolExecutor:
             collected,
             max_chunks=min(limit, MAX_BOOK_CITATIONS),
             include_front_matter=coverage,
-            head_bias=3 if coverage else 0,
+            # The coverage share is six chunks, so reserving three for the
+            # head would spend half the budget on front matter. One head chunk
+            # preserves cover/agenda evidence while leaving room for the body.
+            head_bias=1 if coverage else 0,
         )
 
         seen = set()
@@ -571,7 +578,12 @@ class QAToolExecutor:
         results.trace.append({
             "name": "get_source_chunks",
             "status": "ok" if sampled else "no_match",
-            "args": {"document_ids": bounded, "limit": limit, "results": len(sampled)},
+            "args": {
+                "document_ids": bounded,
+                "limit": limit,
+                "results": len(sampled),
+                "coverage": coverage,
+            },
         })
 
     def _tool_web_search(

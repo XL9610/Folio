@@ -328,6 +328,15 @@ def main() -> int:
                 entry["refusal_evidence"] = answer  # full text: classification must be auditable
 
             trace = a.get("tool_trace", [])
+            planner_trace = next((t for t in trace if t.get("name") == "planner"), {})
+            planner_args = planner_trace.get("args") or {}
+            entry["planner_task"] = planner_args.get("task", a.get("planner_task", ""))
+            entry["retrieval_scope"] = planner_args.get("retrieval_scope", "")
+            entry["coverage_calls"] = sum(
+                1 for t in trace
+                if t.get("name") == "get_source_chunks"
+                and (t.get("args") or {}).get("coverage")
+            )
             entry["rerank_calls"] = sum(1 for t in trace if (t.get("args") or {}).get("reranked"))
             entry["retrieval_rounds"] = sum(1 for t in trace if t.get("name") == "retrieve_chunks")
 

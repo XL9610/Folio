@@ -55,9 +55,7 @@ const UploadModal = ({ open, onClose, onComplete, onUploadStart, notebookId }) =
     setPhase('select');
   };
 
-  const processFile = async (file, idx) => {
-    const tid = `upload-${Date.now()}-${idx}`;
-    onUploadStart?.(tid, file.name);
+  const processFile = async (file, idx, tid) => {
     setJobs((prev) => prev.map((j, i) => (i === idx ? { ...j, status: 'uploading' } : j)));
     try {
       const resp = await window.FOLIO_API.uploadDocument(file, notebookId || 'default');
@@ -93,14 +91,22 @@ const UploadModal = ({ open, onClose, onComplete, onUploadStart, notebookId }) =
   };
 
   const startQueue = async () => {
+    const queued = files.map((file, idx) => ({
+      file,
+      tid: `upload-${Date.now()}-${idx}`,
+    }));
     setPhase('ingesting');
     setJobs(files.map((f) => ({ name: f.name, status: 'queued', error: '' })));
+    // Surface every selected file immediately. Ingestion deliberately remains
+    // sequential, but previously only the active file appeared in the sidebar,
+    // which made a multi-file drop look as though the other files were lost.
+    queued.forEach(({ file, tid }) => onUploadStart?.(tid, file.name));
     let done = 0;
     let failed = 0;
     let background = 0;
     let degraded = 0;
-    for (let i = 0; i < files.length; i++) {
-      const r = await processFile(files[i], i);
+    for (let i = 0; i < queued.length; i++) {
+      const r = await processFile(queued[i].file, i, queued[i].tid);
       if (r === 'done') done++;
       else if (r === 'failed') failed++;
       else if (r === 'background') background++;

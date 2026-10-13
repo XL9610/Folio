@@ -20,7 +20,48 @@ OVERVIEW_QUERY_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Compositional whole-source language that does not necessarily use the words
+# "summary" or "overview".  Keep these as source-agnostic scope markers rather
+# than enumerating evaluation questions or document titles.  This deliberately
+# does not match a bare "high-level" modifier (for example, "explain binary
+# search at a high level") unless it modifies an overview-shaped noun.
+_HOLISTIC_DESCRIPTION_RE = re.compile(
+    r"\b(?:high[-\s]level|overall|broad)\s+"
+    r"(?:account|view|picture|description|outline|survey|treatment|perspective|"
+    r"project|case)\b"
+    r"|\b(?:book|work|novel|text|paper|study|dialogue|collection|narrative|"
+    r"story|memoir|report|issue|magazine|module|deck|presentation)\s+"
+    r"as\s+a\s+whole\b",
+    re.IGNORECASE,
+)
+
+_WHOLE_SOURCE_SCOPE_RE = re.compile(
+    r"\b(?:what|which|describe|outline|explain|give|provide|offer|trace|discuss)\b"
+    r"[^?.!]{0,140}\b(?:across|throughout)\s+(?:this|the)\s+"
+    r"(?:book|work|novel|text|paper|study|dialogue|collection|narrative|story|"
+    r"memoir|report|issue|magazine|module|deck|presentation)\b",
+    re.IGNORECASE,
+)
+
+_COLLECTION_COHERENCE_RE = re.compile(
+    r"\b(?:subjects?|themes?|ideas?|arguments?|topics?|concerns?)\b"
+    r"[^?.!]{0,100}\b(?:connect|unify|recur(?:ring)?|run\s+through)\b"
+    r"[^?.!]{0,100}\b(?:essays?|chapters?|sections?|collection)\b"
+    r"|\b(?:connect|unify|recur(?:ring)?|run\s+through)\b"
+    r"[^?.!]{0,100}\b(?:essays?|chapters?|sections?|collection)\b",
+    re.IGNORECASE,
+)
+
 
 def is_overview_query(query: str) -> bool:
     """Return True if *query* asks for an overview/summary of the document."""
-    return bool(OVERVIEW_QUERY_RE.search(query or ""))
+    text = query or ""
+    return any(
+        pattern.search(text)
+        for pattern in (
+            OVERVIEW_QUERY_RE,
+            _HOLISTIC_DESCRIPTION_RE,
+            _WHOLE_SOURCE_SCOPE_RE,
+            _COLLECTION_COHERENCE_RE,
+        )
+    )

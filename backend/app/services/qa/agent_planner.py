@@ -3,6 +3,7 @@
 Given the user query, conversation history, and available tools,
 the planner returns a JSON plan specifying:
   - planner_label: observability-only label (NOT used for control flow)
+  - retrieval_scope: bounded evidence scope used for retrieval routing
   - user_goal: what the user ultimately wants
   - sub_questions: decomposed information needs
   - tool_calls: which tools to invoke
@@ -52,6 +53,8 @@ KNOWN_LABELS = {
     "locate",
     "clarify",
 }
+
+KNOWN_RETRIEVAL_SCOPES = {"whole_source", "section", "fact", "unknown"}
 
 
 # Map common label variants to canonical forms
@@ -119,10 +122,16 @@ Rules:
 11. Use web_search only when Internet research is enabled AND the selected sources may not explain a term, need outside context, or the user asks for current/external information. Always prefer source tools first for claims about uploaded books.
 12. Query contract for retrieve_chunks: Your query argument is the planner_search_query — preserve concept words, citations, chapter markers, and cross-document keywords from the user's original question. Pass the user's untransformed question as original_query so the system can expand it deterministically with task-specific keywords. Do NOT strip quoted phrases, proper nouns, or technical terms.
 13. Set planner_label to a short description for display ONLY — it does NOT change tool behavior.
+14. Set retrieval_scope to exactly one of:
+   - whole_source: answering requires representative evidence across most or all of a work (overall contents, a narrative or thematic arc, major movements across a history, or ideas connecting a collection).
+   - section: the user names or clearly targets a chapter, section, page, slide, or other bounded part.
+   - fact: the answer is localized to one or a few relevant passages, even if the question says "in this book".
+   Do not use whole_source merely because a document is mentioned. Examples: "How does the protagonist's journey develop the novel's themes?" is whole_source; "Summarize Chapter 3" is section; "Why was the commandment revised?" is fact.
 
 Return ONLY valid JSON:
 {
   "planner_label": "summarize | compare | explain | study_help | locate | clarify | answer",
+  "retrieval_scope": "whole_source | section | fact",
   "user_goal": "What the user ultimately wants in one sentence",
   "clarify_needed": false,
   "clarifying_question": "",
@@ -173,6 +182,7 @@ class PlanResult:
 
     Attributes:
         task (planner_label): Observability-only label. Do NOT use for control flow.
+        retrieval_scope: Bounded evidence scope used by retrieval routing.
         user_goal: One-sentence description of what the user wants.
         sub_questions: Decomposed information needs.
         tool_calls: Whitelisted tool calls to execute.
@@ -180,6 +190,7 @@ class PlanResult:
         clarifying_question: The question to ask the user if clarification needed.
     """
     task: str  # kept as 'task' for backward compat; same as planner_label
+    retrieval_scope: str = "unknown"
     tool_calls: list[ToolCall] = field(default_factory=list)
     user_goal: str = ""
     sub_questions: list[SubQuestion] = field(default_factory=list)
@@ -257,47 +268,56 @@ _SCOPED_OVERVIEW_RE = re.compile(
     re.IGNORECASE,
 )
 
+_OVERVIEW_COVERAGE_BUDGET = 6
+
 
 def _augment_overview_tool_calls(
     query: str,
     tool_calls: list[ToolCall],
     document_ids: list[str],
+    planner_scope: str = "unknown",
 ) -> list[ToolCall]:
     """Route whole-document overview queries through deterministic coverage.
 
     Branch C (roadmap Phase 2): similarity ranking is a poor proxy for
-    whole-source coverage, so for an unscoped overview ("what does this
-    source cover?") the plan's similarity ``retrieve_chunks`` calls are
-    replaced by a ``get_source_chunks`` sweep (evenly-spread representative
-    chunks across the document). Outline/metadata calls are kept. Scoped
-    overviews — section-tool plans and numbered chapter references — keep
-    their targeted plan. Routed sweeps carry ``_coverage`` so the tool can
-    apply coverage sampling only where this routing made the call.
+    whole-source coverage, but the development corpus also showed that a pure
+    positional sweep can miss the passages most relevant to the user's framing.
+    Whole-source plans therefore reserve six of the ten citation slots for an
+    evenly spread sweep and keep hybrid retrieval for the remaining slots.
+    Outline/metadata calls are kept. Scoped overviews — section-tool plans and
+    numbered chapter references — keep their targeted plan. Routed sweeps carry
+    ``_coverage`` so the tool can apply coverage sampling only here.
     """
-    if not document_ids or not is_overview_query(query):
+    whole_source = planner_scope == "whole_source" or is_overview_query(query)
+    if not document_ids or not whole_source:
         return tool_calls
-    if _SCOPED_OVERVIEW_RE.search(query or ""):
+    if planner_scope == "section" or _SCOPED_OVERVIEW_RE.search(query or ""):
         return tool_calls
-    if any(tc.name in ("find_sections", "get_section_chunks") for tc in tool_calls):
+    if planner_scope != "whole_source" and any(
+        tc.name in ("find_sections", "get_section_chunks") for tc in tool_calls
+    ):
         # The plan already scopes the query to specific sections ("Summarize the
         # methods section", "Summarize Chapter 1"). A whole-document body sweep
         # would bury the targeted sections under the rest of the book.
         return tool_calls
-    if not any(tc.name == "retrieve_chunks" for tc in tool_calls):
-        # Planner already asked for coverage (or nothing retrievable): keep it.
-        if any(tc.name == "get_source_chunks" for tc in tool_calls):
-            return tool_calls
-        return tool_calls + [ToolCall(
-            name="get_source_chunks",
-            args={"document_ids": document_ids[:5], "limit": 20, "_coverage": True},
-        )]
-    routed = [
-        tc for tc in tool_calls
-        if tc.name != "retrieve_chunks"
-    ]
+    routed = [tc for tc in tool_calls if tc.name != "get_source_chunks"]
+    if not any(tc.name == "retrieve_chunks" for tc in routed):
+        routed.append(ToolCall(
+            name="retrieve_chunks",
+            args={
+                "query": query,
+                "original_query": query,
+                "document_ids": document_ids[:5],
+                "top_k": 8,
+            },
+        ))
     routed.append(ToolCall(
         name="get_source_chunks",
-        args={"document_ids": document_ids[:5], "limit": 20, "_coverage": True},
+        args={
+            "document_ids": document_ids[:5],
+            "limit": _OVERVIEW_COVERAGE_BUDGET,
+            "_coverage": True,
+        },
     ))
     return routed
 
@@ -365,6 +385,12 @@ class AgentPlanner:
         label = data.get("planner_label", "") or data.get("task", "answer_directly")
         label = self._normalize_label(label)
 
+        # Unlike planner_label, this narrow enum is a routing input. Unknown or
+        # missing values fall back to deterministic query intent.
+        retrieval_scope = self._normalize_retrieval_scope(
+            data.get("retrieval_scope", "unknown")
+        )
+
         # ── user_goal ──
         user_goal = data.get("user_goal", "")
 
@@ -407,14 +433,20 @@ class AgentPlanner:
             tool_calls.append(ToolCall(name=name, args=args))
 
         tool_calls = _augment_structural_tool_calls(query, tool_calls, document_ids)
-        tool_calls = _augment_overview_tool_calls(query, tool_calls, document_ids)
+        tool_calls = _augment_overview_tool_calls(
+            query,
+            tool_calls,
+            document_ids,
+            planner_scope=retrieval_scope,
+        )
 
         logger.info(
-            "Planner: label=%s tools=%s sub_qs=%d clarify=%s",
-            label, [t.name for t in tool_calls], len(sub_questions), clarify_needed,
+            "Planner: label=%s scope=%s tools=%s sub_qs=%d clarify=%s",
+            label, retrieval_scope, [t.name for t in tool_calls], len(sub_questions), clarify_needed,
         )
         return PlanResult(
             task=label,
+            retrieval_scope=retrieval_scope,
             tool_calls=tool_calls,
             user_goal=user_goal,
             sub_questions=sub_questions,
@@ -430,6 +462,7 @@ class AgentPlanner:
         """
         return PlanResult(
             task="specific_search",
+            retrieval_scope="whole_source" if is_overview_query(query) else "unknown",
             tool_calls=_augment_overview_tool_calls(
                 query,
                 [ToolCall(
@@ -437,6 +470,7 @@ class AgentPlanner:
                     args={"query": query, "document_ids": document_ids[:5], "top_k": 8},
                 )],
                 document_ids,
+                planner_scope="whole_source" if is_overview_query(query) else "unknown",
             ),
             user_goal=query,
         )
@@ -463,3 +497,19 @@ class AgentPlanner:
 
         logger.warning("Planner returned unknown label '%s', using 'answer_directly'", label)
         return "answer_directly"
+
+    @staticmethod
+    def _normalize_retrieval_scope(raw: object) -> str:
+        scope = str(raw or "unknown").strip().lower().replace("-", "_")
+        aliases = {
+            "whole_document": "whole_source",
+            "document": "whole_source",
+            "chapter": "section",
+            "specific": "fact",
+            "localized": "fact",
+        }
+        scope = aliases.get(scope, scope)
+        if scope in KNOWN_RETRIEVAL_SCOPES:
+            return scope
+        logger.warning("Planner returned unknown retrieval_scope '%s', using 'unknown'", scope)
+        return "unknown"
