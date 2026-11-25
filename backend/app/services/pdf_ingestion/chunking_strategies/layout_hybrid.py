@@ -18,6 +18,7 @@ Algorithm:
 from __future__ import annotations
 
 import re
+
 import tiktoken
 
 from ..models import Chunk, ChunkingResult, DocumentPage

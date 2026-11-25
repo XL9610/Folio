@@ -11,11 +11,11 @@ import logging
 import re
 from typing import Any
 
-from .scope_resolver import ScopeResolver
-from ..retrieval.base import RetrievedChunk
 from ..qa.types import make_book_citation
+from ..retrieval.base import RetrievedChunk
 from ._title_utils import clean_filename
 from .sampling import sample_body_chunks
+from .scope_resolver import ScopeResolver
 
 logger = logging.getLogger(__name__)
 

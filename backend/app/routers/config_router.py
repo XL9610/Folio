@@ -233,7 +233,7 @@ async def test_llm() -> TestLLMResponse:
 
         client = create_llm_client(cfg)
         t0 = time.monotonic()
-        response = client.complete_chat(
+        client.complete_chat(
             messages=[{"role": "user", "content": "Hi"}],
             max_tokens=10,
         )

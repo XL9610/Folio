@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from ..extraction.models import ExtractedDocument
-from ..pdf_ingestion.models import Chunk, ChunkingResult
 from ..ingestion.index_text import MAX_CHUNK_TEXT_TOKENS
+from ..pdf_ingestion.models import Chunk, ChunkingResult
 from .base import DocumentChunker
 from .token import TokenFallbackChunker, count_tokens
 

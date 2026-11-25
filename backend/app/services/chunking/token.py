@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from ..extraction.models import ExtractedDocument
-from ..pdf_ingestion.models import Chunk, ChunkingResult
 from ..ingestion.index_text import MAX_CHUNK_TEXT_TOKENS
+from ..pdf_ingestion.models import Chunk, ChunkingResult
 from .base import DocumentChunker
 
 

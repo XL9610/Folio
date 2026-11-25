@@ -7,9 +7,9 @@ from pydantic import BaseModel, Field
 
 from ..repositories.artifact_repository import (
     create_artifact,
-    list_artifacts,
-    get_artifact,
     delete_artifact,
+    get_artifact,
+    list_artifacts,
 )
 from ._common import resolve_notebook_id
 

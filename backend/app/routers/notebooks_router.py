@@ -16,11 +16,11 @@ from ..repositories.notebook_repository import (
     touch_notebook,
     update_notebook,
 )
-from ._common import resolve_notebook_id
-from ..services.llm import LLMConfig
-from ..services.llm.client import create_llm_client
 from ..services.extraction.artifact_store import ExtractionArtifactStore
 from ..services.index.sqlite_vec_store import SqliteVecStore
+from ..services.llm import LLMConfig
+from ..services.llm.client import create_llm_client
+from ._common import resolve_notebook_id
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ async def delete(notebook_id: str) -> None:
             SqliteVecStore().delete_by_document_id(doc_id)
         except Exception as exc:
             logger.error("Failed to delete dense vectors for document %s: %s", doc_id, exc)
-            raise HTTPException(status_code=503, detail=f"Failed to clean up document vectors: {exc}")
+            raise HTTPException(status_code=503, detail=f"Failed to clean up document vectors: {exc}") from exc
         try:
             artifact_store.delete(doc_id)
         except Exception as exc:
@@ -148,7 +148,7 @@ async def delete(notebook_id: str) -> None:
             raise HTTPException(
                 status_code=503,
                 detail=f"Failed to clean up document files: {exc}",
-            )
+            ) from exc
 
     deleted = delete_notebook(resolved_id)
     if not deleted:

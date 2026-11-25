@@ -174,7 +174,7 @@ def sample_body_chunks(
     head_per_doc = max(1, head_bias // max(1, len(doc_ids))) if head_bias else 0
 
     sampled: list[RetrievedChunk] = []
-    for did, k in zip(doc_ids, budgets):
+    for did, k in zip(doc_ids, budgets, strict=False):
         doc_chunks = by_doc[did]
         hb = min(head_per_doc, k)
         head, rest = doc_chunks[:hb], doc_chunks[hb:]

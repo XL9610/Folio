@@ -9,20 +9,20 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from ..repositories.notebook_repository import get_notebook, get_or_create_default
-from ..repositories.document_repository import get_document, list_documents
 from ..repositories.artifact_repository import create_artifact
+from ..repositories.document_repository import get_document, list_documents
+from ..repositories.notebook_repository import get_notebook, get_or_create_default
+from ..services.embedding.sentence_transformer_embedder import SentenceTransformerEmbedder
+from ..services.generation.flashcards_service import FlashcardsGenerator
+from ..services.generation.mindmap_service import MindmapGenerator
+from ..services.generation.quiz_service import QuizGenerator
 from ..services.generation.scope_resolver import ScopeResolver
 from ..services.generation.summary_service import SummaryGenerator
-from ..services.generation.flashcards_service import FlashcardsGenerator
-from ..services.generation.quiz_service import QuizGenerator
-from ..services.generation.mindmap_service import MindmapGenerator
-from ..services.retrieval.retriever import HybridRetriever
-from ..services.embedding.sentence_transformer_embedder import SentenceTransformerEmbedder
 from ..services.index.sqlite_vec_store import SqliteVecStore
 from ..services.llm import LLMConfig
 from ..services.llm.client import OpenAICompatibleClient, create_llm_client
 from ..services.qa.types import CitationResponse
+from ..services.retrieval.retriever import HybridRetriever
 
 logger = logging.getLogger(__name__)
 
@@ -209,7 +209,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 doc_filename=doc_filename,
             )
         except RuntimeError as exc:
-            raise HTTPException(status_code=503, detail={"code": "llm_provider_error", "message": str(exc)})
+            raise HTTPException(status_code=503, detail={"code": "llm_provider_error", "message": str(exc)}) from exc
 
         content = {"markdown": result["markdown"], "stats": result["stats"]}
         response_markdown = result["markdown"]
@@ -229,7 +229,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 doc_filename=doc_filename,
             )
         except RuntimeError as exc:
-            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)})
+            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)}) from exc
 
         content = {"cards": result["cards"], "stats": result["stats"], "message": result.get("message", "")}
         response_markdown = result.get("message", "")
@@ -255,7 +255,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 requirements=request.params.quiz_requirements,
             )
         except RuntimeError as exc:
-            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)})
+            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)}) from exc
 
         content = {"questions": result["questions"], "stats": result["stats"], "message": result.get("message", "")}
         response_markdown = result.get("message", "")
@@ -276,7 +276,7 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
                 doc_filename=mindmap_filename,
             )
         except RuntimeError as exc:
-            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)})
+            raise HTTPException(status_code=503, detail={"code": "generation_failed", "message": str(exc)}) from exc
 
         content = {
             "markdown": result.get("markdown", ""),

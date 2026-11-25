@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import re
 
-
 _PAGE_WINDOW_LABEL_RE = re.compile(r"^pages?\s+\d+(?:\s*[-\u2013\u2014]\s*\d+)?$", re.IGNORECASE)
 
 

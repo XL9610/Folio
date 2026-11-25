@@ -113,7 +113,7 @@ class LLMReranker:
         reranked = [r.chunk for r in results]
         # Stamp llm_score onto the chunk for downstream debugging/UI
         for r in results:
-            setattr(r.chunk, "llm_rerank_score", r.llm_score)
+            r.chunk.llm_rerank_score = r.llm_score
 
         return reranked + tail
 

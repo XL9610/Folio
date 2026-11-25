@@ -11,7 +11,6 @@ import re
 
 from .tools import ToolResults
 
-
 _CONCEPT_QUERY_PREFIX_RE = re.compile(
     r"^(?:what\s+is\s+(?:a|an|the)?\s*|what\s+are\s+(?:the)?\s*|"
     r"define\s+|definition\s+of\s+|meaning\s+of\s+|explain\s+|describe\s+)",

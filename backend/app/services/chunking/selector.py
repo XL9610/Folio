@@ -9,7 +9,6 @@ from __future__ import annotations
 from ..extraction.models import ExtractedDocument
 from ..pdf_ingestion.chunker import PDFChunker
 from ..pdf_ingestion.models import ChunkingResult
-from .base import DocumentChunker
 from .epub import EpubChapterChunker
 from .heading import HeadingChunker
 from .pptx import SlideChunker

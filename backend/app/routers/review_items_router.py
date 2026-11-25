@@ -6,12 +6,12 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ..repositories.artifact_repository import get_artifact
-from ._common import resolve_notebook_id
 from ..repositories.review_item_repository import (
     delete_review_item,
     list_review_items,
     upsert_review_item,
 )
+from ._common import resolve_notebook_id
 
 router = APIRouter(prefix="/api/review-items", tags=["review-items"])
 

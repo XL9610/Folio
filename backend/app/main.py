@@ -8,8 +8,20 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .routers import pdf_router, documents_router, search_router, ask_router, generate_router, artifacts_router, config_router, conversations_router, notebooks_router, review_items_router, jobs_router
 from .db.session import init_db
+from .routers import (
+    artifacts_router,
+    ask_router,
+    config_router,
+    conversations_router,
+    documents_router,
+    generate_router,
+    jobs_router,
+    notebooks_router,
+    pdf_router,
+    review_items_router,
+    search_router,
+)
 
 logger = logging.getLogger(__name__)
 

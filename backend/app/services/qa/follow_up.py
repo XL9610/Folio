@@ -11,7 +11,6 @@ import re
 
 from .agent_planner import PlanResult, ToolCall
 
-
 _FOLLOW_UP_EXPAND_RE = re.compile(
     r"\b("
     r"continue|deepen|deeper|expand|elaborate|more\s+detail|more\s+details|"

@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from .content_boundary import find_body_page_window
 from .models import DocumentPage, TocEntry
 
-
 MAX_TITLE_CHARS = 90
 
 _SMALL_WORDS = {

@@ -9,12 +9,12 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, File, Query, UploadFile, HTTPException
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
 from ..core.config import config
+from ..services.llm import LLMConfig
 from ..services.pdf_ingestion.chunker import PDFChunker
 from ..services.pdf_ingestion.structure_metadata import build_structure_metadata
-from ..services.llm import LLMConfig
 from ..services.toc_llm_classifier.classifier import LLMTOCClassifier
 
 logger = logging.getLogger(__name__)
@@ -55,7 +55,6 @@ async def chunk_pdf(
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
     # Check Content-Length header first (avoids reading oversized uploads into memory)
-    from fastapi import Request
     # We can't easily get Request here without adding it as a dependency.
     # Instead, stream-read in chunks with a size limit.
     content = b""

@@ -7,6 +7,7 @@ missed front/back matter, preventing silent failures.
 from __future__ import annotations
 
 import re
+
 from .models import Chunk
 
 # Patterns that indicate non-body content in the first few chunks

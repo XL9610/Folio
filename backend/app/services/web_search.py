@@ -54,7 +54,7 @@ class TavilyWebSearchProvider(WebSearchProvider):
             return []
 
         max_results = max(1, min(int(max_results or 5), 8))
-        retrieved_at = datetime.now(timezone.utc).isoformat()
+        retrieved_at = datetime.now(timezone.utc)  # noqa: UP017 — tests run on 3.10.isoformat()
 
         with httpx.Client(timeout=self._timeout_seconds) as client:
             response = client.post(
@@ -115,7 +115,7 @@ class CustomWebSearchProvider(WebSearchProvider):
             return []
 
         max_results = max(1, min(int(max_results or 5), 8))
-        retrieved_at = datetime.now(timezone.utc).isoformat()
+        retrieved_at = datetime.now(timezone.utc)  # noqa: UP017 — tests run on 3.10.isoformat()
         headers = {"Accept": "application/json"}
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"

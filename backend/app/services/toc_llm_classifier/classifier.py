@@ -10,7 +10,7 @@ import json
 import logging
 
 from ..llm import LLMConfig
-from ..llm.client import create_llm_client, LLMJSONResponse
+from ..llm.client import LLMJSONResponse, create_llm_client
 from .models import TOCClassificationResult, TOCEntryForLLM
 from .prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 

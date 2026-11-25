@@ -7,18 +7,18 @@ import logging
 from collections import defaultdict
 from typing import Any
 
-from .scope_resolver import ScopeResolver
-from ..retrieval.base import RetrievedChunk
 from ..qa.types import collect_book_citations
+from ..retrieval.base import RetrievedChunk
 from ._title_utils import clean_filename
 from .sampling import (
-    sample_body_chunks,
-    is_body_chunk,
-    group_chunks_by_major_section,
-    sample_section_chunks,
     allocate_flashcard_budget,
+    group_chunks_by_major_section,
+    is_body_chunk,
     major_section_key,
+    sample_body_chunks,
+    sample_section_chunks,
 )
+from .scope_resolver import ScopeResolver
 
 logger = logging.getLogger(__name__)
 
@@ -324,7 +324,7 @@ class FlashcardsGenerator:
         lines = [
             f"Document: {doc_filename or '(untitled)'}",
             f"Section: {section_name}",
-            f"Generate ONLY flashcards from this section. Do not include terms from other sections.",
+            "Generate ONLY flashcards from this section. Do not include terms from other sections.",
             f"Requested count for this section: {count}",
             "",
             "Source passages:",

@@ -19,12 +19,12 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from ..core.config import config
 from ..repositories.chunk_repository import get_document_sections
 from ..repositories.document_repository import delete_document, get_document, list_documents
+from ..repositories.ingestion_job_repository import create_job
 from ..repositories.notebook_repository import get_notebook, get_or_create_default
 from ..services.extraction.artifact_store import ExtractionArtifactStore
 from ..services.extraction.registry import infer_source_type
 from ..services.index.sqlite_vec_store import SqliteVecStore
 from ..services.ingestion.service import IngestionResult, SourceInput, ingest_source
-from ..repositories.ingestion_job_repository import create_job
 from ..services.pdf_ingestion.structure_metadata import document_structure_fields
 
 logger = logging.getLogger(__name__)
@@ -269,7 +269,7 @@ async def delete_document_endpoint(document_id: str) -> dict:
         raise HTTPException(
             status_code=503,
             detail=f"Failed to clean up document vectors: {exc}",
-        )
+        ) from exc
 
     # ── 2. Delete extraction artifacts from disk (fail closed) ──
     try:
@@ -282,7 +282,7 @@ async def delete_document_endpoint(document_id: str) -> dict:
         raise HTTPException(
             status_code=503,
             detail=f"Failed to clean up document files: {exc}",
-        )
+        ) from exc
 
     # ── 3. Delete from SQLite ──
     deleted = delete_document(document_id)

@@ -7,21 +7,22 @@ plus quality checks (empty-drop, short-merge, long-split).
 from __future__ import annotations
 
 import re
+
 import tiktoken
 
+from ..ingestion.index_text import MAX_CHUNK_TEXT_TOKENS
+from ..toc_llm_classifier.classifier import LLMTOCClassifier
+from ..toc_llm_classifier.models import TOCEntryForLLM
+from .chunking_strategies.layout_hybrid import chunk_layout_hybrid
 from .models import Chunk, ChunkingResult, DocumentPage, TocEntry, TOCUnit
 from .parser import PDFParser
-from .synthetic_outline import build_synthetic_outline
 from .structure_metadata import (
     apply_structure_metadata_to_chunks,
     build_structure_metadata,
 )
-from .chunking_strategies.layout_hybrid import chunk_layout_hybrid
+from .synthetic_outline import build_synthetic_outline
 from .toc_extractor import TOCExtractor
-from .toc_filter import TOCFilter, FilterDebugInfo
-from ..toc_llm_classifier.classifier import LLMTOCClassifier
-from ..toc_llm_classifier.models import TOCEntryForLLM
-from ..ingestion.index_text import MAX_CHUNK_TEXT_TOKENS
+from .toc_filter import TOCFilter
 
 # ---------------------------------------------------------------------------
 # Default parameters (tunable)
@@ -158,7 +159,6 @@ class PDFChunker:
             wrapper_skipped_count = len(debug.wrapper_skipped_titles) if hasattr(debug, 'wrapper_skipped_titles') else 0
             back_matter_skipped_titles = debug.back_matter_skipped_titles if hasattr(debug, 'back_matter_skipped_titles') else []
             wrapper_skipped_titles = debug.wrapper_skipped_titles if hasattr(debug, 'wrapper_skipped_titles') else []
-            back_matter_start_title = debug.back_matter_start_title if hasattr(debug, 'back_matter_start_title') else ""
         else:
             chunks, warnings, synthetic_toc, synthetic_meta = self._chunk_by_synthetic_outline(
                 pages, doc_id
@@ -187,7 +187,6 @@ class PDFChunker:
             wrapper_skipped_count = 0
             back_matter_skipped_titles = []
             wrapper_skipped_titles = []
-            back_matter_start_title = ""
             if embedded_toc_present and strategy == "synthetic_outline":
                 warnings.append("TOC present but unusable; built a synthetic outline instead.")
             if embedded_toc_present and strategy == "token_fallback":

@@ -13,7 +13,6 @@ from ..pdf_ingestion.structure_metadata import is_unreliable_structure_status
 from .section_labels import extract_numbered_section_prefix, section_label_for_display
 from .tools import SectionMatch, ToolResults
 
-
 _SECTION_REF_RE = re.compile(
     r"\b(?:chapter|ch|section|sec)\s*#?\s*(\d{1,3})\b",
     re.IGNORECASE,

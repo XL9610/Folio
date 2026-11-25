@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -19,7 +19,7 @@ class TocEntry:
     level: int
     page_start: int
     page_end: int | None = None
-    children: list["TocEntry"] = field(default_factory=list)
+    children: list[TocEntry] = field(default_factory=list)
 
     @property
     def page_range(self) -> tuple[int, int | None]:
