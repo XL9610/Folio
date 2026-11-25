@@ -95,6 +95,19 @@ def test_ranking_metrics_empty_ground_truth_skipped_by_caller(eval_module):
                       "passages that were retrieved. The book treats wobble "
                       "and tremolo as breath-management problems rather than "
                       "as separate vocal defects.", False),
+        # plural subject (q-un-02, 2026-11-26 run)
+        ("completed", "The retrieved book passages don't cover this — "
+                      "they're from *Think Python*.", True),
+        # Phase 4 holdout misses (ho-charlotte-absent): absence stated in new
+        # wording, once behind a run of citation markers
+        ("completed", "The retrieved passages are all from *Charlotte's Web* "
+                      "by E. B. White [S5], and none of them describe a time "
+                      "machine or any technical design for building one.", True),
+        ("completed", "The retrieved material is from *Charlotte's Web* by "
+                      "E. B. White — chapters about Wilbur, Charlotte, "
+                      "Templeton, and life on Zuckerman's farm [S1][S2][S3][S4]"
+                      "[S5][S6][S7][S8][S9][S10]. It doesn't contain any "
+                      "technical design for building a time machine.", True),
     ],
 )
 def test_refusal_classification(eval_module, status, answer, expected):

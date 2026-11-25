@@ -62,6 +62,7 @@ import argparse
 import contextlib
 import json
 import math
+import re
 import sqlite3
 import sys
 import time
@@ -78,12 +79,17 @@ _SEARCH_VARIANT_FLAGS = {"fts": {"dense_enabled": False}, "dense": {"keyword_ena
 _REFUSAL_PHRASES = (
     "does not cover",
     "doesn't cover",
+    "don't cover",
+    "do not cover",
     "does not contain enough information",
     "don't have any material",
     "no material on",
     "cannot be identified from the source",
     "no reliable answer",
     "no reliable information",
+    "none of them describe",
+    "does not contain any",
+    "doesn't contain any",
     "does not discuss",
     "doesn't discuss",
     "does not mention",
@@ -95,6 +101,8 @@ _REFUSAL_PHRASES = (
 # deep inside an explanation, or pivots straight into substance ("does not
 # discuss X, but shows Y"). Pivots after the phrase in the opening region
 # mark the contrastive (answered) case.
+_CITATION_MARKER_RE = re.compile(r"\[[SW]\d+\]")
+
 _CONTRAST_PIVOTS = (" but ", " however", " although", " instead", ", though")
 
 
@@ -112,7 +120,12 @@ def _is_refusal(agent_status: str, answer: str) -> bool:
         return True
     if agent_status != "completed":
         return True
-    head = (answer or "").lower()[:200]
+    # Citation markers are not answer wording; a run of [S1]..[S10] must not
+    # push the refusal sentence out of the 200-char opening window.
+    # ponytail: lexical only. "No reliable Chapter N boundary..." openings are
+    # ambiguous (refusal on ho-vibe-coding-absent, real answer on q-vt-02) and
+    # stay classified as answered; an LLM judge is the upgrade path.
+    head = _CITATION_MARKER_RE.sub("", answer or "").lower()[:200]
     positions = [head.find(p) for p in _REFUSAL_PHRASES if p in head]
     if not positions:
         return False
@@ -338,6 +351,7 @@ def main() -> int:
                 and (t.get("args") or {}).get("coverage")
             )
             entry["rerank_calls"] = sum(1 for t in trace if (t.get("args") or {}).get("reranked"))
+            entry["corrective_retry"] = any(t.get("name") == "corrective_retry" for t in trace)
             entry["retrieval_rounds"] = sum(1 for t in trace if t.get("name") == "retrieve_chunks")
 
             ask_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])
