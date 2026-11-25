@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 
+from ...core.config import config
 from ..pdf_ingestion.structure_metadata import is_unreliable_structure_status
 from .agent_planner import PlanResult
 from .section_labels import extract_numbered_section_prefix, section_label_for_display
@@ -73,6 +74,30 @@ Inline [S#] markers are used internally for grounding and may be hidden
 by the presentation layer."""
 
 
+# Summary-reader variant (opt-in, OVERVIEW_SUMMARY_READER): the stored
+# summaries were written from the complete text at import, so they — not ten
+# sampled passages — carry the whole-source answer.
+SUMMARY_READER_BLOCK = """
+
+For a whole-source overview, the Whole-source summary is your main
+material. It was written from the complete text when the source was
+imported and covers every section in order, so use it to describe the
+work's overall structure, themes, arguments, or development from
+beginning to end.
+
+The Book Passages are verbatim excerpts. Where a passage supports a
+statement, add its [S#] marker. Statements taken from the summary alone
+need no marker.
+
+Do not add names, dates, numbers, quotations, or events that appear in
+neither the summary nor the passages. Do not mention the summary,
+section cards, or retrieval in the answer; just answer.
+
+Keep it to roughly 450 words unless the user asks for more detail:
+cover the whole span evenly rather than narrating the opening closely
+and running out of room. Never leave a heading without content."""
+
+
 # ---------------------------------------------------------------------------
 # Generator
 # ---------------------------------------------------------------------------
@@ -126,7 +151,11 @@ class AgentAnswerGenerator:
         try:
             system_prompt = AGENT_ANSWER_SYSTEM_PROMPT
             if plan.retrieval_scope == "whole_source":
-                system_prompt += OVERVIEW_GROUNDING_BLOCK
+                system_prompt += (
+                    SUMMARY_READER_BLOCK
+                    if config.overview_summary_reader and tool_results.summary_context
+                    else OVERVIEW_GROUNDING_BLOCK
+                )
             answer = self._llm.complete_chat(
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -325,64 +354,86 @@ class AgentAnswerGenerator:
     # ------------------------------------------------------------------
 
     def _build_context(self, tr: ToolResults, source_info: dict) -> str:
-        """Build the context string for the LLM from tool results."""
+        """Build the context string for the LLM from tool results.
+
+        Evidence-only mode (Phase 4 D/E) omits metadata, outline, target
+        section, and section matches: the reader sees raw passages and
+        internet results, nothing else.
+        """
         parts = []
 
-        # Source metadata
-        for i, m in enumerate(tr.metadata):
-            parts.append(
-                f"[Document {i+1}]\n"
-                f"File: {m.get('filename', 'unknown')}\n"
-                f"Pages: {m.get('page_count', 0)}\n"
-                f"Chunks: {m.get('chunk_count', 0)}\n"
-                f"Structure status: {m.get('structure_status', 'unknown_legacy')}\n"
-                f"Structure note: {m.get('structure_user_note', '')}\n"
-                f"Structure instruction: {m.get('structure_llm_instruction', '')}\n"
-            )
-
-        # Target section if specified
-        if tr.target_section:
-            parts.append(f"[Requested section] {tr.target_section}")
-            if not tr.section_matches and self._has_unreliable_outline(tr):
+        if not tr.evidence_only:
+            # Source metadata
+            for i, m in enumerate(tr.metadata):
                 parts.append(
-                    "[Structure limitation]\n"
-                    f"The requested section '{tr.target_section}' was not matched "
-                    "to a reliable chapter or section heading. If retrieved passages "
-                    "are used, say that no reliable chapter boundary was found and "
-                    "answer only from those passages."
+                    f"[Document {i+1}]\n"
+                    f"File: {m.get('filename', 'unknown')}\n"
+                    f"Pages: {m.get('page_count', 0)}\n"
+                    f"Chunks: {m.get('chunk_count', 0)}\n"
+                    f"Structure status: {m.get('structure_status', 'unknown_legacy')}\n"
+                    f"Structure note: {m.get('structure_user_note', '')}\n"
+                    f"Structure instruction: {m.get('structure_llm_instruction', '')}\n"
                 )
 
-        # Section matches (from find_sections)
-        if tr.section_matches:
-            parts.append("[Section matches found]")
-            for m in tr.section_matches[:5]:
-                label = section_label_for_display(m.section_path, m.title)
-                parts.append(
-                    f"  - Title/heading: {label}\n"
-                    f"    Full path: {m.section_path}\n"
-                    f"    Pages: {m.page_start}-{m.page_end}; "
-                    f"{m.chunk_count} chunks; match: {m.match_type}"
-                )
+            # Target section if specified
+            if tr.target_section:
+                parts.append(f"[Requested section] {tr.target_section}")
+                if not tr.section_matches and self._has_unreliable_outline(tr):
+                    parts.append(
+                        "[Structure limitation]\n"
+                        f"The requested section '{tr.target_section}' was not matched "
+                        "to a reliable chapter or section heading. If retrieved passages "
+                        "are used, say that no reliable chapter boundary was found and "
+                        "answer only from those passages."
+                    )
 
-        # Outline — chapter-level condensation
-        for o in tr.outline:
-            filename = o.get("filename", "unknown")
-            sections = o.get("sections", [])
-            outline_str = self._build_outline_context(sections, filename)
-            structure_instruction = o.get("structure_llm_instruction", "")
-            if structure_instruction:
-                outline_str += (
-                    "\nStructure status: "
-                    f"{o.get('structure_status', 'unknown_legacy')}\n"
-                    f"Structure instruction: {structure_instruction}"
-                )
-            parts.append(outline_str)
+            # Section matches (from find_sections)
+            if tr.section_matches:
+                parts.append("[Section matches found]")
+                for m in tr.section_matches[:5]:
+                    label = section_label_for_display(m.section_path, m.title)
+                    parts.append(
+                        f"  - Title/heading: {label}\n"
+                        f"    Full path: {m.section_path}\n"
+                        f"    Pages: {m.page_start}-{m.page_end}; "
+                        f"{m.chunk_count} chunks; match: {m.match_type}"
+                    )
+
+            # Outline — chapter-level condensation
+            for o in tr.outline:
+                filename = o.get("filename", "unknown")
+                sections = o.get("sections", [])
+                outline_str = self._build_outline_context(sections, filename)
+                structure_instruction = o.get("structure_llm_instruction", "")
+                if structure_instruction:
+                    outline_str += (
+                        "\nStructure status: "
+                        f"{o.get('structure_status', 'unknown_legacy')}\n"
+                        f"Structure instruction: {structure_instruction}"
+                    )
+                parts.append(outline_str)
 
         # Summary map (hierarchical overview cards): deliberately NOT
         # rendered into the generator prompt (Phase 3.1). The hierarchy
         # only selects which raw chunks get hydrated; summary text, topic
         # texts, and points are never shown to the model as evidence.
         # `summary_context` remains on ToolResults for debug/eval.
+
+        # Summary reader (opt-in): the stored summaries ARE the overview's
+        # backbone. Off by default, where the Phase 3.1 contract above holds.
+        if config.overview_summary_reader and tr.summary_context:
+            parts.append("[Whole-source summary]")
+            for card in tr.summary_context:
+                if "section_key" in card:
+                    parts.append(f"Section: {card.get('title', '')}\n{card.get('summary', '')}")
+                else:
+                    topics = "; ".join(
+                        t.get("text", "") for t in card.get("major_topics", [])
+                    )
+                    parts.append(
+                        f"Document: {card.get('filename', '')}\n"
+                        f"{card.get('summary', '')}\nMajor topics: {topics}"
+                    )
 
         # Retrieved chunks (truncate to max)
         if tr.chunks:
@@ -392,7 +443,7 @@ class AgentAnswerGenerator:
                 for c in tr.chunk_citations
                 if c.get("source_type", "book") == "book"
             }
-            max_chunks = min(len(tr.chunks), 10)
+            max_chunks = min(len(tr.chunks), getattr(tr, "evidence_budget", 10))
             for i, chunk in enumerate(tr.chunks[:max_chunks]):
                 loc = f"p. {chunk.page_start}" if chunk.page_start == chunk.page_end else f"pp. {chunk.page_start}-{chunk.page_end}"
                 ref_label = book_ref_by_chunk.get(chunk.chunk_id) or f"S{i+1}"

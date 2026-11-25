@@ -94,8 +94,18 @@ def main() -> int:
         answer = (a.get("internal_answer") or a.get("answer") or "").strip()
         ask_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])
                    if not str(c.get("chunk_id", "")).startswith("web:")]
+        # Collect every passage the reader actually showed the model, not a
+        # hard-coded 10: the number of book citations returned reflects the
+        # evidence budget (20 for config E, 10 otherwise), and the [S#]
+        # numbering matches retrieved_chunks order. A claim citing [S15]
+        # must be reviewed against S15's full text.
+        book_citations = [
+            c for c in (a.get("citations") or [])
+            if c.get("source_type", "book") == "book"
+        ]
+        passage_budget = len(book_citations) or 10
         passages = []
-        for i, cid in enumerate(ask_ids[:10], 1):
+        for i, cid in enumerate(ask_ids[:passage_budget], 1):
             row = con.execute("SELECT * FROM chunks WHERE id = ?", (cid,)).fetchone()
             if row:
                 r = dict(row)

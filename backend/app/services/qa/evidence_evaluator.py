@@ -17,9 +17,9 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from .agent_planner import PlanResult, SubQuestion
+from .agent_planner import PlanResult
 from .query_intent import OVERVIEW_QUERY_RE
 from .tools import ToolResults
 
@@ -29,14 +29,6 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Types
 # ---------------------------------------------------------------------------
-
-@dataclass
-class SubquestionEval:
-    id: str = ""
-    status: str = "pending"
-    reason: str = ""
-    evidence_count: int = 0
-
 
 @dataclass
 class EvidenceEval:
@@ -50,10 +42,7 @@ class EvidenceEval:
     """
     status: str = "proceed"
     reason: str = ""
-    subquestion_evals: list[SubquestionEval] = field(default_factory=list)
-    information_gaps: list[dict] = field(default_factory=list)
     clarifying_question: str = ""
-    suggested_retrieval_query: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -374,7 +363,7 @@ def _definition_like_query(query: str) -> bool:
 def _content_bigrams(content_terms: list[str]) -> list[str]:
     return [
         f"{left} {right}"
-        for left, right in zip(content_terms, content_terms[1:])
+        for left, right in zip(content_terms, content_terms[1:], strict=False)
     ]
 
 

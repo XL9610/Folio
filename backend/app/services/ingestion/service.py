@@ -15,13 +15,15 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from ...core.config import config
 from ...repositories import chunk_repository, document_repository
 from ...repositories.extraction_repository import upsert_document_extraction
 from ..chunking.selector import ChunkerSelector
+from ..embedding.bge_tokenizer import truncate_to_budget
 from ..embedding.sentence_transformer_embedder import SentenceTransformerEmbedder
 from ..extraction.artifact_store import ExtractionArtifactStore
 from ..extraction.models import ExtractedDocument, SourceInput
@@ -35,7 +37,6 @@ from ..pdf_ingestion.structure_metadata import (
     document_structure_fields,
 )
 from ..toc_llm_classifier.classifier import LLMTOCClassifier
-from ..embedding.bge_tokenizer import truncate_to_budget
 from .index_text import build_index_text
 
 logger = logging.getLogger(__name__)
@@ -478,6 +479,9 @@ def ingest_source(
     # when the existing LLM setting is disabled.
     if (
         config.hierarchical_overview_enabled
+        # Summary reader builds lazily, on the first overview question, so
+        # uploads stay fast and unasked books cost nothing.
+        and not config.overview_summary_reader
         and final_status in ("completed", "fts_only", "indexed_partial")
     ):
         warning = _build_hierarchy_for_document(
@@ -539,8 +543,8 @@ def _build_hierarchy_for_document(
     was built (or silently skipped because the LLM is disabled — the flag
     gate was already checked by the caller).
     """
-    from ..llm import LLMConfig
     from ..generation.hierarchical_summary_builder import HierarchicalSummaryBuilder
+    from ..llm import LLMConfig
 
     if not LLMConfig().is_configured:
         return None  # never send source content anywhere without the setting

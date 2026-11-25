@@ -18,8 +18,10 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 from dataclasses import dataclass, field
 
+from ...core.config import config
 from ...repositories.chunk_repository import (
     get_chunk_by_id,
     get_chunk_identity_by_document,
@@ -37,6 +39,44 @@ logger = logging.getLogger(__name__)
 # documents. Document cards are the compression layer — whole documents are
 # never silently dropped on similarity rank.
 SUMMARY_CONTEXT_BUDGET_CHARS = 12000
+# Section-summary budget for the summary reader (about 6k tokens).
+READER_CONTEXT_BUDGET_CHARS = 24000
+
+
+# Lazy background builds (summary reader). Process-local: a restart forgets
+# failures and retries, which is the wanted behavior.
+_build_lock = threading.Lock()
+_building: set[str] = set()
+_build_failed: set[str] = set()
+
+
+def start_background_builds(notebook_id: str, document_ids: list[str]) -> bool:
+    """Start summary builds for documents that lack one. True if any is running.
+
+    One build per document at a time; a document whose build failed is not
+    retried until restart, so a book that cannot be summarized does not burn
+    LLM calls on every overview question.
+    """
+    from ..generation.hierarchical_summary_builder import HierarchicalSummaryBuilder
+
+    def run(doc_id: str) -> None:
+        try:
+            result = HierarchicalSummaryBuilder().build_document(notebook_id, doc_id)
+            logger.info("Lazy hierarchy build %s: %s %s (%d LLM calls)",
+                        doc_id, result.status, result.reason, result.llm_calls)
+            if result.status not in ("built", "up_to_date"):
+                _build_failed.add(doc_id)
+        finally:
+            with _build_lock:
+                _building.discard(doc_id)
+
+    with _build_lock:
+        for doc_id in document_ids:
+            if doc_id in _building or doc_id in _build_failed:
+                continue
+            _building.add(doc_id)
+            threading.Thread(target=run, args=(doc_id,), daemon=True).start()
+        return any(d in _building for d in document_ids)
 
 
 @dataclass
@@ -200,6 +240,8 @@ class HierarchicalContextAdapter:
     def _build_summary_context(self, per_doc: list[dict]) -> tuple[list[dict], int]:
         """Document cards first (compression layer), then section cards
         round-robin across documents while the budget allows."""
+        if config.overview_summary_reader:
+            return self._build_reader_context(per_doc)
         budget = SUMMARY_CONTEXT_BUDGET_CHARS
         summary: list[dict] = []
         total = 0
@@ -261,6 +303,42 @@ class HierarchicalContextAdapter:
 
         return summary, total
 
+    @staticmethod
+    def _build_reader_context(per_doc: list[dict]) -> tuple[list[dict], int]:
+        """Summary-reader layout: every section gets an equal slice.
+
+        The default layout fills front-first, so a long book's later
+        sections fall off the end. Here the document summary is kept whole
+        and each section summary is cut to the same length, so the reader
+        sees the beginning, middle, and end.
+        """
+        n_sections = sum(len(e["section_cards"]) for e in per_doc) or 1
+        # ponytail: flat per-section cut. A 300-section book gets ~80 chars
+        # each; group sections into parts if that reads too thin.
+        per_section = max(80, READER_CONTEXT_BUDGET_CHARS // n_sections)
+        summary: list[dict] = []
+        for e in per_doc:
+            summary.append({
+                "document_id": e["document_id"],
+                "filename": e["filename"],
+                "title": e["doc_card"].get("title", "Document overview"),
+                "summary": e["doc_card"].get("summary", ""),
+                "major_topics": [
+                    {"text": t.get("text", "")}
+                    for t in e["doc_card"].get("major_topics", [])
+                ],
+                "grouping_mode": e["grouping_mode"],
+            })
+            for card in e["section_cards"]:
+                summary.append({
+                    "document_id": e["document_id"],
+                    "filename": e["filename"],
+                    "title": card.get("title", ""),
+                    "summary": card.get("summary", "")[:per_section],
+                    "section_key": card.get("section_key", ""),
+                })
+        return summary, sum(_render_card_chars(item) for item in summary)
+
     # ------------------------------------------------------------------
     # Evidence selection + hydration ids
     # ------------------------------------------------------------------
@@ -281,7 +359,7 @@ class HierarchicalContextAdapter:
             total_budget,
         )
         selected: list[str] = []
-        for e, budget in zip(per_doc, doc_budgets):
+        for e, budget in zip(per_doc, doc_budgets, strict=False):
             selected.extend(self._round_robin_sections(e["section_cards"], budget))
         # Fill remaining slots from document-card provenance, in order.
         if len(selected) < total_budget:

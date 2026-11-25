@@ -119,12 +119,35 @@ class AppConfig:
     hierarchical_overview_enabled: bool = field(
         default_factory=lambda: os.getenv("HIERARCHICAL_OVERVIEW_ENABLED", "false").lower() == "true"
     )
-    # Eval-only (Phase 3.1 config C): whole-source overviews skip the 6/4
-    # coverage mix and use expanded raw relevance candidates reranked to the
-    # same final evidence budget — the "simple raw baseline" the hierarchy
-    # must beat. Default off; never enabled in production.
+    # Summary reader: whole-source overviews are answered FROM the stored
+    # document/section summaries (written at import from the full text), with
+    # raw passages as citable excerpts. Requires the hierarchy flag above and a
+    # built hierarchy; otherwise the 6/4 route answers. Default off.
+    overview_summary_reader: bool = field(
+        default_factory=lambda: os.getenv("OVERVIEW_SUMMARY_READER", "false").lower() == "true"
+    )
+    # Eval-only (Phase 3.1 config C, superseded by Phase 4 config E):
+    # whole-source overviews skip the 6/4 coverage mix and use expanded raw
+    # relevance candidates. Phase 4 redefines it: top-20 + doubled reader
+    # budget — the "simple raw baseline" the hierarchy must beat. Default
+    # off; never enabled in production.
     overview_expanded_raw: bool = field(
         default_factory=lambda: os.getenv("OVERVIEW_EXPANDED_RAW", "false").lower() == "true"
+    )
+    # Eval-only (Phase 4 config D): whole-source overviews use the summary
+    # hierarchy only to select sections, expand those sections' raw chunks,
+    # and re-rank them within the candidate set. Default off.
+    overview_leaf_expansion: bool = field(
+        default_factory=lambda: os.getenv("OVERVIEW_LEAF_EXPANSION", "false").lower() == "true"
+    )
+
+    # -- Corrective retry (agentic round 2) ---------------------------------
+    # When the exact-term guard rejects round 1 as off-topic, retry once with
+    # the user's literal question, keyword-only, before refusing. Zero extra
+    # LLM calls. On by default (owner's call, 2026-11-26); not yet measured
+    # on the retrieval eval. Set ASK_CORRECTIVE_RETRY=false to disable.
+    ask_corrective_retry: bool = field(
+        default_factory=lambda: os.getenv("ASK_CORRECTIVE_RETRY", "true").lower() == "true"
     )
 
     # -- BM25x Keyword Search -----------------------------------------------

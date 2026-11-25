@@ -12,6 +12,7 @@ All tools enforce document_ids boundary and notebook scope.
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from collections.abc import Callable
@@ -41,20 +42,29 @@ from ..retrieval.search_filters import SearchFilters
 from ..retrieval.search_options import SearchOptions
 from ..web_search import DisabledWebSearchProvider, WebSearchProvider, fetch_page_content
 from .agent_planner import PlanResult, ToolCall
-from .citations import (
+
+# finalize_merged_citations / section_label_for_display / MAX_WEB_CITATIONS are
+# re-exports (kept importable from tools), hence the noqa.
+from .citations import (  # noqa: F401, I001
     MAX_BOOK_CITATIONS,
     MAX_WEB_CITATIONS,
-    _dedupe_chunks as _citations_dedupe_chunks,
-    _finalize_chunk_citations as _citations_finalize_chunk_citations,
-    _next_ref_label as _citations_next_ref_label,
-    finalize_merged_citations,  # re-export (kept importable from tools)
+    finalize_merged_citations,
 )
-from .section_labels import (
+from .citations import (
+    _dedupe_chunks as _citations_dedupe_chunks,
+)
+from .citations import (
+    _finalize_chunk_citations as _citations_finalize_chunk_citations,
+)
+from .citations import (
+    _next_ref_label as _citations_next_ref_label,
+)
+from .section_labels import (  # noqa: F401
     extract_numbered_section_label,
     extract_numbered_section_prefix,
     is_page_window_section_label,
     resolve_chapter_page_range,
-    section_label_for_display,  # re-export (kept importable from tools)
+    section_label_for_display,
 )
 
 logger = logging.getLogger(__name__)
@@ -80,6 +90,98 @@ class SectionMatch:
 _RERANK_TASKS: set[str] = {"explain_concept", "compare", "specific_search"}
 
 _profile_selector = ProfileSelector()
+
+# Phase 4 frozen configuration (see issue 08). Pre-registered; NOT tuned on
+# the dev corpus.
+PHASE4_TOP_SECTIONS = 4        # D: section cards selected per document
+PHASE4_CANDIDATE_CAP = 60      # D: hard cap on expanded candidate pool
+PHASE4_EXPANDED_BUDGET = 20    # E: doubled reader budget (top-20 raw)
+
+_STOPWORDS = {
+    "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "how",
+    "in", "into", "is", "it", "its", "of", "on", "or", "that", "the",
+    "their", "these", "this", "to", "was", "what", "which", "who", "with",
+}
+
+
+def _content_terms(query: str) -> list[str]:
+    """Deterministic query content terms for section ranking (D)."""
+    terms: list[str] = []
+    for raw in re.findall(r"[A-Za-z][A-Za-z0-9_-]*|\d+", query or ""):
+        t = raw.lower()
+        if len(t) < 3 and not t.isdigit():
+            continue
+        if t in _STOPWORDS:
+            continue
+        if t not in terms:
+            terms.append(t)
+    return terms
+
+
+def _is_overview_route(plan, user_query: str) -> bool:
+    """Phase 4 D/E gate: mirror the planner's own overview guards.
+
+    - numbered chapter/section references are scoped, not overview;
+    - a plan that already targets specific sections (find_sections /
+      get_section_chunks) is scoped, not overview;
+    - otherwise whole_source scope, or the same deterministic overview
+      marker the 6/4 coverage route uses.
+
+    Fact, section, and pinpoint scopes therefore never enter D/E.
+    """
+    from .agent_planner import _SCOPED_OVERVIEW_RE
+    from .query_intent import is_overview_query
+
+    if plan.retrieval_scope == "section":
+        return False
+    if _SCOPED_OVERVIEW_RE.search(user_query or ""):
+        return False
+    if plan.retrieval_scope != "whole_source" and any(
+        tc.name in ("find_sections", "get_section_chunks")
+        for tc in plan.tool_calls
+    ):
+        return False
+    if plan.retrieval_scope == "whole_source":
+        return True
+    return is_overview_query(user_query or "")
+
+
+def _round_robin_sections(
+    chunks: list,
+    chunk_to_section: dict[str, str],
+    budget: int,
+) -> list:
+    """Round-robin chunks across sections so no section monopolizes the budget.
+
+    ``chunks`` are already relevance-ordered; within a section they keep
+    that order. Fills up to ``budget`` chunks, one pass at a time.
+    """
+    by_section: dict[str, list] = {}
+    order: list[str] = []
+    for c in chunks:
+        key = chunk_to_section.get(c.chunk_id, "")
+        if key not in by_section:
+            by_section[key] = []
+            order.append(key)
+        by_section[key].append(c)
+
+    out: list = []
+    seen: set[str] = set()
+    idx = 0
+    while len(out) < budget:
+        progressed = False
+        for key in order:
+            if len(out) >= budget:
+                break
+            bucket = by_section[key]
+            if idx < len(bucket) and bucket[idx].chunk_id not in seen:
+                seen.add(bucket[idx].chunk_id)
+                out.append(bucket[idx])
+                progressed = True
+        if not progressed:
+            break
+        idx += 1
+    return out
 
 
 def _should_rerank(task: str, retrieval_scope: str = "unknown") -> bool:
@@ -108,11 +210,19 @@ class ToolResults:
     # cards. Deliberately NOT RetrievedChunk instances and never receive
     # citation labels — only hydrated raw chunks are citable evidence.
     summary_context: list[dict] = field(default_factory=list)
+    # Phase 4: how many book passages the reader may see (default 10) and
+    # whether the reader is evidence-only (raw passages + web; no outline,
+    # metadata, or summary content).
+    evidence_budget: int = 10
+    evidence_only: bool = False
 
 
 # ---------------------------------------------------------------------------
 # Tool registry type
 # ---------------------------------------------------------------------------
+
+# How many document IDs the planner prompt lists (agent_planner: document_ids[:5]).
+_PLANNER_VISIBLE_DOCS = 5
 
 ToolFn = Callable[..., None]  # mutates ToolResults + appends trace
 
@@ -169,8 +279,12 @@ class QAToolExecutor:
                 args["document_ids"] = [
                     did for did in args["document_ids"] if did in document_ids
                 ]
+            if tc.name == "retrieve_chunks" and len(document_ids) > _PLANNER_VISIBLE_DOCS:
+                # The planner was only shown the first few IDs, so its subset
+                # is blindness, not intent: search every selected source.
+                args["document_ids"] = list(document_ids)
             if not args.get("document_ids"):
-                args["document_ids"] = document_ids[:5]
+                args["document_ids"] = document_ids[:_PLANNER_VISIBLE_DOCS]
             validated.append(ToolCall(name=tc.name, args=args))
         return validated
 
@@ -192,13 +306,14 @@ class QAToolExecutor:
         doc_ids = document_ids[:10]  # cap for safety
 
         # Validate before execution
-        validated = self.validate_tool_calls(plan.tool_calls, doc_ids, allow_web=allow_web)
+        validated = self.validate_tool_calls(plan.tool_calls, document_ids, allow_web=allow_web)
 
         expander = QueryExpander()
 
         for tc in validated:
             # ── Query expansion for retrieve_chunks ──
-            if tc.name == "retrieve_chunks":
+            # "_raw" (corrective retry) searches the literal query: no expansion.
+            if tc.name == "retrieve_chunks" and not tc.args.get("_raw"):
                 original_query = tc.args.get("query", "")
                 planner_query = tc.args.get("original_query", "") or original_query
                 sub_questions = [sq.question for sq in (plan.sub_questions or [])]
@@ -289,7 +404,13 @@ class QAToolExecutor:
                         "error": f"Unknown tool: {tc.name}",
                     })
                     continue
-                handler(results, tc, notebook_id, doc_ids, top_k)
+                # Search is a cheap SQL filter: no source cap. Prompt-feeding
+                # tools (outline, metadata, sections) keep the capped list.
+                handler(
+                    results, tc, notebook_id,
+                    document_ids if tc.name == "retrieve_chunks" else doc_ids,
+                    top_k,
+                )
             except Exception as exc:
                 logger.warning("Tool %s failed: %s", tc.name, exc)
                 results.tool_error = True
@@ -301,6 +422,8 @@ class QAToolExecutor:
                 })
 
         self._apply_hierarchical_overview(results, plan, notebook_id, doc_ids)
+        self._apply_leaf_expansion(results, plan, notebook_id, doc_ids, user_query)
+        self._apply_expanded_raw(results, plan, notebook_id, doc_ids, user_query)
         self._finalize_chunk_citations(results)
         return results
 
@@ -327,13 +450,22 @@ class QAToolExecutor:
             return
         if plan.retrieval_scope != "whole_source":
             return
-        from .hierarchical_context import HierarchicalContextAdapter, hydrate_chunks
+        from .hierarchical_context import (
+            HierarchicalContextAdapter,
+            hydrate_chunks,
+            start_background_builds,
+        )
 
         ctx = HierarchicalContextAdapter(notebook_id, doc_ids).prepare()
         if ctx.status != "ready":
+            building = (
+                config.overview_summary_reader
+                and ctx.reason == "missing_or_stale_index"
+                and start_background_builds(notebook_id, doc_ids)
+            )
             results.trace.append({
                 "name": "hierarchical_overview",
-                "status": "fallback",
+                "status": "building" if building else "fallback",
                 "args": {"reason": ctx.reason or "missing_or_stale_index"},
             })
             return
@@ -361,6 +493,168 @@ class QAToolExecutor:
             "name": "hierarchical_overview",
             "status": "ok",
             "args": ctx.trace_args,
+        })
+
+    # ------------------------------------------------------------------
+    # Phase 4 routes: D (leaf expansion) and E (simple raw baseline)
+    # ------------------------------------------------------------------
+
+    def _apply_leaf_expansion(
+        self,
+        results: ToolResults,
+        plan: PlanResult,
+        notebook_id: str,
+        doc_ids: list[str],
+        user_query: str = "",
+    ) -> None:
+        """Phase 4 config D: summaries select sections, raw chunks answer.
+
+        Summary nodes are navigation-only. Rank each document's section
+        cards by lexical query overlap (ordinal fallback when cards are
+        missing), expand the top sections' FULL raw chunks from the
+        manifest (capped per document), re-run hybrid retrieval over that
+        candidate set, and round-robin across sections to the evidence
+        budget. The reader is evidence-only: no summary/outline content.
+        Zero query-time LLM calls.
+        """
+        if not config.overview_leaf_expansion:
+            return
+        if not _is_overview_route(plan, user_query):
+            return
+        from ...repositories.chunk_repository import get_chunks_by_document
+        from ...repositories.document_repository import get_document
+        from ...repositories.summary_node_repository import get_document_nodes
+        from ..generation.hierarchical_summary_builder import build_manifest
+
+        terms = _content_terms(user_query)
+        chunk_to_section: dict[str, str] = {}
+        candidates: list[str] = []
+
+        for doc_id in doc_ids:
+            doc = get_document(doc_id)
+            if not doc or doc.get("notebook_id") != notebook_id:
+                continue
+            chunk_rows = get_chunks_by_document(doc_id)
+            if not chunk_rows:
+                continue
+            manifest = build_manifest(chunk_rows, doc.get("structure_status", ""))
+            if not manifest.groups:
+                continue
+            # Card text per section key (navigation-only; never shown to the
+            # reader).
+            card_text: dict[str, str] = {}
+            for node in get_document_nodes(notebook_id, doc_id):
+                if node["level"] != "section":
+                    continue
+                try:
+                    card = json.loads(node["summary_json"])
+                except (json.JSONDecodeError, TypeError):
+                    card = {}
+                card_text[node["section_key"]] = " ".join([
+                    str(card.get("title", "")),
+                    str(card.get("summary", "")),
+                    *[str(p.get("text", "")) for p in card.get("points", [])],
+                    *[str(t) for t in card.get("themes", [])],
+                ]).lower()
+            # Rank sections by query overlap; ordinal fallback when cards are
+            # missing or the query is empty.
+            def score(section, card_text=card_text) -> int:
+                text = card_text.get(section.key, "")
+                return sum(1 for t in terms if t in text)
+
+            ranked = sorted(
+                enumerate(manifest.groups),
+                key=lambda pair: (-score(pair[1]), pair[0]),
+            )
+            chosen = [g for _i, g in ranked[:PHASE4_TOP_SECTIONS]]
+            for g in chosen:
+                for cid in g.chunk_ids:
+                    chunk_to_section[cid] = g.key
+            # Fill this document's candidate pool with cross-section
+            # round-robin so a chunk-heavy early section cannot eat the
+            # per-document cap and starve the others. The cap is per
+            # document (frozen), not across all documents.
+            doc_candidates = 0
+            pools = [list(g.chunk_ids) for g in chosen]
+            idx = 0
+            while doc_candidates < PHASE4_CANDIDATE_CAP:
+                progressed = False
+                for pool in pools:
+                    if doc_candidates >= PHASE4_CANDIDATE_CAP:
+                        break
+                    if idx < len(pool):
+                        candidates.append(pool[idx])
+                        doc_candidates += 1
+                        progressed = True
+                if not progressed:
+                    break
+                idx += 1
+
+        # Actually execute hybrid retrieval + ranking over the expanded
+        # candidate raw chunks — a candidate that ranks low globally is still
+        # ranked here within its section, and is never truncated by a global
+        # top-K. Zero query-time LLM calls (dense embed + FTS only).
+        candidate_set = set(candidates)
+        try:
+            within = self._retriever.search(
+                notebook_id=notebook_id,
+                query=user_query,
+                top_k=len(candidate_set),
+                document_ids=doc_ids,
+                chunk_ids=candidates,
+            )
+        except Exception as exc:  # noqa: BLE001 — non-callable retriever in tests
+            logger.warning("Leaf-expansion candidate search failed: %s", exc)
+            within = []
+
+        selected = _round_robin_sections(
+            within, chunk_to_section, results.evidence_budget,
+        )
+        # No backfill from outside the selected sections: if they under-fill
+        # the budget, the reader gets fewer passages rather than chunks the
+        # section selection deliberately excluded.
+
+        results.chunks = selected[: results.evidence_budget]
+        results.evidence_only = True
+        results.trace.append({
+            "name": "leaf_expansion",
+            "status": "ok" if selected else "no_match",
+            "args": {
+                "documents": len(doc_ids),
+                "top_sections": PHASE4_TOP_SECTIONS,
+                "candidates": len(candidate_set),
+                "evidence": len(results.chunks),
+                "query_terms": len(terms),
+            },
+        })
+
+    def _apply_expanded_raw(
+        self,
+        results: ToolResults,
+        plan: PlanResult,
+        notebook_id: str,
+        doc_ids: list[str],
+        user_query: str = "",
+    ) -> None:
+        """Phase 4 config E: simple raw baseline (top-20, doubled budget).
+
+        No hierarchy, no coverage sampling — the planner already widened
+        retrieve_chunks to top_k=20. The reader gets those raw passages
+        and nothing else; the evidence budget is doubled.
+        """
+        if not config.overview_expanded_raw:
+            return
+        if not _is_overview_route(plan, user_query):
+            return
+        results.evidence_budget = PHASE4_EXPANDED_BUDGET
+        results.evidence_only = True
+        results.trace.append({
+            "name": "expanded_raw",
+            "status": "ok" if results.chunks else "no_match",
+            "args": {
+                "evidence_budget": PHASE4_EXPANDED_BUDGET,
+                "evidence": len(results.chunks),
+            },
         })
 
     # ------------------------------------------------------------------
@@ -475,6 +769,7 @@ class QAToolExecutor:
             rerank_top_n=tc.args.get("_rerank_top_n", 20),
             filters=tc.args.get("_search_filters"),
             boost_config=tc.args.get("_boost_config"),
+            dense_enabled=not tc.args.get("_raw", False),
         )
         chunks, meta = self._retriever.search_with_meta(
             notebook_id=notebook_id,

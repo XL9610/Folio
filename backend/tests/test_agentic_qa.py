@@ -2161,3 +2161,87 @@ def test_qa_evidence_text_excludes_prefix():
         f"Metadata prefix leaked into RetrievedChunk.text: {chunk.text[:80]}"
     )
     assert chunk.text == "canonical chunk content"
+
+
+def _run_pipeline_with_rounds(rounds, retry_enabled):
+    """Run the ask pipeline with the executor returning *rounds* in order."""
+    from app.routers.ask_router import AgenticAskPipeline
+
+    llm = FakeLLM({
+        "planner_label": "specific_search",
+        "tool_calls": [{"name": "retrieve_chunks", "args": {"query": "rewritten", "top_k": 5}}],
+    }, chat_response="SEVIS tracked foreign students.")
+    with patch("app.routers.ask_router.create_llm_client", return_value=llm),          patch("app.routers.ask_router.HybridRetriever"),          patch("app.routers.ask_router.SentenceTransformerEmbedder"),          patch("app.routers.ask_router.SqliteVecStore"),          patch("app.routers.ask_router.LLMConfig") as mock_cfg,          patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls,          patch("app.routers.ask_router.config") as mock_config:
+        mock_cfg.return_value.is_configured = True
+        mock_config.rerank_enabled = False
+        mock_config.retrieval_profile = "baseline"
+        mock_config.ask_corrective_retry = retry_enabled
+        executor = MagicMock()
+        executor.execute.side_effect = rounds
+        mock_executor_cls.return_value = executor
+        result = AgenticAskPipeline().answer(
+            notebook_id="nb1",
+            query="How did the government track students after September 11?",
+            document_ids=["d1"],
+            top_k=5,
+            history=[],
+        )
+    return result, executor
+
+
+def _round(text):
+    tr = ToolResults()
+    tr.chunks = [RetrievedChunk(
+        chunk_id=text[:8], document_id="d1", text=text,
+        section_path="Ch 3", title="", page_start=1, page_end=2,
+    )]
+    return tr
+
+
+def test_corrective_retry_recovers_off_topic_round():
+    """Off-topic round 1 -> one literal keyword-only retry -> answer."""
+    off_topic = _round("Quotas were set by the 1924 act.")
+    on_topic = _round("After September 11 the government tracked students via SEVIS.")
+    result, executor = _run_pipeline_with_rounds([off_topic, on_topic], retry_enabled=True)
+
+    assert result.agent_status == "completed"
+    assert executor.execute.call_count == 2
+    retry_call = executor.execute.call_args_list[1].kwargs["plan"].tool_calls
+    assert [tc.name for tc in retry_call] == ["retrieve_chunks"]
+    assert retry_call[0].args["_raw"] is True
+    assert "September 11" in retry_call[0].args["query"]
+    assert any(t.name == "corrective_retry" for t in result.tool_trace)
+
+
+def test_corrective_retry_still_refuses_and_can_be_disabled():
+    off_topic = _round("Quotas were set by the 1924 act.")
+    # Retry on, still off-topic: refuse after exactly one retry.
+    result, executor = _run_pipeline_with_rounds(
+        [off_topic, _round("Visa fees rose in 1990.")], retry_enabled=True
+    )
+    assert result.agent_status == "insufficient_context"
+    assert executor.execute.call_count == 2
+    # Flag off: unchanged single-round refusal.
+    result, executor = _run_pipeline_with_rounds([off_topic], retry_enabled=False)
+    assert result.agent_status == "insufficient_context"
+    assert executor.execute.call_count == 1
+
+
+def test_retrieve_searches_all_selected_sources_beyond_planner_view():
+    """>5 sources: the planner saw only 5 IDs, so its subset must not scope search."""
+    executor = QAToolExecutor(retriever=MagicMock())
+    docs = [f"d{i}" for i in range(20)]
+    calls = [
+        ToolCall(name="retrieve_chunks", args={"query": "q", "document_ids": docs[:5]}),
+        ToolCall(name="get_source_outline", args={}),
+    ]
+    retrieve, outline = executor.validate_tool_calls(calls, docs)
+    assert retrieve.args["document_ids"] == docs
+    assert outline.args["document_ids"] == docs[:5]  # prompt-feeding tools stay capped
+
+    # <=5 sources: the planner saw everything, so its scoping is honoured.
+    (scoped,) = executor.validate_tool_calls(
+        [ToolCall(name="retrieve_chunks", args={"query": "q", "document_ids": ["d1"]})],
+        docs[:5],
+    )
+    assert scoped.args["document_ids"] == ["d1"]

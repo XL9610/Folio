@@ -229,7 +229,7 @@ def _build_sheet(configs: dict[str, list], args) -> None:
         lines.append('\n**Cited source passages:**')
         for p in entry["passages"]:
             loc = p["section_path"] or ""
-            lines.append(f'\n[{p["ref"]}] ({loc})\n{p["text"][:1500]}')
+            lines.append(f'\n[{p["ref"]}] ({loc})\n{p["text"][:2000]}')
         lines.append(f'\n**Claims to score ({len(claims)}):**')
         for j, c in enumerate(claims, 1):
             refs = "".join(f"[{r}]" for r in c["citations"])

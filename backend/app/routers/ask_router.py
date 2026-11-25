@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import time
+from dataclasses import replace
 
 from fastapi import APIRouter, HTTPException
 
@@ -27,8 +28,9 @@ from ..services.index.sqlite_vec_store import SqliteVecStore
 from ..services.llm import LLMConfig
 from ..services.llm.client import create_llm_client
 from ..services.qa.agent_generator import AgentAnswerGenerator
-from ..services.qa.agent_planner import AgentPlanner
+from ..services.qa.agent_planner import AgentPlanner, PlanResult, ToolCall
 from ..services.qa.ask_debug import _debug_retrieved_chunks, _debug_source_metadata
+from ..services.qa.citations import strip_inline_book_citations
 from ..services.qa.evidence_evaluator import EvidenceEval, EvidenceEvaluator
 from ..services.qa.follow_up import (
     _build_follow_up_query,
@@ -41,16 +43,14 @@ from ..services.qa.structural_answers import (
     _with_unresolved_section_disclaimer,
 )
 from ..services.qa.tools import QAToolExecutor, ToolResults, finalize_merged_citations
-from ..services.qa.citations import strip_inline_book_citations
 from ..services.qa.types import AskResult, CitationItem, CitationResponse, ToolTraceItem
 from ..services.retrieval.llm_reranker import LLMReranker
 from ..services.retrieval.retrieval_profile import load_profile
 from ..services.retrieval.retriever import HybridRetriever
 from ..services.web_search import get_web_search_provider
-
-from .ask_schemas import (
-    AskHistoryItem,  # re-export (kept importable from the router)
-    AnswerPreferences,  # re-export
+from .ask_schemas import (  # noqa: F401 — AskHistoryItem/AnswerPreferences are re-exports
+    AnswerPreferences,
+    AskHistoryItem,
     AskRequest,
     AskResponse,
     RetrievedChunkDebugResponse,
@@ -277,6 +277,29 @@ class AgenticAskPipeline:
 
             # proceed / sufficient / insufficient → always break and generate
             # Generator owns semantic answer quality from full chunk context
+            if (
+                eval_result.status == "insufficient"
+                and round_idx == 1
+                and config.ask_corrective_retry
+                and document_ids
+            ):
+                # Corrective round: the guard is lexical ("query term absent
+                # from evidence"), so retry lexically — the user's literal
+                # question, keyword-only, no planner rewrite or expansion.
+                # Round-1 evidence is discarded so off-topic chunks don't
+                # fill the generator's passage budget.
+                plan = replace(plan, tool_calls=[ToolCall(
+                    name="retrieve_chunks",
+                    args={"query": query, "top_k": top_k, "_raw": True},
+                )])
+                all_tool_results = ToolResults()
+                tool_trace.append(ToolTraceItem(
+                    name="corrective_retry",
+                    status="ok",
+                    args={"reason": eval_result.reason[:200]},
+                ))
+                continue
+
             if eval_result.status == "insufficient":
                 return AskResult(
                     notebook_id=notebook_id,
@@ -359,6 +382,13 @@ class AgenticAskPipeline:
         # answers are untouched.
         internal_answer = answer_text
         answer_text = _apply_overview_presentation(plan, answer_text)
+        if any(t.name == "hierarchical_overview" and t.status == "building"
+               for t in tool_trace):
+            answer_text += (
+                "\n\n*This overview is based on a sample of passages. A full "
+                "summary of this source is being prepared in the background — "
+                "ask again in a few minutes for a more complete overview.*"
+            )
 
         # Convert citations
         citems: list[CitationItem] = []
@@ -463,6 +493,16 @@ def _merge_tool_results(into: ToolResults, from_round: ToolResults) -> None:
     # produced it; later rounds never append to it.
     if from_round.summary_context and not into.summary_context:
         into.summary_context = list(from_round.summary_context)
+
+    # Phase 4 evidence budget/only-mode: widen and strictness are sticky.
+    into.evidence_budget = max(
+        int(getattr(into, "evidence_budget", 10)),
+        int(getattr(from_round, "evidence_budget", 10)),
+    )
+    into.evidence_only = (
+        bool(getattr(into, "evidence_only", False))
+        or bool(getattr(from_round, "evidence_only", False))
+    )
 
     # Retrieval failure is sticky across rounds: once a backend errored, the
     # merged result must still report it so the evaluator returns

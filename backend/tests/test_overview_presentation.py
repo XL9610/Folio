@@ -132,6 +132,24 @@ def test_summary_context_never_reaches_generator_prompt(results_with_summary_con
     assert tr.summary_context  # internal structure retained for debug/eval
 
 
+def test_summary_reader_flag_renders_summary_and_swaps_prompt(
+    results_with_summary_context, monkeypatch,
+):
+    """OVERVIEW_SUMMARY_READER on: the stored summary is the reader's material."""
+    from app.services.qa import agent_generator as gen
+
+    monkeypatch.setattr(gen.config, "overview_summary_reader", True)
+    tr = results_with_summary_context
+    llm = _RecordingLLM()
+    plan = PlanResult(task="overview", retrieval_scope="whole_source")
+    AgentAnswerGenerator(llm).generate("What is this book about?", [], plan, tr, {})
+    system, user = (m["content"] for m in llm.captured[0][0])
+    assert "[Whole-source summary]" in user
+    assert "1902 by Eris Press" in user
+    assert gen.SUMMARY_READER_BLOCK in system
+    assert gen.OVERVIEW_GROUNDING_BLOCK not in system
+
+
 def test_hydrated_raw_chunks_still_reach_prompt(results_with_summary_context):
     tr = results_with_summary_context
     context = AgentAnswerGenerator(llm_client=None)._build_context(

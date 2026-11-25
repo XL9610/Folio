@@ -72,62 +72,50 @@ def search_chunks_fts(
     query: str,
     top_k: int = 10,
     document_ids: list[str] | None = None,
+    chunk_ids: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Full-text search using SQLite FTS5, filtered by notebook.
 
-    Optionally restrict to a set of document_ids.
+    Optionally restrict to a set of document_ids and/or an explicit set of
+    chunk_ids (Phase 4 candidate-scoped retrieval). The MATCH still ranks
+    against the corpus index, but only the named chunks are returned, so a
+    candidate chunk is never truncated away by a global top-K.
 
     Returns list of matching chunks with rank info.
     """
     conn = get_connection()
 
+    conds = ["d.notebook_id = ?", "chunks_fts MATCH ?"]
+    params: list[Any] = [notebook_id, query]
     if document_ids and len(document_ids) > 0:
-        placeholders = ",".join("?" * len(document_ids))
-        sql = f"""
-            SELECT
-                c.id,
-                c.document_id,
-                c.chunk_index,
-                c.text,
-                c.title,
-                c.section_path,
-                c.page_start,
-                c.page_end,
-                c.chunk_strategy,
-                rank
-            FROM chunks c
-            JOIN chunks_fts fts ON c.rowid = fts.rowid
-            JOIN source_documents d ON c.document_id = d.id
-            WHERE d.notebook_id = ?
-              AND c.document_id IN ({placeholders})
-              AND chunks_fts MATCH ?
-            ORDER BY rank
-            LIMIT ?
-            """
-        params = (notebook_id, *document_ids, query, top_k)
-    else:
-        sql = """
-            SELECT
-                c.id,
-                c.document_id,
-                c.chunk_index,
-                c.text,
-                c.title,
-                c.section_path,
-                c.page_start,
-                c.page_end,
-                c.chunk_strategy,
-                rank
-            FROM chunks c
-            JOIN chunks_fts fts ON c.rowid = fts.rowid
-            JOIN source_documents d ON c.document_id = d.id
-            WHERE d.notebook_id = ?
-              AND chunks_fts MATCH ?
-            ORDER BY rank
-            LIMIT ?
-            """
-        params = (notebook_id, query, top_k)
+        conds.append(f"c.document_id IN ({', '.join('?' * len(document_ids))})")
+        params.extend(document_ids)
+    if chunk_ids is not None:
+        if not chunk_ids:
+            return []
+        conds.append(f"c.id IN ({', '.join('?' * len(chunk_ids))})")
+        params.extend(chunk_ids)
+    params.append(top_k)
 
+    sql = f"""
+        SELECT
+            c.id,
+            c.document_id,
+            c.chunk_index,
+            c.text,
+            c.title,
+            c.section_path,
+            c.page_start,
+            c.page_end,
+            c.chunk_strategy,
+            rank
+        FROM chunks c
+        JOIN chunks_fts fts ON c.rowid = fts.rowid
+        JOIN source_documents d ON c.document_id = d.id
+        WHERE {" AND ".join(conds)}
+        ORDER BY rank
+        LIMIT ?
+        """
     rows = conn.execute(sql, params).fetchall()
     return [dict(r) for r in rows]
 

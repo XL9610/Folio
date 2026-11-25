@@ -132,8 +132,9 @@ def finalize_merged_citations(results: ToolResults) -> None:
         unique.append(chunk)
     results.chunks = unique
 
+    budget = int(getattr(results, "evidence_budget", MAX_BOOK_CITATIONS))
     book_citations: list[dict] = []
-    for idx, chunk in enumerate(results.chunks[:MAX_BOOK_CITATIONS], start=1):
+    for idx, chunk in enumerate(results.chunks[:budget], start=1):
         snippet = chunk.text[:120].replace("\n", " ").strip()
         if len(chunk.text) > 120:
             snippet += "\u2026"

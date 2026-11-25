@@ -310,7 +310,9 @@ def test_one_retry_then_fail(test_db):
         nb["id"], doc["id"], force=True,
     )
     assert result2.status == "failed"
-    assert always.calls == 2  # one card, attempt + single retry, then abort
+    # Sections run concurrently: at most attempt + single retry for each of
+    # the 3 section cards already in flight; the document card is never tried.
+    assert 2 <= always.calls <= 6
 
 
 def test_window_grouping_build(test_db):

@@ -25,8 +25,10 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import threading
 import uuid
-from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 
 from ...repositories.chunk_repository import get_chunks_by_document
 from ...repositories.document_repository import get_document
@@ -52,6 +54,9 @@ BUILDER_VERSION = "2"
 PROMPT_VERSION = "3"
 
 # Bounded, deterministic budgets (frozen for evaluation runs).
+# Concurrent section-summary calls per document. Lower it if the provider
+# starts returning rate-limit errors.
+SECTION_BUILD_WORKERS = 8
 SECTION_BATCH_CHUNKS = 12   # chunks per section-summarization prompt batch
 DOCUMENT_BATCH_CARDS = 6    # section cards per document-card prompt batch
 WINDOW_SIZE = 10            # contiguous fallback window (allowed range 8-12)
@@ -348,7 +353,7 @@ def _enrich_document_card_provenance(
     validated raw provenance (bounded). Deterministic — no extra LLM work.
     """
     chunk_ids_by_node: dict[str, list[str]] = {}
-    for (_group, card), node_id in zip(section_cards, section_node_ids):
+    for (_group, card), node_id in zip(section_cards, section_node_ids, strict=False):
         ids: list[str] = []
         for p in card.get("points", []):
             ids.extend(p.get("source_chunk_ids", []))
@@ -548,8 +553,25 @@ class HierarchicalSummaryBuilder:
         # a build budget or batched construction if it ever becomes one.
         llm_calls = 0
         section_cards: list[tuple[SectionGroupManifest, dict]] = []
-        for group in manifest.groups:
+        # Sections are independent, so summarize them concurrently: wall time
+        # drops ~SECTION_BUILD_WORKERS-fold at identical token cost. map()
+        # keeps manifest order. The client is created first so worker threads
+        # never race on the lazy init.
+        if self._llm is None:
+            self._llm = create_llm_client(self._config)
+        failed = threading.Event()  # fail fast: stop queued sections once one fails
+
+        def summarize(group: SectionGroupManifest) -> tuple[dict | None, int]:
+            if failed.is_set():
+                return None, 0
             card, calls = self._summarize_group(group, by_id)
+            if card is None:
+                failed.set()
+            return card, calls
+
+        with ThreadPoolExecutor(max_workers=SECTION_BUILD_WORKERS) as pool:
+            outcomes = list(pool.map(summarize, manifest.groups))
+        for group, (card, calls) in zip(manifest.groups, outcomes, strict=True):
             llm_calls += calls
             if card is None:
                 return BuildResult(
@@ -584,7 +606,7 @@ class HierarchicalSummaryBuilder:
         _enrich_document_card_provenance(doc_card, section_cards, section_node_ids)
 
         nodes: list[dict] = []
-        for (group, card), node_id in zip(section_cards, section_node_ids):
+        for (group, card), node_id in zip(section_cards, section_node_ids, strict=False):
             provenance: list[str] = []
             for p in card["points"]:
                 provenance.extend(p["source_chunk_ids"])
@@ -653,7 +675,7 @@ class HierarchicalSummaryBuilder:
             card, n = self._llm_structured_card(
                 system=_SECTION_CARD_SYSTEM_PROMPT,
                 user=_section_batch_user_prompt(group.key, batch),
-                validate=lambda raw: _validate_section_card(raw, batch_ids),
+                validate=lambda raw, batch_ids=batch_ids: _validate_section_card(raw, batch_ids),
                 max_tokens=SECTION_CARD_MAX_TOKENS,
             )
             calls += n
@@ -679,7 +701,7 @@ class HierarchicalSummaryBuilder:
         partials: list[dict] = []
         view = [
             {"node_id": node_id, "section_key": group.key, **card}
-            for (group, card), node_id in zip(section_cards, section_node_ids)
+            for (group, card), node_id in zip(section_cards, section_node_ids, strict=False)
         ]
         node_id_set = set(section_node_ids)
         for i in range(0, len(view), DOCUMENT_BATCH_CARDS):

@@ -252,11 +252,19 @@ def main() -> int:
         # ── Retrieved ranked rows (hash -> row) ──
         ask_ids = [c.get("chunk_id", "") for c in a.get("retrieved_chunks", [])
                    if not str(c.get("chunk_id", "")).startswith("web:")]
-        ranked_rows: list[dict] = []
-        for cid in ask_ids[:10]:
+        # All passages the reader showed the model (evidence budget, e.g. 20
+        # for config E), for the judge; R@10 metrics stay capped at 10.
+        book_citations = [
+            c for c in (a.get("citations") or [])
+            if c.get("source_type", "book") == "book"
+        ]
+        passage_budget = len(book_citations) or 10
+        all_passages: list[dict] = []
+        for cid in ask_ids[:passage_budget]:
             row = con.execute("SELECT * FROM chunks WHERE id = ?", (cid,)).fetchone()
             if row:
-                ranked_rows.append(dict(row))
+                all_passages.append(dict(row))
+        ranked_rows = all_passages[:10]
 
         # ── Exact recall ──
         gt_hashes = [ann["hash"] for ann in annotated if ann["hash"]]
@@ -312,14 +320,15 @@ def main() -> int:
                 "ref": f"S{i}",
                 "text": r["text"],
                 "section_path": r.get("section_path", ""),
-            } for i, r in enumerate(ranked_rows, 1)]
+            } for i, r in enumerate(all_passages, 1)]
             runs = []
             for _ in range(2):
                 try:
                     resp = judge_client.complete_json(
                         system_prompt=JUDGE_SYSTEM_PROMPT,
                         user_prompt=_judge_user_prompt(
-                            q["question"], (a.get("answer") or "").strip(),
+                            q["question"],
+                            (a.get("internal_answer") or a.get("answer") or "").strip(),
                             topics, passages,
                         ),
                     )

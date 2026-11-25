@@ -195,6 +195,7 @@ class ImprovedFTSBackend:
         top_k: int,
         notebook_id: str,
         document_ids: list[str] | None = None,
+        chunk_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         from ...repositories import chunk_repository
 
@@ -204,7 +205,7 @@ class ImprovedFTSBackend:
 
         try:
             rows = chunk_repository.search_chunks_fts(
-                notebook_id, safe_query, top_k, document_ids
+                notebook_id, safe_query, top_k, document_ids, chunk_ids
             )
             return [
                 {
@@ -297,10 +298,8 @@ class BM25xKeywordBackend:
         except ImportError:
             return False
 
+        from ...repositories import chunk_repository, document_repository
         from ..ingestion.index_text import compose_indexed_text
-
-        from ...repositories import chunk_repository
-        from ...repositories import document_repository
 
         os.makedirs(config.bm25x_index_dir, exist_ok=True)
 
@@ -350,8 +349,7 @@ class BM25xKeywordBackend:
         return True
 
     def _rebuild_mappings(self) -> None:
-        from ...repositories import chunk_repository
-        from ...repositories import document_repository
+        from ...repositories import chunk_repository, document_repository
         from ...repositories.notebook_repository import list_notebooks
 
         self._chunk_id_to_idx = {}
@@ -381,10 +379,12 @@ class BM25xKeywordBackend:
         top_k: int,
         notebook_id: str,
         document_ids: list[str] | None = None,
+        chunk_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         if not self._ensure_index() or self._bm25 is None:
             return []
 
+        chunk_id_set = set(chunk_ids) if chunk_ids is not None else None
         try:
             # Determine which BM25x indices to restrict to
             subset: list[int] | None = None
@@ -399,6 +399,8 @@ class BM25xKeywordBackend:
             for doc_idx, score in results:
                 meta = self._idx_to_chunk.get(doc_idx, {})
                 if not meta:
+                    continue
+                if chunk_id_set is not None and meta.get("chunk_id") not in chunk_id_set:
                     continue
                 output.append({
                     "chunk_id": meta["chunk_id"],
@@ -431,7 +433,7 @@ class BM25xKeywordBackend:
                     texts.append(compose_indexed_text(prefix, text))
 
             indices = self._bm25.add(texts)
-            for c, idx in zip(chunks, indices):
+            for c, idx in zip(chunks, indices, strict=False):
                 self._chunk_id_to_idx[c["chunk_id"]] = idx
                 self._idx_to_chunk[idx] = {
                     "chunk_id": c["chunk_id"],
