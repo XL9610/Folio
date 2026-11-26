@@ -93,8 +93,8 @@ def test_find_sections_matches_nested_bare_numbered_chapter():
         ],
     )
 
-    with patch("app.services.qa.tools.get_document") as mock_doc, patch(
-        "app.services.qa.tools.get_document_sections"
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, patch(
+        "app.services.qa.tools.sections.get_document_sections"
     ) as mock_sections:
         mock_doc.return_value = {"id": "d1", "notebook_id": "nb1", "filename": "music.pdf"}
         mock_sections.return_value = MUSIC_SECTIONS
@@ -126,10 +126,10 @@ def test_get_section_chunks_uses_chapter_prefix_for_nested_matches():
         ],
     )
 
-    with patch("app.services.qa.tools.get_document") as mock_doc, patch(
-        "app.services.qa.tools.get_document_sections"
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, patch(
+        "app.services.qa.tools.sections.get_document_sections"
     ) as mock_sections, patch(
-        "app.services.qa.tools.get_chunks_by_section_prefix"
+        "app.services.qa.tools.sections.get_chunks_by_section_prefix"
     ) as mock_by_prefix:
         mock_doc.return_value = {"id": "d1", "notebook_id": "nb1", "filename": "music.pdf"}
         mock_sections.return_value = MUSIC_SECTIONS
@@ -183,8 +183,8 @@ def test_tool_results_append_retrieval_after_section_chunks_and_renumber_citatio
         ],
     )
 
-    with patch("app.services.qa.tools.get_document") as mock_doc, patch(
-        "app.services.qa.tools.get_chunks_for_section_paths"
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, patch(
+        "app.services.qa.tools.sections.get_chunks_for_section_paths"
     ) as mock_by_paths:
         mock_doc.return_value = {
             "id": "d1",
@@ -391,8 +391,8 @@ def test_page_window_outline_does_not_match_chapter_number():
         ],
     )
 
-    with patch("app.services.qa.tools.get_document") as mock_doc, patch(
-        "app.services.qa.tools.get_document_sections"
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, patch(
+        "app.services.qa.tools.sections.get_document_sections"
     ) as mock_sections:
         mock_doc.return_value = {
             "id": "d1",

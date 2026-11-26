@@ -1023,8 +1023,8 @@ def test_tool_find_sections_no_match():
     )
 
     # Mock get_document and get_document_sections to return empty
-    with patch("app.services.qa.tools.get_document") as mock_doc, \
-         patch("app.services.qa.tools.get_document_sections") as mock_sections:
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, \
+         patch("app.services.qa.tools.sections.get_document_sections") as mock_sections:
         mock_doc.return_value = {"id": "d1", "notebook_id": "nb1", "filename": "test.pdf"}
         mock_sections.return_value = []
 
@@ -1057,8 +1057,8 @@ def test_tool_find_sections_chapter_match():
          "page_start": 21, "page_end": 50, "chunk_count": 20},
     ]
 
-    with patch("app.services.qa.tools.get_document") as mock_doc, \
-         patch("app.services.qa.tools.get_document_sections") as mock_sections_fn:
+    with patch("app.services.qa.tools.sections.get_document") as mock_doc, \
+         patch("app.services.qa.tools.sections.get_document_sections") as mock_sections_fn:
         mock_doc.return_value = {"id": "d1", "notebook_id": "nb1", "filename": "test.pdf"}
         mock_sections_fn.return_value = mock_sections
 
