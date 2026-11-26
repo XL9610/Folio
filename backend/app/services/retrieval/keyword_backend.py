@@ -195,7 +195,6 @@ class ImprovedFTSBackend:
         top_k: int,
         notebook_id: str,
         document_ids: list[str] | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         from ...repositories import chunk_repository
 
@@ -205,7 +204,7 @@ class ImprovedFTSBackend:
 
         try:
             rows = chunk_repository.search_chunks_fts(
-                notebook_id, safe_query, top_k, document_ids, chunk_ids
+                notebook_id, safe_query, top_k, document_ids
             )
             return [
                 {
@@ -379,12 +378,10 @@ class BM25xKeywordBackend:
         top_k: int,
         notebook_id: str,
         document_ids: list[str] | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         if not self._ensure_index() or self._bm25 is None:
             return []
 
-        chunk_id_set = set(chunk_ids) if chunk_ids is not None else None
         try:
             # Determine which BM25x indices to restrict to
             subset: list[int] | None = None
@@ -399,8 +396,6 @@ class BM25xKeywordBackend:
             for doc_idx, score in results:
                 meta = self._idx_to_chunk.get(doc_idx, {})
                 if not meta:
-                    continue
-                if chunk_id_set is not None and meta.get("chunk_id") not in chunk_id_set:
                     continue
                 output.append({
                     "chunk_id": meta["chunk_id"],

@@ -17,7 +17,6 @@ import logging
 import re
 from dataclasses import dataclass, field
 
-from ...core.config import config
 from .query_intent import is_overview_query
 
 logger = logging.getLogger(__name__)
@@ -312,20 +311,6 @@ def _augment_overview_tool_calls(
                 "top_k": 8,
             },
         ))
-    # Phase 4 eval-only routes skip the 6/4 coverage sweep entirely. D (leaf
-    # expansion) runs section selection in the executor hook; E (simple raw
-    # baseline) widens the relevance fetch to top-20 and doubles the reader
-    # budget. Neither adds a query-time LLM call.
-    if config.overview_leaf_expansion:
-        for tc in routed:
-            if tc.name == "retrieve_chunks":
-                tc.args["top_k"] = 10
-        return routed
-    if config.overview_expanded_raw:
-        for tc in routed:
-            if tc.name == "retrieve_chunks":
-                tc.args["top_k"] = 20
-        return routed
     routed.append(ToolCall(
         name="get_source_chunks",
         args={

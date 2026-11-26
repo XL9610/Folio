@@ -126,20 +126,6 @@ class AppConfig:
     overview_summary_reader: bool = field(
         default_factory=lambda: os.getenv("OVERVIEW_SUMMARY_READER", "false").lower() == "true"
     )
-    # Eval-only (Phase 3.1 config C, superseded by Phase 4 config E):
-    # whole-source overviews skip the 6/4 coverage mix and use expanded raw
-    # relevance candidates. Phase 4 redefines it: top-20 + doubled reader
-    # budget — the "simple raw baseline" the hierarchy must beat. Default
-    # off; never enabled in production.
-    overview_expanded_raw: bool = field(
-        default_factory=lambda: os.getenv("OVERVIEW_EXPANDED_RAW", "false").lower() == "true"
-    )
-    # Eval-only (Phase 4 config D): whole-source overviews use the summary
-    # hierarchy only to select sections, expand those sections' raw chunks,
-    # and re-rank them within the candidate set. Default off.
-    overview_leaf_expansion: bool = field(
-        default_factory=lambda: os.getenv("OVERVIEW_LEAF_EXPANSION", "false").lower() == "true"
-    )
 
     # -- Corrective retry (agentic round 2) ---------------------------------
     # When the exact-term guard rejects round 1 as off-topic, retry once with

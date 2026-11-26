@@ -494,16 +494,6 @@ def _merge_tool_results(into: ToolResults, from_round: ToolResults) -> None:
     if from_round.summary_context and not into.summary_context:
         into.summary_context = list(from_round.summary_context)
 
-    # Phase 4 evidence budget/only-mode: widen and strictness are sticky.
-    into.evidence_budget = max(
-        int(getattr(into, "evidence_budget", 10)),
-        int(getattr(from_round, "evidence_budget", 10)),
-    )
-    into.evidence_only = (
-        bool(getattr(into, "evidence_only", False))
-        or bool(getattr(from_round, "evidence_only", False))
-    )
-
     # Retrieval failure is sticky across rounds: once a backend errored, the
     # merged result must still report it so the evaluator returns
     # retrieval_unavailable instead of treating it as a zero-hit.

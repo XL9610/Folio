@@ -151,14 +151,8 @@ class SqliteVecStore:
         notebook_id: str | None,
         top_k: int,
         document_ids: list[str] | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> list[dict[str, Any]]:
-        """KNN search, filtered by notebook_id and optional document_ids.
-
-        ``chunk_ids`` scopes the search to an explicit candidate set
-        (Phase 4 leaf expansion): KNN runs over only those vectors, so a
-        candidate chunk cannot be truncated by a global top-K.
-        """
+        """KNN search, filtered by notebook_id and optional document_ids."""
         conn = get_connection()
 
         # Keep `embedding MATCH ? AND k = ?` together, then metadata filters —
@@ -171,11 +165,6 @@ class SqliteVecStore:
         if document_ids:
             conds.append(f"document_id IN ({', '.join('?' * len(document_ids))})")
             params.extend(document_ids)
-        if chunk_ids is not None:
-            if not chunk_ids:
-                return []
-            conds.append(f"chunk_id IN ({', '.join('?' * len(chunk_ids))})")
-            params.extend(chunk_ids)
 
         sql = (
             f"SELECT {', '.join(_PAYLOAD_FIELDS)}, distance "

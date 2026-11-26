@@ -30,7 +30,7 @@ class MockDenseStore:
         pass
     def delete_by_document_id(self, document_id: str):
         self.deleted_document_ids.append(document_id)
-    def search(self, query_vector, notebook_id, top_k, document_ids=None, chunk_ids=None):
+    def search(self, query_vector, notebook_id, top_k, document_ids=None):
         return self.results
 
 
@@ -63,7 +63,7 @@ def test_rrf_fuse_fts_only():
     retriever = HybridRetriever(embedder, dense_store=None)
 
     # Patch FTS to return predefined results
-    def mock_fts(notebook_id, query, top_k, document_ids=None, chunk_ids=None):
+    def mock_fts(notebook_id, query, top_k, document_ids=None):
         return [
             {"chunk_id": "x", "document_id": "d1", "text": "fts text",
              "title": "T", "section_path": "S", "page_start": 1, "page_end": 1,
@@ -91,7 +91,7 @@ def test_rrf_fuse_dense_fts_overlap():
     ])
     retriever = HybridRetriever(embedder, dense)
 
-    def mock_fts(notebook_id, query, top_k, document_ids=None, chunk_ids=None):
+    def mock_fts(notebook_id, query, top_k, document_ids=None):
         return [
             {"chunk_id": "shared", "document_id": "d1", "text": "real text from FTS",
              "title": "From FTS", "section_path": "Ch1", "page_start": 5, "page_end": 5,
@@ -122,7 +122,7 @@ def test_embedding_failure_falls_back_to_fts():
     # Make embedding fail
     retriever._embed_query_safe = lambda q: (None, None)
 
-    def mock_fts(notebook_id, query, top_k, document_ids=None, chunk_ids=None):
+    def mock_fts(notebook_id, query, top_k, document_ids=None):
         return [
             {"chunk_id": "f1", "document_id": "d1", "text": "fallback text",
              "title": "T", "section_path": "S", "page_start": 1, "page_end": 1,

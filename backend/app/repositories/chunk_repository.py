@@ -72,14 +72,10 @@ def search_chunks_fts(
     query: str,
     top_k: int = 10,
     document_ids: list[str] | None = None,
-    chunk_ids: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Full-text search using SQLite FTS5, filtered by notebook.
 
-    Optionally restrict to a set of document_ids and/or an explicit set of
-    chunk_ids (Phase 4 candidate-scoped retrieval). The MATCH still ranks
-    against the corpus index, but only the named chunks are returned, so a
-    candidate chunk is never truncated away by a global top-K.
+    Optionally restrict to a set of document_ids.
 
     Returns list of matching chunks with rank info.
     """
@@ -90,11 +86,6 @@ def search_chunks_fts(
     if document_ids and len(document_ids) > 0:
         conds.append(f"c.document_id IN ({', '.join('?' * len(document_ids))})")
         params.extend(document_ids)
-    if chunk_ids is not None:
-        if not chunk_ids:
-            return []
-        conds.append(f"c.id IN ({', '.join('?' * len(chunk_ids))})")
-        params.extend(chunk_ids)
     params.append(top_k)
 
     sql = f"""

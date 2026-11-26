@@ -59,17 +59,14 @@ class HybridRetriever:
         top_k: int = 10,
         document_ids: list[str] | None = None,
         options: SearchOptions | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> list[RetrievedChunk]:
         """Run hybrid search: dense + keyword, fused with RRF.
 
-        ``chunk_ids`` scopes the search to an explicit candidate set
-        (Phase 4 leaf expansion). All results are hydrated from SQLite
-        after fusion so text is always present regardless of backend.
+        All results are hydrated from SQLite after fusion so text
+        is always present regardless of which backend provided the hit.
         """
         chunks, _meta = self.search_with_meta(
             notebook_id, query, top_k, document_ids, options=options,
-            chunk_ids=chunk_ids,
         )
         return chunks
 
@@ -80,7 +77,6 @@ class HybridRetriever:
         top_k: int = 10,
         document_ids: list[str] | None = None,
         options: SearchOptions | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> tuple[list[RetrievedChunk], dict[str, Any]]:
         """Run hybrid search and return results with diagnostic metadata.
 
@@ -140,7 +136,7 @@ class HybridRetriever:
         if dense_enabled:
             t_dense_start = time.monotonic()
             dense_results, dense_error = self._dense_search(
-                query_vector, notebook_id, fetch_k, document_ids, chunk_ids,
+                query_vector, notebook_id, fetch_k, document_ids,
             )
             meta["dense_latency_ms"] = round((time.monotonic() - t_dense_start) * 1000, 2)
             if dense_error:
@@ -153,7 +149,7 @@ class HybridRetriever:
         if keyword_enabled:
             t_fts_start = time.monotonic()
             fts_results, fts_error = self._fts_search(
-                notebook_id, query, fetch_k, document_ids, chunk_ids,
+                notebook_id, query, fetch_k, document_ids,
             )
             meta["keyword_latency_ms"] = round((time.monotonic() - t_fts_start) * 1000, 2)
             if fts_error:
@@ -241,13 +237,12 @@ class HybridRetriever:
     def _dense_search(
         self, query_vector: list[float] | None, notebook_id: str, top_k: int,
         document_ids: list[str] | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> tuple[list[dict[str, Any]], str | None]:
         if self._dense is None or query_vector is None:
             return [], None
         try:
             return self._dense.search(
-                query_vector, notebook_id, top_k, document_ids, chunk_ids,
+                query_vector, notebook_id, top_k, document_ids,
             ), None
         except Exception as exc:
             logger.warning("Dense search failed: %s", exc)
@@ -256,14 +251,13 @@ class HybridRetriever:
     def _fts_search(
         self, notebook_id: str, query: str, top_k: int,
         document_ids: list[str] | None = None,
-        chunk_ids: list[str] | None = None,
     ) -> tuple[list[dict[str, Any]], str | None]:
         """Keyword search via the configured keyword backend (BM25x or improved FTS5)."""
         if not self._keyword:
             return [], None
         try:
             return self._keyword.search(
-                query, top_k, notebook_id, document_ids, chunk_ids,
+                query, top_k, notebook_id, document_ids,
             ), None
         except Exception as exc:
             logger.warning("Keyword search failed: %s", exc)

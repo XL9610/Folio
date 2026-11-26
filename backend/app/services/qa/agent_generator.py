@@ -354,64 +354,58 @@ class AgentAnswerGenerator:
     # ------------------------------------------------------------------
 
     def _build_context(self, tr: ToolResults, source_info: dict) -> str:
-        """Build the context string for the LLM from tool results.
-
-        Evidence-only mode (Phase 4 D/E) omits metadata, outline, target
-        section, and section matches: the reader sees raw passages and
-        internet results, nothing else.
-        """
+        """Build the context string for the LLM from tool results."""
         parts = []
 
-        if not tr.evidence_only:
-            # Source metadata
-            for i, m in enumerate(tr.metadata):
+        # Source metadata
+        for i, m in enumerate(tr.metadata):
+            parts.append(
+                f"[Document {i+1}]\n"
+                f"File: {m.get('filename', 'unknown')}\n"
+                f"Pages: {m.get('page_count', 0)}\n"
+                f"Chunks: {m.get('chunk_count', 0)}\n"
+                f"Structure status: {m.get('structure_status', 'unknown_legacy')}\n"
+                f"Structure note: {m.get('structure_user_note', '')}\n"
+                f"Structure instruction: {m.get('structure_llm_instruction', '')}\n"
+            )
+
+        # Target section if specified
+        if tr.target_section:
+            parts.append(f"[Requested section] {tr.target_section}")
+            if not tr.section_matches and self._has_unreliable_outline(tr):
                 parts.append(
-                    f"[Document {i+1}]\n"
-                    f"File: {m.get('filename', 'unknown')}\n"
-                    f"Pages: {m.get('page_count', 0)}\n"
-                    f"Chunks: {m.get('chunk_count', 0)}\n"
-                    f"Structure status: {m.get('structure_status', 'unknown_legacy')}\n"
-                    f"Structure note: {m.get('structure_user_note', '')}\n"
-                    f"Structure instruction: {m.get('structure_llm_instruction', '')}\n"
+                    "[Structure limitation]\n"
+                    f"The requested section '{tr.target_section}' was not matched "
+                    "to a reliable chapter or section heading. If retrieved passages "
+                    "are used, say that no reliable chapter boundary was found and "
+                    "answer only from those passages."
                 )
 
-            # Target section if specified
-            if tr.target_section:
-                parts.append(f"[Requested section] {tr.target_section}")
-                if not tr.section_matches and self._has_unreliable_outline(tr):
-                    parts.append(
-                        "[Structure limitation]\n"
-                        f"The requested section '{tr.target_section}' was not matched "
-                        "to a reliable chapter or section heading. If retrieved passages "
-                        "are used, say that no reliable chapter boundary was found and "
-                        "answer only from those passages."
-                    )
+        # Section matches (from find_sections)
+        if tr.section_matches:
+            parts.append("[Section matches found]")
+            for m in tr.section_matches[:5]:
+                label = section_label_for_display(m.section_path, m.title)
+                parts.append(
+                    f"  - Title/heading: {label}\n"
+                    f"    Full path: {m.section_path}\n"
+                    f"    Pages: {m.page_start}-{m.page_end}; "
+                    f"{m.chunk_count} chunks; match: {m.match_type}"
+                )
 
-            # Section matches (from find_sections)
-            if tr.section_matches:
-                parts.append("[Section matches found]")
-                for m in tr.section_matches[:5]:
-                    label = section_label_for_display(m.section_path, m.title)
-                    parts.append(
-                        f"  - Title/heading: {label}\n"
-                        f"    Full path: {m.section_path}\n"
-                        f"    Pages: {m.page_start}-{m.page_end}; "
-                        f"{m.chunk_count} chunks; match: {m.match_type}"
-                    )
-
-            # Outline — chapter-level condensation
-            for o in tr.outline:
-                filename = o.get("filename", "unknown")
-                sections = o.get("sections", [])
-                outline_str = self._build_outline_context(sections, filename)
-                structure_instruction = o.get("structure_llm_instruction", "")
-                if structure_instruction:
-                    outline_str += (
-                        "\nStructure status: "
-                        f"{o.get('structure_status', 'unknown_legacy')}\n"
-                        f"Structure instruction: {structure_instruction}"
-                    )
-                parts.append(outline_str)
+        # Outline — chapter-level condensation
+        for o in tr.outline:
+            filename = o.get("filename", "unknown")
+            sections = o.get("sections", [])
+            outline_str = self._build_outline_context(sections, filename)
+            structure_instruction = o.get("structure_llm_instruction", "")
+            if structure_instruction:
+                outline_str += (
+                    "\nStructure status: "
+                    f"{o.get('structure_status', 'unknown_legacy')}\n"
+                    f"Structure instruction: {structure_instruction}"
+                )
+            parts.append(outline_str)
 
         # Summary map (hierarchical overview cards): deliberately NOT
         # rendered into the generator prompt (Phase 3.1). The hierarchy
@@ -443,8 +437,7 @@ class AgentAnswerGenerator:
                 for c in tr.chunk_citations
                 if c.get("source_type", "book") == "book"
             }
-            max_chunks = min(len(tr.chunks), getattr(tr, "evidence_budget", 10))
-            for i, chunk in enumerate(tr.chunks[:max_chunks]):
+            for i, chunk in enumerate(tr.chunks[:10]):
                 loc = f"p. {chunk.page_start}" if chunk.page_start == chunk.page_end else f"pp. {chunk.page_start}-{chunk.page_end}"
                 ref_label = book_ref_by_chunk.get(chunk.chunk_id) or f"S{i+1}"
                 header = f"[{ref_label}] {chunk.section_path or chunk.title} ({loc})"
