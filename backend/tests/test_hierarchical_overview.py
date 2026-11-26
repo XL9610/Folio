@@ -27,7 +27,6 @@ from app.services.qa.agent_generator import AgentAnswerGenerator
 from app.services.qa.agent_planner import PlanResult, ToolCall
 from app.services.qa.hierarchical_context import HierarchicalContextAdapter
 from app.services.qa.tools import QAToolExecutor, ToolResults
-
 from tests.test_hierarchical_builder import FakeLLM
 
 
@@ -87,20 +86,19 @@ def flag_on(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
-def test_fact_scope_never_enters_hierarchical_path(test_db, flag_on):
+@pytest.mark.parametrize(
+    "value",
+    [
+        "fact",
+        "section",
+    ],
+    ids=['fact_scope_never_enters_hierarchical_path', 'section_scope_never_enters_hierarchical_path'],
+)
+def test_fact_scope_never_enters_hierarchical_path(test_db, flag_on, value):
     nb = create_notebook("NB")
     doc = _seed_book(nb)
     _build_hierarchy(nb["id"], doc["id"])
-    results = _executor(nb["id"], [doc["id"]], "fact")
-    assert results.summary_context == []
-    assert not any(t["name"] == "hierarchical_overview" for t in results.trace)
-
-
-def test_section_scope_never_enters_hierarchical_path(test_db, flag_on):
-    nb = create_notebook("NB")
-    doc = _seed_book(nb)
-    _build_hierarchy(nb["id"], doc["id"])
-    results = _executor(nb["id"], [doc["id"]], "section")
+    results = _executor(nb["id"], [doc["id"]], value)
     assert results.summary_context == []
     assert not any(t["name"] == "hierarchical_overview" for t in results.trace)
 
@@ -262,8 +260,8 @@ def test_generator_separates_summary_map_from_passages(test_db, flag_on):
 def test_ingestion_hierarchy_failure_warns_but_never_fails(
     test_db, monkeypatch, tmp_path, flag_on,
 ):
-    from app.services.ingestion import service
     from app.services.extraction.models import ExtractedDocument
+    from app.services.ingestion import service
     from app.services.pdf_ingestion.models import Chunk, ChunkingResult, DocumentPage
 
     nb = create_notebook("NB")

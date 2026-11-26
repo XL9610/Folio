@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
 from app.routers import config_router
 from app.routers.config_router import LLMConfigRequest
 
@@ -65,7 +67,15 @@ def test_save_llm_config_keeps_existing_key_and_resets_caches(monkeypatch):
     assert reset["called"] is True
 
 
-def test_save_llm_config_clears_key_on_provider_switch(monkeypatch):
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3,arg4,arg5",
+    [
+        ("openai", "https://api.openai.com/v1", "google", "google", "", "gemini-test"),
+        ("custom", "https://old.example.com/v1", "custom", "openai-compatible", "https://new.example.com/v1", "my-model"),
+    ],
+    ids=['save_llm_config_clears_key_on_provider_switch', 'save_llm_config_clears_key_on_endpoint_change'],
+)
+def test_save_llm_config_clears_key_on(monkeypatch, arg0, arg1, arg2, arg3, arg4, arg5):
     saved = {}
 
     def fake_set_env(key, value):
@@ -73,45 +83,20 @@ def test_save_llm_config_clears_key_on_provider_switch(monkeypatch):
 
     monkeypatch.setattr(config_router, "set_env", fake_set_env)
     monkeypatch.setattr(config_router, "_reset_cached_llm_services", lambda: None)
-    monkeypatch.setenv("LLM_PROVIDER", "openai")
-    monkeypatch.setenv("LLM_BASE_URL", "https://api.openai.com/v1")
+    monkeypatch.setenv("LLM_PROVIDER", arg0)
+    monkeypatch.setenv("LLM_BASE_URL", arg1)
     monkeypatch.setenv("LLM_API_FORMAT", "openai-compatible")
     monkeypatch.setenv("LLM_API_KEY", "old-key")
 
     asyncio.run(config_router.save_llm_config(LLMConfigRequest(
-        provider="google",
-        api_format="google",
+        provider=arg2,
+        api_format=arg3,
         api_key="",
-        base_url="",
-        model="gemini-test",
+        base_url=arg4,
+        model=arg5,
     )))
 
     # Switching provider with a blank key must not reuse the old cloud key.
-    assert saved["LLM_API_KEY"] == ""
-
-
-def test_save_llm_config_clears_key_on_endpoint_change(monkeypatch):
-    saved = {}
-
-    def fake_set_env(key, value):
-        saved[key] = value
-
-    monkeypatch.setattr(config_router, "set_env", fake_set_env)
-    monkeypatch.setattr(config_router, "_reset_cached_llm_services", lambda: None)
-    # Same provider, but a different base URL → must not reuse the old key.
-    monkeypatch.setenv("LLM_PROVIDER", "custom")
-    monkeypatch.setenv("LLM_BASE_URL", "https://old.example.com/v1")
-    monkeypatch.setenv("LLM_API_FORMAT", "openai-compatible")
-    monkeypatch.setenv("LLM_API_KEY", "old-key")
-
-    asyncio.run(config_router.save_llm_config(LLMConfigRequest(
-        provider="custom",
-        api_format="openai-compatible",
-        api_key="",
-        base_url="https://new.example.com/v1",
-        model="my-model",
-    )))
-
     assert saved["LLM_API_KEY"] == ""
 
 

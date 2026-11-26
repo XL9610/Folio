@@ -13,6 +13,8 @@ Tests:
 import json
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from app.services.qa.agent_generator import AgentAnswerGenerator
 from app.services.qa.agent_planner import (
     WHITELIST_TOOLS,
@@ -175,13 +177,21 @@ def test_planner_keeps_web_search_when_enabled():
     assert "document_ids" not in result.tool_calls[1].args
 
 
-def test_planner_unknown_task_defaults():
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2",
+    [
+        ("task", "delete_all_data", "query"),
+        ("planner_label", "answer", "hello"),
+    ],
+    ids=['planner_unknown_task_defaults', 'planner_label_answer_normalizes'],
+)
+def test_planner_unknown_task_defaults(arg0, arg1, arg2):
     llm = FakeLLM({
-        "task": "delete_all_data",
+        arg0: arg1,
         "tool_calls": []
     })
     planner = AgentPlanner(llm)
-    result = planner.plan("query", None, ["d1"])
+    result = planner.plan(arg2, None, ["d1"])
     assert result.task == "answer_directly"  # unknown → default
 
 
@@ -715,18 +725,26 @@ def test_planner_clarify_needed():
     assert len(result.clarifying_question) > 0
 
 
-def test_planner_tool_name_label_aliased():
-    """Planner label 'retrieve_chunks' should normalize to 'specific_search'."""
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3",
+    [
+        ("retrieve_chunks", "test", "find X", "specific_search"),
+        ("explain", "definition", "What is Gregorian chant?", "explain_concept"),
+        ("define", "definition", "Define X", "explain_concept"),
+    ],
+    ids=['planner_tool_name_label_aliased', 'planner_label_explain_normalizes', 'planner_label_define_normalizes'],
+)
+def test_planner_tool_name_label_aliased(arg0, arg1, arg2, arg3):
     llm = FakeLLM({
-        "planner_label": "retrieve_chunks",
+        "planner_label": arg0,
         "tool_calls": [
-            {"name": "retrieve_chunks", "args": {"query": "test"}}
+            {"name": "retrieve_chunks", "args": {"query": arg1}}
         ]
     })
     planner = AgentPlanner(llm)
-    result = planner.plan("find X", None, ["d1"])
+    result = planner.plan(arg2, None, ["d1"])
     # Label should be normalized, not left as tool name
-    assert result.task == "specific_search"
+    assert result.task == arg3
 
 
 def test_planner_whitelist_includes_new_tools():
@@ -783,6 +801,7 @@ def test_merge_tool_results_preserves_tool_error():
 def _setup_tool_db(monkeypatch):
     """Provide an in-memory SQLite DB for tool-execution tests."""
     import sqlite3
+
     from app.db import session as db_session
     from app.db.schema import create_tables
 
@@ -797,9 +816,9 @@ def _setup_tool_db(monkeypatch):
 def test_get_source_chunks_without_section_path(monkeypatch):
     """Docs whose chunks have no section_path still yield body text."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb = create_notebook("NB")
     doc = create_source_document(nb["id"], "a.pdf")
@@ -818,9 +837,9 @@ def test_get_source_chunks_without_section_path(monkeypatch):
 def test_get_source_chunks_covers_later_sections(monkeypatch):
     """Documents with more than 12 sections must still cover the latter half."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb = create_notebook("NB")
     doc = create_source_document(nb["id"], "a.pdf")
@@ -843,9 +862,9 @@ def test_get_source_chunks_covers_later_sections(monkeypatch):
 def test_get_source_chunks_excludes_wrong_notebook(monkeypatch):
     """Chunks from a document in a different notebook are never returned."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb1 = create_notebook("NB1")
     nb2 = create_notebook("NB2")
@@ -873,9 +892,9 @@ def test_get_source_chunks_excludes_wrong_notebook(monkeypatch):
 def test_get_source_chunks_prepends_overview_samples(monkeypatch):
     """Overview samples must land first so the generator's first-10 sees them."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb = create_notebook("NB")
     doc = create_source_document(nb["id"], "a.pdf")
@@ -905,9 +924,9 @@ def test_get_source_chunks_limits_to_generator_window(monkeypatch):
     """Overview must prepare only the ~10 chunks the generator consumes, and
     those must be interleaved across documents rather than all from the first."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb = create_notebook("NB")
     doc_ids = []
@@ -935,9 +954,9 @@ def test_get_source_chunks_limits_to_generator_window(monkeypatch):
 def test_get_source_chunks_spreads_across_single_document(monkeypatch):
     """Within one long document, the 10 consumed chunks must span start/end."""
     _setup_tool_db(monkeypatch)
-    from app.repositories.notebook_repository import create_notebook
-    from app.repositories.document_repository import create_source_document
     from app.repositories.chunk_repository import insert_chunks
+    from app.repositories.document_repository import create_source_document
+    from app.repositories.notebook_repository import create_notebook
 
     nb = create_notebook("NB")
     doc = create_source_document(nb["id"], "long.pdf")
@@ -1282,8 +1301,15 @@ def test_evaluator_flags_off_topic_mandatory_query_terms():
     assert "high-signal query term" in result.reason
 
 
-def test_evaluator_keeps_relevant_mandatory_query_terms():
-    """The same exact-term guard should pass when source evidence contains the term."""
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3,arg4,arg5",
+    [
+        ("SIRA stands for SuperIntelligent Retrieval Agent.", "Introduction", "Our Proposal: SIRA", 1, 2, "What is SIRA?"),
+        ("Singly Linked Lists are a concrete implementation of a sequence.", "Chapter 3 > Singly Linked Lists", "Singly Linked Lists", 120, 124, "What is a singly linked list?"),
+    ],
+    ids=['evaluator_keeps_relevant_mandatory_query_terms', 'evaluator_allows_multiword_definition_when_concept_is_present'],
+)
+def test_evaluator_keeps_relevant_mandatory_query_terms(arg0, arg1, arg2, arg3, arg4, arg5):
     llm = FakeLLM({})
     evaluator = EvidenceEvaluator(llm)
 
@@ -1293,16 +1319,16 @@ def test_evaluator_keeps_relevant_mandatory_query_terms():
         RetrievedChunk(
             chunk_id="c1",
             document_id="d1",
-            text="SIRA stands for SuperIntelligent Retrieval Agent.",
-            section_path="Introduction",
-            title="Our Proposal: SIRA",
-            page_start=1,
-            page_end=2,
+            text=arg0,
+            section_path=arg1,
+            title=arg2,
+            page_start=arg3,
+            page_end=arg4,
         )
     ]
 
     result = evaluator.evaluate(
-        query="What is SIRA?",
+        query=arg5,
         plan=PlanResult(task="explain_concept"),
         tool_results=tr,
         notebook_id="nb1",
@@ -1350,35 +1376,6 @@ def test_evaluator_flags_isolated_terms_for_definition_query():
 
     assert result.status == "insufficient"
     assert "isolated words" in result.reason
-
-
-def test_evaluator_allows_multiword_definition_when_concept_is_present():
-    llm = FakeLLM({})
-    evaluator = EvidenceEvaluator(llm)
-
-    from app.services.retrieval.base import RetrievedChunk
-    tr = ToolResults()
-    tr.chunks = [
-        RetrievedChunk(
-            chunk_id="c1",
-            document_id="d1",
-            text="Singly Linked Lists are a concrete implementation of a sequence.",
-            section_path="Chapter 3 > Singly Linked Lists",
-            title="Singly Linked Lists",
-            page_start=120,
-            page_end=124,
-        )
-    ]
-
-    result = evaluator.evaluate(
-        query="What is a singly linked list?",
-        plan=PlanResult(task="explain_concept"),
-        tool_results=tr,
-        notebook_id="nb1",
-        document_ids=["d1"],
-    )
-
-    assert result.status == "proceed"
 
 
 def test_evaluator_does_not_call_llm():
@@ -1772,47 +1769,6 @@ def test_generator_handles_old_style_messages():
 
     assert isinstance(answer, str)
     assert len(answer) > 0
-
-
-# ──────────────────────────────────────────────────────────────────────
-# NEW: Planner label alias normalization
-# ──────────────────────────────────────────────────────────────────────
-
-def test_planner_label_explain_normalizes():
-    """Label 'explain' should normalize to 'explain_concept'."""
-    llm = FakeLLM({
-        "planner_label": "explain",
-        "tool_calls": [
-            {"name": "retrieve_chunks", "args": {"query": "definition"}}
-        ]
-    })
-    planner = AgentPlanner(llm)
-    result = planner.plan("What is Gregorian chant?", None, ["d1"])
-    assert result.task == "explain_concept"
-
-
-def test_planner_label_answer_normalizes():
-    """Label 'answer' should normalize to 'answer_directly'."""
-    llm = FakeLLM({
-        "planner_label": "answer",
-        "tool_calls": []
-    })
-    planner = AgentPlanner(llm)
-    result = planner.plan("hello", None, ["d1"])
-    assert result.task == "answer_directly"
-
-
-def test_planner_label_define_normalizes():
-    """Label 'define' should normalize to 'explain_concept'."""
-    llm = FakeLLM({
-        "planner_label": "define",
-        "tool_calls": [
-            {"name": "retrieve_chunks", "args": {"query": "definition"}}
-        ]
-    })
-    planner = AgentPlanner(llm)
-    result = planner.plan("Define X", None, ["d1"])
-    assert result.task == "explain_concept"
 
 
 # ──────────────────────────────────────────────────────────────────────

@@ -101,24 +101,19 @@ def client() -> Generator[TestClient, None, None]:
 # ---------------------------------------------------------------------------
 
 
-def test_derive_status_empty() -> None:
-    assert _derive_status(0, 0, 0, 0) == "empty"
-
-
-def test_derive_status_processing() -> None:
-    assert _derive_status(1, 0, 1, 0) == "processing"
-
-
-def test_derive_status_failed() -> None:
-    assert _derive_status(3, 0, 0, 3) == "failed"
-
-
-def test_derive_status_ready() -> None:
-    assert _derive_status(2, 2, 0, 0) == "ready"
-
-
-def test_derive_status_partial() -> None:
-    assert _derive_status(4, 2, 0, 2) == "partial"
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3,arg4",
+    [
+        (0, 0, 0, 0, "empty"),
+        (1, 0, 1, 0, "processing"),
+        (3, 0, 0, 3, "failed"),
+        (2, 2, 0, 0, "ready"),
+        (4, 2, 0, 2, "partial"),
+    ],
+    ids=['derive_status_empty', 'derive_status_processing', 'derive_status_failed', 'derive_status_ready', 'derive_status_partial'],
+)
+def test_derive_status(arg0, arg1, arg2, arg3, arg4) -> None:
+    assert _derive_status(arg0, arg1, arg2, arg3) == arg4
 
 
 # ---------------------------------------------------------------------------

@@ -5,6 +5,8 @@ Deterministic fallback + explicit planner-scope augmentation checks.
 
 from __future__ import annotations
 
+import pytest
+
 from app.services.qa.agent_planner import _augment_overview_tool_calls
 from app.services.qa.query_intent import is_overview_query
 from app.services.qa.tools import ToolCall
@@ -80,20 +82,18 @@ class TestOverviewRouting:
         assert any(t.name == "retrieve_chunks" for t in routed)
         assert any(t.name == "get_source_outline" for t in routed)
 
-    def test_scoped_overview_keeps_section_plan(self):
-        plan = [_tc("find_sections", query="Chapter 1", document_ids=self.DOCS)]
-        routed = _augment_overview_tool_calls("Summarize Chapter 1.", plan, self.DOCS)
-        assert [t.name for t in routed] == ["find_sections"]
-
-    def test_numbered_chapter_question_not_rerouted(self):
-        # "What does Chapter 3 cover?" is scoped, not whole-document
-        plan = [_tc("retrieve_chunks", query="supply and demand", document_ids=self.DOCS)]
-        routed = _augment_overview_tool_calls(
-            "What does Chapter 3, 'The Market Forces of Supply and Demand', cover?",
-            plan,
-            self.DOCS,
-        )
-        assert [t.name for t in routed] == ["retrieve_chunks"]
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2,arg3",
+        [
+            ("find_sections", "Chapter 1", "Summarize Chapter 1.", "find_sections"),
+            ("retrieve_chunks", "supply and demand", "What does Chapter 3, 'The Market Forces of Supply and Demand', cover?", "retrieve_chunks"),
+        ],
+        ids=['scoped_overview_keeps_section_plan', 'numbered_chapter_question_not_rerouted'],
+    )
+    def test_overview_routing(self, arg0, arg1, arg2, arg3):
+        plan = [_tc(arg0, query=arg1, document_ids=self.DOCS)]
+        routed = _augment_overview_tool_calls(arg2, plan, self.DOCS)
+        assert [t.name for t in routed] == [arg3]
 
     def test_pinpoint_queries_untouched(self):
         plan = [_tc("retrieve_chunks", query="binary search", document_ids=self.DOCS)]

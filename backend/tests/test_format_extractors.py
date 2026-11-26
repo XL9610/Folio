@@ -22,13 +22,18 @@ from app.services.extraction.text import PlainTextExtractor
 
 
 class TestPlainTextExtractor:
-    def test_can_handle_txt_extension(self) -> None:
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2",
+        [
+            ("unknown", "readme.txt", True),
+            ("unknown", "notes.md", True),
+            ("pdf", "doc.pdf", False),
+        ],
+        ids=['can_handle_txt_extension', 'can_handle_md_extension', 'rejects_pdf'],
+    )
+    def test_plain_text_extractor(self, arg0, arg1, arg2) -> None:
         e = PlainTextExtractor()
-        assert e.can_handle(SourceInput(source_type="unknown", filename="readme.txt")) is True
-
-    def test_can_handle_md_extension(self) -> None:
-        e = PlainTextExtractor()
-        assert e.can_handle(SourceInput(source_type="unknown", filename="notes.md")) is True
+        assert e.can_handle(SourceInput(source_type=arg0, filename=arg1)) is arg2
 
     def test_can_handle_text_source_type(self) -> None:
         e = PlainTextExtractor()
@@ -37,10 +42,6 @@ class TestPlainTextExtractor:
     def test_can_handle_raw_text(self) -> None:
         e = PlainTextExtractor()
         assert e.can_handle(SourceInput(source_type="unknown", raw_text="hello")) is True
-
-    def test_rejects_pdf(self) -> None:
-        e = PlainTextExtractor()
-        assert e.can_handle(SourceInput(source_type="pdf", filename="doc.pdf")) is False
 
     def test_extract_raw_text(self) -> None:
         e = PlainTextExtractor()
@@ -89,20 +90,28 @@ class TestPlainTextExtractor:
 
 
 class TestParagraphHeadingLevel:
-    def test_heading_1(self) -> None:
-        assert _paragraph_heading_level("Heading 1") == 1
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("Heading 1", 1),
+            ("heading 3", 3),
+        ],
+        ids=['heading_1', 'heading_3'],
+    )
+    def test_paragraph_heading_level(self, value, expected) -> None:
+        assert _paragraph_heading_level(value) == expected
 
-    def test_heading_3(self) -> None:
-        assert _paragraph_heading_level("heading 3") == 3
-
-    def test_normal_style(self) -> None:
-        assert _paragraph_heading_level("Normal") is None
-
-    def test_empty_string(self) -> None:
-        assert _paragraph_heading_level("") is None
-
-    def test_garbage_style(self) -> None:
-        assert _paragraph_heading_level("Heading X") is None
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "Normal",
+            "",
+            "Heading X",
+        ],
+        ids=['normal_style', 'empty_string', 'garbage_style'],
+    )
+    def test_normal_style(self, value) -> None:
+        assert _paragraph_heading_level(value) is None
 
 
 # ============================================================================
@@ -115,13 +124,17 @@ class TestDocxExtractor:
         e = DocxExtractor()
         assert e.can_handle(SourceInput(source_type="unknown", filename="report.docx")) is True
 
-    def test_can_handle_docx_source_type(self) -> None:
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("docx", True),
+            ("pptx", False),
+        ],
+        ids=['can_handle_docx_source_type', 'rejects_pptx'],
+    )
+    def test_docx_extractor(self, value, expected) -> None:
         e = DocxExtractor()
-        assert e.can_handle(SourceInput(source_type="docx")) is True
-
-    def test_rejects_pptx(self) -> None:
-        e = DocxExtractor()
-        assert e.can_handle(SourceInput(source_type="pptx")) is False
+        assert e.can_handle(SourceInput(source_type=value)) is expected
 
     def test_missing_file_path_raises(self) -> None:
         e = DocxExtractor()
@@ -294,21 +307,19 @@ class TestEpubExtractor:
 
 
 class TestNormalizeHrefPath:
-    def test_lowercase(self) -> None:
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "Text/Ch01.XHTML",
+            "Text\\ch01.xhtml",
+            "/Text/ch01.xhtml/",
+            "  Text/ch01.xhtml  ",
+        ],
+        ids=['lowercase', 'backslash_normalization', 'strips_leading_trailing_slashes', 'whitespace_trim'],
+    )
+    def test_normalize_href_path(self, value) -> None:
         from app.services.extraction.epub import _normalize_href_path
-        assert _normalize_href_path("Text/Ch01.XHTML") == "text/ch01.xhtml"
-
-    def test_backslash_normalization(self) -> None:
-        from app.services.extraction.epub import _normalize_href_path
-        assert _normalize_href_path("Text\\ch01.xhtml") == "text/ch01.xhtml"
-
-    def test_strips_leading_trailing_slashes(self) -> None:
-        from app.services.extraction.epub import _normalize_href_path
-        assert _normalize_href_path("/Text/ch01.xhtml/") == "text/ch01.xhtml"
-
-    def test_whitespace_trim(self) -> None:
-        from app.services.extraction.epub import _normalize_href_path
-        assert _normalize_href_path("  Text/ch01.xhtml  ") == "text/ch01.xhtml"
+        assert _normalize_href_path(value) == "text/ch01.xhtml"
 
 
 class TestFlattenTocForInjection:
@@ -316,29 +327,29 @@ class TestFlattenTocForInjection:
         from app.services.extraction.epub import _flatten_toc_for_injection
         assert _flatten_toc_for_injection([]) == []
 
-    def test_single_link(self) -> None:
-        from app.services.extraction.epub import _flatten_toc_for_injection
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2,arg3,arg4",
+        [
+            ("Text/ch01.xhtml", "CHAPTER I", "CHAPTER I", "Text/ch01.xhtml", ""),
+            ("Text/book.xhtml#ch01", "Chapter 1", "Chapter 1", "Text/book.xhtml", "ch01"),
+        ],
+        ids=['single_link', 'link_with_fragment'],
+    )
+    def test_flatten_toc_for_injection(self, arg0, arg1, arg2, arg3, arg4) -> None:
         from ebooklib import epub
-        toc = [epub.Link("Text/ch01.xhtml", "CHAPTER I")]
-        result = _flatten_toc_for_injection(toc)
-        assert len(result) == 1
-        assert result[0]["title"] == "CHAPTER I"
-        assert result[0]["href_path"] == "Text/ch01.xhtml"
-        assert result[0]["fragment"] == ""
 
-    def test_link_with_fragment(self) -> None:
         from app.services.extraction.epub import _flatten_toc_for_injection
-        from ebooklib import epub
-        toc = [epub.Link("Text/book.xhtml#ch01", "Chapter 1")]
+        toc = [epub.Link(arg0, arg1)]
         result = _flatten_toc_for_injection(toc)
         assert len(result) == 1
-        assert result[0]["title"] == "Chapter 1"
-        assert result[0]["href_path"] == "Text/book.xhtml"
-        assert result[0]["fragment"] == "ch01"
+        assert result[0]["title"] == arg2
+        assert result[0]["href_path"] == arg3
+        assert result[0]["fragment"] == arg4
 
     def test_tuple_toc(self) -> None:
-        from app.services.extraction.epub import _flatten_toc_for_injection
         from ebooklib import epub
+
+        from app.services.extraction.epub import _flatten_toc_for_injection
         toc = [(epub.Link("a.xhtml", "Parent"), [epub.Link("b.xhtml", "Child")])]
         result = _flatten_toc_for_injection(toc)
         assert len(result) == 2
@@ -346,23 +357,26 @@ class TestFlattenTocForInjection:
         assert result[1]["title"] == "Child"
 
     def test_section_without_href_is_skipped(self) -> None:
-        from app.services.extraction.epub import _flatten_toc_for_injection
         from ebooklib import epub
+
+        from app.services.extraction.epub import _flatten_toc_for_injection
         toc = [epub.Section("Part I", href="")]
         result = _flatten_toc_for_injection(toc)
         assert len(result) == 0
 
     def test_section_with_href_is_included(self) -> None:
-        from app.services.extraction.epub import _flatten_toc_for_injection
         from ebooklib import epub
+
+        from app.services.extraction.epub import _flatten_toc_for_injection
         toc = [epub.Section("Part I", href="part1.xhtml")]
         result = _flatten_toc_for_injection(toc)
         assert len(result) == 1
         assert result[0]["title"] == "Part I"
 
     def test_nested_list_toc(self) -> None:
-        from app.services.extraction.epub import _flatten_toc_for_injection
         from ebooklib import epub
+
+        from app.services.extraction.epub import _flatten_toc_for_injection
         toc = [
             epub.Link("ch01.xhtml", "Chapter 1"),
             (epub.Section("Part II", href="part2.xhtml"), [
@@ -377,14 +391,17 @@ class TestFlattenTocForInjection:
 
 
 class TestMatchItemToTocTitle:
-    def test_suffix_match_ncx_style(self) -> None:
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "Text/ch01.xhtml",
+            "OEBPS/Text/ch01.xhtml",
+        ],
+        ids=['suffix_match_ncx_style', 'suffix_match_nav_style'],
+    )
+    def test_suffix_match(self, value) -> None:
         from app.services.extraction.epub import _match_item_to_toc_title
-        entries = [{"title": "CHAPTER I", "href_path": "Text/ch01.xhtml", "fragment": ""}]
-        assert _match_item_to_toc_title("OEBPS/Text/ch01.xhtml", entries) == "CHAPTER I"
-
-    def test_suffix_match_nav_style(self) -> None:
-        from app.services.extraction.epub import _match_item_to_toc_title
-        entries = [{"title": "CHAPTER I", "href_path": "OEBPS/Text/ch01.xhtml", "fragment": ""}]
+        entries = [{"title": "CHAPTER I", "href_path": value, "fragment": ""}]
         assert _match_item_to_toc_title("OEBPS/Text/ch01.xhtml", entries) == "CHAPTER I"
 
     def test_no_match(self) -> None:
@@ -406,51 +423,40 @@ class TestMatchItemToTocTitle:
 
 
 class TestHtmlHasHeadingWithTitle:
-    def test_h1_match(self) -> None:
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2",
+        [
+            ("<html><body><h1>Chapter I</h1></body></html>", "Chapter I", True),
+            ("<h1>chapter i</h1>", "CHAPTER I", True),
+            ("<h2>Section 1</h2>", "Section 1", True),
+            ("<p>Chapter I</p>", "Chapter I", False),
+            ("<h1>Chapter I: Intro</h1>", "Chapter I", False),
+            ("<h1>Chapter <em>I</em></h1>", "Chapter I", True),
+        ],
+        ids=['h1_match', 'case_insensitive', 'h2_match', 'no_heading_match', 'partial_no_match', 'nested_tags_in_heading'],
+    )
+    def test_html_has_heading_with_title(self, arg0, arg1, arg2) -> None:
         from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<html><body><h1>Chapter I</h1></body></html>"
-        assert _html_has_heading_with_title(html, "Chapter I") is True
-
-    def test_case_insensitive(self) -> None:
-        from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<h1>chapter i</h1>"
-        assert _html_has_heading_with_title(html, "CHAPTER I") is True
-
-    def test_h2_match(self) -> None:
-        from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<h2>Section 1</h2>"
-        assert _html_has_heading_with_title(html, "Section 1") is True
-
-    def test_no_heading_match(self) -> None:
-        from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<p>Chapter I</p>"
-        assert _html_has_heading_with_title(html, "Chapter I") is False
-
-    def test_partial_no_match(self) -> None:
-        from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<h1>Chapter I: Intro</h1>"
-        assert _html_has_heading_with_title(html, "Chapter I") is False
-
-    def test_nested_tags_in_heading(self) -> None:
-        from app.services.extraction.epub import _html_has_heading_with_title
-        html = "<h1>Chapter <em>I</em></h1>"
-        assert _html_has_heading_with_title(html, "Chapter I") is True
+        html = arg0
+        assert _html_has_heading_with_title(html, arg1) is arg2
 
 
 class TestInjectUnmatchedTitles:
-    def test_simple_injection(self) -> None:
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("Some text.\n\nCHAPTER II\n\nMore text.", "# CHAPTER II"),
+            ("chapter ii\n\nBody.", "# chapter ii"),
+            ("  CHAPTER II  \n\nBody.", "# CHAPTER II"),
+        ],
+        ids=['simple_injection', 'case_insensitive_match', 'whitespace_handling'],
+    )
+    def test_inject_unmatched_titles(self, value, expected) -> None:
         from app.services.extraction.epub import _inject_unmatched_titles
         entries = [{"title": "CHAPTER II", "href_path": "ch02.xhtml", "fragment": ""}]
-        md = "Some text.\n\nCHAPTER II\n\nMore text."
+        md = value
         result = _inject_unmatched_titles(md, entries, set())
-        assert "# CHAPTER II" in result
-
-    def test_case_insensitive_match(self) -> None:
-        from app.services.extraction.epub import _inject_unmatched_titles
-        entries = [{"title": "CHAPTER II", "href_path": "ch02.xhtml", "fragment": ""}]
-        md = "chapter ii\n\nBody."
-        result = _inject_unmatched_titles(md, entries, set())
-        assert "# chapter ii" in result
+        assert expected in result
 
     def test_skip_already_heading(self) -> None:
         from app.services.extraction.epub import _inject_unmatched_titles
@@ -474,13 +480,6 @@ class TestInjectUnmatchedTitles:
         result = _inject_unmatched_titles(md, entries, {"chapter i"})
         assert result == md  # unchanged
 
-    def test_whitespace_handling(self) -> None:
-        from app.services.extraction.epub import _inject_unmatched_titles
-        entries = [{"title": "CHAPTER II", "href_path": "ch02.xhtml", "fragment": ""}]
-        md = "  CHAPTER II  \n\nBody."
-        result = _inject_unmatched_titles(md, entries, set())
-        assert "# CHAPTER II" in result
-
     def test_empty_markdown(self) -> None:
         from app.services.extraction.epub import _inject_unmatched_titles
         entries = [{"title": "CHAPTER I", "href_path": "ch01.xhtml", "fragment": ""}]
@@ -495,8 +494,9 @@ class TestInjectUnmatchedTitles:
 class TestEpubExtractorWithTocInjection:
     def test_multi_file_epub_css_titles(self) -> None:
         """Layer 1: multi-file EPUB where each chapter file is matched by href."""
-        from app.services.extraction.epub import EpubExtractor
         from ebooklib import epub
+
+        from app.services.extraction.epub import EpubExtractor
 
         mock_book = MagicMock()
         mock_book.get_metadata.return_value = []
@@ -532,8 +532,9 @@ class TestEpubExtractorWithTocInjection:
 
     def test_single_file_epub_with_fragments(self) -> None:
         """Layer 1 + 2: single-file EPUB — first title from href, rest from text scan."""
-        from app.services.extraction.epub import EpubExtractor
         from ebooklib import epub
+
+        from app.services.extraction.epub import EpubExtractor
 
         mock_book = MagicMock()
         mock_book.get_metadata.return_value = []
@@ -567,8 +568,9 @@ class TestEpubExtractorWithTocInjection:
 
     def test_think_python_no_regression(self) -> None:
         """EPUBs with real <h1> tags are not double-injected."""
-        from app.services.extraction.epub import EpubExtractor
         from ebooklib import epub
+
+        from app.services.extraction.epub import EpubExtractor
 
         mock_book = MagicMock()
         mock_book.get_metadata.return_value = []
@@ -625,23 +627,19 @@ class TestEpubExtractorWithTocInjection:
 
 
 class TestUrlExtractor:
-    def test_can_handle_url_source_type(self) -> None:
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2",
+        [
+            ("url", "https://example.com", True),
+            ("unknown", "https://example.com/article", True),
+            ("unknown", "ftp://files.com", False),
+        ],
+        ids=['can_handle_url_source_type', 'can_handle_url_in_other_type', 'rejects_non_http'],
+    )
+    def test_url_extractor(self, arg0, arg1, arg2) -> None:
         from app.services.extraction.url import UrlExtractor
         e = UrlExtractor()
-        assert e.can_handle(SourceInput(source_type="url", url="https://example.com")) is True
-
-    def test_can_handle_url_in_other_type(self) -> None:
-        from app.services.extraction.url import UrlExtractor
-        e = UrlExtractor()
-        assert e.can_handle(SourceInput(
-            source_type="unknown",
-            url="https://example.com/article",
-        )) is True
-
-    def test_rejects_non_http(self) -> None:
-        from app.services.extraction.url import UrlExtractor
-        e = UrlExtractor()
-        assert e.can_handle(SourceInput(source_type="unknown", url="ftp://files.com")) is False
+        assert e.can_handle(SourceInput(source_type=arg0, url=arg1)) is arg2
 
     def test_missing_url_raises(self) -> None:
         from app.services.extraction.url import UrlExtractor

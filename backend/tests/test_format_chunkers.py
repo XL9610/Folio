@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.services.chunking.epub import EpubChapterChunker
 from app.services.chunking.heading import HeadingChunker, parse_markdown_sections
 from app.services.chunking.pptx import SlideChunker
@@ -88,15 +90,17 @@ class TestParseMarkdownSections:
         assert len(h2_sections) >= 1
         assert "H1" in h2_sections[0].heading_path
 
-    def test_content_before_first_heading(self) -> None:
-        md = "Intro text\n\n# Heading\n\nBody"
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "Intro text\n\n# Heading\n\nBody",
+            "Just a paragraph.\n\nAnother line.",
+        ],
+        ids=['content_before_first_heading', 'no_headings_returns_single_section'],
+    )
+    def test_parse_markdown_sections(self, value) -> None:
+        md = value
         sections = parse_markdown_sections(md, "Default")
-        assert len(sections) >= 1
-
-    def test_no_headings_returns_single_section(self) -> None:
-        md = "Just a paragraph.\n\nAnother line."
-        sections = parse_markdown_sections(md, "Default")
-        # Should get one section with default title
         assert len(sections) >= 1
 
 
@@ -183,11 +187,12 @@ class TestHeadingChunker:
         """DB reads sort by chunk_index and dense vectors zip against that order,
         so DB order must equal the chunker order (text + embedding alignment)."""
         import sqlite3
+
         from app.db import session as db_session
         from app.db.schema import create_tables
-        from app.repositories.notebook_repository import create_notebook
+        from app.repositories.chunk_repository import get_chunks_by_document, insert_chunks
         from app.repositories.document_repository import create_source_document
-        from app.repositories.chunk_repository import insert_chunks, get_chunks_by_document
+        from app.repositories.notebook_repository import create_notebook
 
         conn = sqlite3.connect(":memory:", check_same_thread=False)
         conn.row_factory = sqlite3.Row

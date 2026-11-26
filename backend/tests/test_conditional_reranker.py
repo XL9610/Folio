@@ -31,45 +31,28 @@ class TestSearchOptions:
 class TestShouldRerank:
     """Task-based rerank gating."""
 
-    def test_locate_no_rerank(self):
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("locate", False),
+            ("overview", False),
+            ("explain_concept", True),
+            ("compare", True),
+            ("specific_search", True),
+            ("answer_directly", False),
+            ("summarize", False),
+            ("clarify", False),
+            ("nonexistent_task", False),
+        ],
+        ids=['locate_no_rerank', 'overview_no_rerank', 'explain_concept_rerank', 'compare_rerank', 'specific_search_rerank', 'answer_directly_no_rerank', 'summarize_no_rerank', 'clarify_no_rerank', 'unknown_task_no_rerank'],
+    )
+    def test_should_rerank(self, value, expected):
         from app.services.qa.tools import _should_rerank
-        assert _should_rerank("locate") is False
-
-    def test_overview_no_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("overview") is False
-
-    def test_explain_concept_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("explain_concept") is True
+        assert _should_rerank(value) is expected
 
     def test_whole_source_scope_suppresses_pointwise_rerank(self):
         from app.services.qa.tools import _should_rerank
         assert _should_rerank("explain_concept", "whole_source") is False
-
-    def test_compare_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("compare") is True
-
-    def test_specific_search_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("specific_search") is True
-
-    def test_answer_directly_no_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("answer_directly") is False
-
-    def test_summarize_no_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("summarize") is False
-
-    def test_clarify_no_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("clarify") is False
-
-    def test_unknown_task_no_rerank(self):
-        from app.services.qa.tools import _should_rerank
-        assert _should_rerank("nonexistent_task") is False
 
 
 class TestConcurrentSafety:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from app.services.extraction.models import ExtractedDocument
 from app.services.ingestion import service
 from app.services.ingestion.index_text import (
     CONTEXT_MODE_METADATA,
@@ -9,7 +10,6 @@ from app.services.ingestion.index_text import (
     build_index_text,
     compose_indexed_text,
 )
-from app.services.extraction.models import ExtractedDocument
 from app.services.pdf_ingestion.models import Chunk, ChunkingResult, DocumentPage
 
 
@@ -17,6 +17,7 @@ from app.services.pdf_ingestion.models import Chunk, ChunkingResult, DocumentPag
 def _test_db():
     """Create an in-memory SQLite database for ingestion integration tests."""
     import sqlite3
+
     from app.db import session as db_session
     from app.db.schema import create_tables
 
@@ -110,34 +111,33 @@ def test_duplicate_ingest_preserves_chunker_toc_metadata(monkeypatch, tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def test_build_index_text_with_section_path():
-    """Prefix emitted for non-empty section path."""
-    result = build_index_text("My Book", "Chapter 1 > Section A", "hello world")
-    assert result.context_prefix == "[My Book > Chapter 1 > Section A]"
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2",
+    [
+        ("Chapter 1 > Section A", "[My Book > Chapter 1 > Section A]", "[My Book > Chapter 1 > Section A]\n\nhello world"),
+        ("", "", "hello world"),
+    ],
+    ids=['build_index_text_with_section_path', 'build_index_text_blank_section_path'],
+)
+def test_build_index_text(arg0, arg1, arg2):
+    result = build_index_text("My Book", arg0, "hello world")
+    assert result.context_prefix == arg1
     assert result.context_mode == "metadata"
-    assert result.indexed_text == "[My Book > Chapter 1 > Section A]\n\nhello world"
+    assert result.indexed_text == arg2
 
 
-def test_build_index_text_trims_title_and_path():
-    """Title and path are trimmed, chunk text is preserved exactly."""
-    result = build_index_text("  My Book  ", "  Ch 1  ", "  chunk text  ")
-    assert result.context_prefix == "[My Book > Ch 1]"
-    assert result.indexed_text == "[My Book > Ch 1]\n\n  chunk text  "
-
-
-def test_build_index_text_blank_section_path():
-    """Blank section path returns canonical chunk text unchanged."""
-    result = build_index_text("My Book", "", "hello world")
-    assert result.context_prefix == ""
-    assert result.context_mode == "metadata"
-    assert result.indexed_text == "hello world"
-
-
-def test_build_index_text_whitespace_section_path():
-    """Whitespace-only section path returns canonical chunk text unchanged."""
-    result = build_index_text("My Book", "   ", "hello world")
-    assert result.context_prefix == ""
-    assert result.indexed_text == "hello world"
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3,arg4",
+    [
+        ("  My Book  ", "  Ch 1  ", "  chunk text  ", "[My Book > Ch 1]", "[My Book > Ch 1]\n\n  chunk text  "),
+        ("My Book", "   ", "hello world", "", "hello world"),
+    ],
+    ids=['build_index_text_trims_title_and_path', 'build_index_text_whitespace_section_path'],
+)
+def test_build_index_text_trims_title_and_path(arg0, arg1, arg2, arg3, arg4):
+    result = build_index_text(arg0, arg1, arg2)
+    assert result.context_prefix == arg3
+    assert result.indexed_text == arg4
 
 
 def test_build_index_text_preserves_chunk_whitespace():
@@ -158,14 +158,16 @@ def test_compose_indexed_text_with_prefix():
     assert result == "[B > C]\n\nchunk text"
 
 
-def test_compose_indexed_text_empty_prefix():
-    """Returns chunk text when prefix is empty string."""
-    assert compose_indexed_text("", "chunk text") == "chunk text"
-
-
-def test_compose_indexed_text_whitespace_prefix():
-    """Returns chunk text when prefix is whitespace-only."""
-    assert compose_indexed_text("   ", "chunk text") == "chunk text"
+@pytest.mark.parametrize(
+    "value",
+    [
+        "",
+        "   ",
+    ],
+    ids=['compose_indexed_text_empty_prefix', 'compose_indexed_text_whitespace_prefix'],
+)
+def test_compose_indexed_text(value):
+    assert compose_indexed_text(value, "chunk text") == "chunk text"
 
 
 def test_compose_indexed_text_roundtrip():

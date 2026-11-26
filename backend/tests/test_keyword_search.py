@@ -6,10 +6,10 @@ import pytest
 
 from app.services.retrieval.keyword_backend import (
     ImprovedFTSBackend,
-    improved_make_fts_query,
     _legacy_make_fts_query,
-    reset_keyword_backend,
     get_keyword_backend,
+    improved_make_fts_query,
+    reset_keyword_backend,
 )
 
 
@@ -30,38 +30,36 @@ class TestImprovedFTSQueryBuilder:
         assert "what*" not in result.lower()
         assert "the*" not in result.lower()
 
-    def test_short_query_uses_or(self):
-        """Queries should use OR connector for recall."""
-        result = improved_make_fts_query("gradient descent algorithm")
-        assert " OR " in result
-
-    def test_long_query_uses_or(self):
-        """Queries with 4+ meaningful terms should use OR."""
-        result = improved_make_fts_query(
-            "gradient descent optimization machine learning"
-        )
-        assert " OR " in result
-
-    def test_phrase_preservation(self):
-        """Quoted phrases should be preserved as FTS5 phrase queries."""
-        result = improved_make_fts_query('what is "gradient descent" method')
-        assert '"gradient descent"' in result
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("gradient descent algorithm", " OR "),
+            ("gradient descent optimization machine learning", " OR "),
+            ('what is "gradient descent" method', '"gradient descent"'),
+        ],
+        ids=['short_query_uses_or', 'long_query_uses_or', 'phrase_preservation'],
+    )
+    def test_improved_f_t_s_query_builder(self, value, expected):
+        result = improved_make_fts_query(value)
+        assert expected in result
 
     def test_empty_query(self):
         """Empty query should return empty string."""
         assert improved_make_fts_query("") == ""
         assert improved_make_fts_query("   ") == ""
 
-    def test_only_stopwords(self):
-        """Query with only stopwords should fall back to legacy."""
-        result = improved_make_fts_query("the a an")
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "the a an",
+            "hello! world? test:value",
+        ],
+        ids=['only_stopwords', 'special_characters_handled'],
+    )
+    def test_only_stopwords(self, value):
+        result = improved_make_fts_query(value)
         # Should still produce something (legacy fallback)
         assert result != ""
-
-    def test_special_characters_handled(self):
-        """Special characters should be stripped safely."""
-        result = improved_make_fts_query("hello! world? test:value")
-        assert result != ""  # should not crash
         # Should contain cleaned tokens
 
     def test_mixed_case_normalized(self):

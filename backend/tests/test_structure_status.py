@@ -8,14 +8,15 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from app.services.pdf_ingestion.structure_status import StructureStatus
+import pytest
+
+from app.services.pdf_ingestion.chunker import PDFChunker
 from app.services.pdf_ingestion.structure_metadata import (
     UNKNOWN_LEGACY_STRUCTURE,
     build_structure_metadata,
     is_unreliable_structure_status,
 )
-from app.services.pdf_ingestion.chunker import PDFChunker
-
+from app.services.pdf_ingestion.structure_status import StructureStatus
 
 # ---------------------------------------------------------------------------
 # Unit tests — enum properties
@@ -64,17 +65,17 @@ class TestLegacyStatusFunctions:
         assert is_unreliable_structure_status("no_reliable_outline") is True
         assert is_unreliable_structure_status("unknown_legacy") is True
 
-    def test_unreliable_status_auto_detected(self):
-        """auto_detected_outline is no longer in the reliable set."""
-        assert is_unreliable_structure_status("auto_detected_outline") is True
-
-    def test_unreliable_none(self):
-        """None status defaults to unknown_legacy -> unreliable."""
-        assert is_unreliable_structure_status(None) is True
-
-    def test_unreliable_invalid_string(self):
-        """Unknown status string -> falls through to unreliable."""
-        assert is_unreliable_structure_status("bogus_status") is True
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "auto_detected_outline",
+            None,
+            "bogus_status",
+        ],
+        ids=['unreliable_status_auto_detected', 'unreliable_none', 'unreliable_invalid_string'],
+    )
+    def test_legacy_status_functions(self, value):
+        assert is_unreliable_structure_status(value) is True
 
 
 # ---------------------------------------------------------------------------
@@ -170,8 +171,9 @@ class TestAPIStructureFields:
         }
         mock_get_sections.return_value = []
 
-        from app.routers.documents_router import get_document_detail
         import asyncio
+
+        from app.routers.documents_router import get_document_detail
 
         # Call the async endpoint function synchronously via asyncio
         result = asyncio.run(get_document_detail("test-doc-1"))

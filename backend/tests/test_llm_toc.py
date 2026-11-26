@@ -14,16 +14,15 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import fitz
 import pytest
 
+from app.services.llm import LLMConfig
 from app.services.pdf_ingestion.chunker import PDFChunker
 from app.services.toc_llm_classifier.classifier import LLMTOCClassifier
 from app.services.toc_llm_classifier.models import TOCClassificationResult, TOCEntryForLLM
-from app.services.llm import LLMConfig
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -269,34 +268,20 @@ def test_toc_entry_for_llm_serialization():
 # Remote LLM opt-in regression tests
 # ---------------------------------------------------------------------------
 
-def test_llm_config_blocked_when_remote_disabled(monkeypatch):
-    """LLMConfig.is_configured should be False when LLM_REMOTE_ENABLED=false."""
-    monkeypatch.setenv("LLM_API_KEY", "sk-test-key-12345")
-    monkeypatch.setenv("LLM_REMOTE_ENABLED", "false")
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3",
+    [
+        ("sk-test-key-12345", "false", False, "LLM should be disabled when LLM_REMOTE_ENABLED=false, even with API key present"),
+        ("sk-test-key-12345", "true", True, "LLM should be enabled when LLM_REMOTE_ENABLED=true and API key present"),
+        ("", "true", False, "LLM should be disabled without API key"),
+    ],
+    ids=['llm_config_blocked_when_remote_disabled', 'llm_config_enabled_when_remote_on', 'llm_config_blocked_without_key'],
+)
+def test_llm_config(monkeypatch, arg0, arg1, arg2, arg3):
+    monkeypatch.setenv("LLM_API_KEY", arg0)
+    monkeypatch.setenv("LLM_REMOTE_ENABLED", arg1)
 
     from app.services.llm import LLMConfig
     config = LLMConfig()
-    assert config.is_configured is False, \
-        "LLM should be disabled when LLM_REMOTE_ENABLED=false, even with API key present"
-
-
-def test_llm_config_enabled_when_remote_on(monkeypatch):
-    """LLMConfig.is_configured should be True when LLM_REMOTE_ENABLED=true AND key set."""
-    monkeypatch.setenv("LLM_API_KEY", "sk-test-key-12345")
-    monkeypatch.setenv("LLM_REMOTE_ENABLED", "true")
-
-    from app.services.llm import LLMConfig
-    config = LLMConfig()
-    assert config.is_configured is True, \
-        "LLM should be enabled when LLM_REMOTE_ENABLED=true and API key present"
-
-
-def test_llm_config_blocked_without_key(monkeypatch):
-    """LLMConfig.is_configured should be False when no API key, even if remote enabled."""
-    monkeypatch.setenv("LLM_API_KEY", "")
-    monkeypatch.setenv("LLM_REMOTE_ENABLED", "true")
-
-    from app.services.llm import LLMConfig
-    config = LLMConfig()
-    assert config.is_configured is False, \
-        "LLM should be disabled without API key"
+    assert config.is_configured is arg2, \
+        arg3

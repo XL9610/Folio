@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
+
 from app.services.generation.flashcards_service import FlashcardsGenerator
 
 
@@ -47,28 +48,27 @@ def test_generate_valid_cards():
     assert result["stats"]["requested_count"] == 10
 
 
-def test_parse_cards_with_code_fence():
-    """LLM wraps JSON in ```json code fence — parser should strip it."""
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ('```json\n{"cards": [{"term": "Mode", "definition": "A scale pattern.", "source": 1}]}\n```', "Mode"),
+        ('{"cards": [{"term": "", "definition": "no term"}, {"term": "Good", "definition": "valid", "source": 1}]}', "Good"),
+        ('```json\n{"cards": [\n  {"term": "X", "definition": "ok", "source": 1},\n  {"term": "Y", "definition": "also ok"', 'X'),
+    ],
+    ids=['parse_cards_with_code_fence', 'parse_cards_partial_json', 'parser_handles_code_fence_and_truncation'],
+)
+def test_parse_cards_with_code_fence(value, expected):
     gen = FlashcardsGenerator(MagicMock(), make_fake_resolver())
-    raw = '```json\n{"cards": [{"term": "Mode", "definition": "A scale pattern.", "source": 1}]}\n```'
+    raw = value
     cards = gen._parse_cards(raw)
     assert len(cards) == 1
-    assert cards[0]["term"] == "Mode"
+    assert cards[0]["term"] == expected
 
 
 def test_parse_cards_garbage_returns_empty():
     gen = FlashcardsGenerator(MagicMock(), make_fake_resolver())
     cards = gen._parse_cards("total nonsense no json at all")
     assert cards == []
-
-
-def test_parse_cards_partial_json():
-    """Only valid cards with term+definition should survive."""
-    gen = FlashcardsGenerator(MagicMock(), make_fake_resolver())
-    raw = '{"cards": [{"term": "", "definition": "no term"}, {"term": "Good", "definition": "valid", "source": 1}]}'
-    cards = gen._parse_cards(raw)
-    assert len(cards) == 1
-    assert cards[0]["term"] == "Good"
 
 
 def test_source_mapping_uses_1_based_index():
@@ -111,18 +111,6 @@ def test_parser_recovers_from_truncated_json():
     assert len(cards) == 2
     assert cards[0]["term"] == "A"
     assert cards[1]["term"] == "B"
-
-
-def test_parser_handles_code_fence_and_truncation():
-    """Truncation inside a code-fenced response."""
-    gen = FlashcardsGenerator(MagicMock(), make_fake_resolver())
-    raw = ('```json\n'
-           '{"cards": [\n'
-           '  {"term": "X", "definition": "ok", "source": 1},\n'
-           '  {"term": "Y", "definition": "also ok"')  # truncated mid-object
-    cards = gen._parse_cards(raw)
-    assert len(cards) == 1
-    assert cards[0]["term"] == "X"
 
 
 def test_generate_raises_on_zero_cards():

@@ -32,7 +32,6 @@ from app.services.qa.agent_generator import (
 from app.services.qa.agent_planner import PlanResult
 from app.services.qa.citations import strip_inline_book_citations
 from app.services.qa.tools import QAToolExecutor, ToolResults
-
 from tests.test_hierarchical_builder import FakeLLM
 
 
@@ -194,19 +193,18 @@ def test_whole_source_overview_hides_inline_book_citations():
     assert _apply_overview_presentation(_plan("whole_source"), "x [W1]") == "x [W1]"
 
 
-def test_fact_scope_keeps_inline_citations():
-    answer = "The heap property is X [S2]."
-    assert _apply_overview_presentation(_plan("fact"), answer) == answer
-
-
-def test_section_scope_keeps_inline_citations():
-    answer = "Chapter 3 covers demand and supply [S1][S2]."
-    assert _apply_overview_presentation(_plan("section"), answer) == answer
-
-
-def test_unknown_scope_keeps_inline_citations():
-    answer = "Some synthesis [S4]."
-    assert _apply_overview_presentation(_plan("unknown"), answer) == answer
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("The heap property is X [S2].", "fact"),
+        ("Chapter 3 covers demand and supply [S1][S2].", "section"),
+        ("Some synthesis [S4].", "unknown"),
+    ],
+    ids=['fact_scope_keeps_inline_citations', 'section_scope_keeps_inline_citations', 'unknown_scope_keeps_inline_citations'],
+)
+def test_fact_scope_keeps_inline_citations(value, expected):
+    answer = value
+    assert _apply_overview_presentation(_plan(expected), answer) == answer
 
 
 def test_strip_cleans_artifacts():
@@ -275,6 +273,7 @@ def test_hierarchy_unavailable_keeps_64_fallback(monkeypatch):
     behavior is scope-based and independent of hierarchy availability."""
     monkeypatch.setattr(config, "hierarchical_overview_enabled", True)
     import sqlite3 as _s
+
     from app.db import session as _session
     conn = _s.connect(":memory:", check_same_thread=False)
     conn.row_factory = _s.Row

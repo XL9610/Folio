@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.services.generation.sampling import (
-    sample_body_chunks,
-    is_body_chunk,
-    group_chunks_by_major_section,
-    sample_section_chunks,
-    allocate_flashcard_budget,
-    major_section_key,
     SectionGroup,
+    allocate_flashcard_budget,
+    group_chunks_by_major_section,
+    is_body_chunk,
+    major_section_key,
+    sample_body_chunks,
+    sample_section_chunks,
 )
 from app.services.retrieval.base import RetrievedChunk
 
@@ -26,84 +28,47 @@ def make_chunk(title="", section_path="", text="test"):
     )
 
 
-def test_is_body_chunk_returns_false_for_copyright():
-    c = make_chunk(title="Copyright")
-    assert is_body_chunk(c) is False
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("Copyright", False),
+        ("INDEX", False),
+        ("Bibliography", False),
+        ("Glossary", False),
+        ("Credits", False),
+        ("About the Author", False),
+        ("Colophon", False),
+        ("Preface", False),
+        ("Table of Contents", False),
+        ("Title Page", False),
+        ("Chapter 1", True),
+        ("PART ONE", True),
+        ("15. The Madrigal", True),
+        ("", True),
+        ("Notes", False),
+        ("Biographical Notes", False),
+        ("List of Illustrations", False),
+        ("List of Texts", False),
+    ],
+    ids=['is_body_chunk_returns_false_for_copyright', 'is_body_chunk_returns_false_for_index', 'is_body_chunk_returns_false_for_bibliography', 'is_body_chunk_returns_false_for_glossary', 'is_body_chunk_returns_false_for_credits', 'is_body_chunk_returns_false_for_about_the_author', 'is_body_chunk_returns_false_for_colophon', 'is_body_chunk_returns_false_for_preface', 'is_body_chunk_returns_false_for_table_of_contents', 'is_body_chunk_returns_false_for_title_page', 'is_body_chunk_returns_true_for_chapter', 'is_body_chunk_returns_true_for_part', 'is_body_chunk_returns_true_for_numbered_section', 'is_body_chunk_returns_true_for_empty_title', 'is_body_chunk_returns_false_for_notes', 'is_body_chunk_returns_false_for_biographical_notes', 'is_body_chunk_returns_false_for_list_of_illustrations', 'is_body_chunk_returns_false_for_list_of_texts'],
+)
+def test_is_body_chunk_returns(value, expected):
+    c = make_chunk(title=value)
+    assert is_body_chunk(c) is expected
 
 
-def test_is_body_chunk_returns_false_for_index():
-    c = make_chunk(title="INDEX")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_bibliography():
-    c = make_chunk(title="Bibliography")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_glossary():
-    c = make_chunk(title="Glossary")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_credits():
-    c = make_chunk(title="Credits")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_about_the_author():
-    c = make_chunk(title="About the Author")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_colophon():
-    c = make_chunk(title="Colophon")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_preface():
-    c = make_chunk(title="Preface")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_table_of_contents():
-    c = make_chunk(title="Table of Contents")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_title_page():
-    c = make_chunk(title="Title Page")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_true_for_chapter():
-    c = make_chunk(title="Chapter 1")
-    assert is_body_chunk(c) is True
-
-
-def test_is_body_chunk_returns_true_for_part():
-    c = make_chunk(title="PART ONE")
-    assert is_body_chunk(c) is True
-
-
-def test_is_body_chunk_returns_true_for_numbered_section():
-    c = make_chunk(title="15. The Madrigal")
-    assert is_body_chunk(c) is True
-
-
-def test_is_body_chunk_returns_true_for_empty_title():
-    c = make_chunk(title="")
-    assert is_body_chunk(c) is True  # lean conservative
-
-
-def test_is_body_chunk_checks_section_path():
-    c = make_chunk(title="Some Content", section_path="Bibliography")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_checks_section_path_glossary():
-    c = make_chunk(title="Terms", section_path="Appendix > Glossary")
-    assert is_body_chunk(c) is False
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2",
+    [
+        ("Some Content", "Bibliography", False),
+        ("Terms", "Appendix > Glossary", False),
+        ("Efficient Indexing", "Chapter 5 > Efficient Indexing Algorithms", True),
+    ],
+    ids=['is_body_chunk_checks_section_path', 'is_body_chunk_checks_section_path_glossary', 'is_body_chunk_does_not_exclude_indexing_body_section'],
+)
+def test_is_body_chunk(arg0, arg1, arg2):
+    c = make_chunk(title=arg0, section_path=arg1)
+    assert is_body_chunk(c) is arg2
 
 
 # ── Sampling tests ──────────────────────────────────────────────────────
@@ -300,38 +265,6 @@ def test_allocate_budget_caps_per_section():
     assert budget.get("Big", 0) <= 15  # Big has weight 100/140 = 71%, but capped
 
 
-# ── Expanded non-body filter tests ──────────────────────────────────────────
-
-
-def test_is_body_chunk_returns_false_for_notes():
-    c = make_chunk(title="Notes")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_biographical_notes():
-    c = make_chunk(title="Biographical Notes")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_list_of_illustrations():
-    c = make_chunk(title="List of Illustrations")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_returns_false_for_list_of_texts():
-    c = make_chunk(title="List of Texts")
-    assert is_body_chunk(c) is False
-
-
-def test_is_body_chunk_does_not_exclude_indexing_body_section():
-    """Section path containing 'indexing' should NOT be flagged."""
-    c = make_chunk(
-        title="Efficient Indexing",
-        section_path="Chapter 5 > Efficient Indexing Algorithms",
-    )
-    assert is_body_chunk(c) is True
-
-
 def test_section_path_component_matching():
     """Only exact path components should be flagged, not substrings."""
     # "Index" as a section path component should be flagged
@@ -346,33 +279,33 @@ def test_section_path_component_matching():
 # ── Major section key tests ────────────────────────────────────────────────
 
 
-def test_major_section_key_uses_chapter():
-    assert major_section_key("Chapter 1 Art as History > Introduction") == "Chapter 1 Art as History"
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("Chapter 1 Art as History > Introduction", "Chapter 1 Art as History"),
+        ("Introduction", "Introduction"),
+    ],
+    ids=['major_section_key_uses_chapter', 'major_section_key_fallback_top_level'],
+)
+def test_major_section_key(value, expected):
+    assert major_section_key(value) == expected
 
 
-def test_major_section_key_uses_numbered_chapter():
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2",
+    [
+        ("PART ONE > 1. Music in Antiquity", "1. Music in Antiquity", "PART ONE"),
+        ("PART TWO > 7. Music and the Renaissance", "7. Music and the Renaissance", "PART TWO"),
+        ("Part I: Foundations > Chapter 1: Basics", "Chapter 1", "Part I: Foundations"),
+    ],
+    ids=['major_section_key_uses_numbered_chapter', 'major_section_key_uses_simple_number', 'major_section_key_uses_chapter_with_parent'],
+)
+def test_major_section_key_uses(arg0, arg1, arg2):
     # Parent Part context is included when it's a structure label
-    result = major_section_key("PART ONE > 1. Music in Antiquity")
-    assert "1. Music in Antiquity" in result
+    result = major_section_key(arg0)
+    assert arg1 in result
     # Groups by chapter, not by Part
-    assert result != "PART ONE"
-
-
-def test_major_section_key_uses_simple_number():
-    result = major_section_key("PART TWO > 7. Music and the Renaissance")
-    assert "7. Music and the Renaissance" in result
-    assert result != "PART TWO"
-
-
-def test_major_section_key_uses_chapter_with_parent():
-    # "Part I: Foundations" followed by "Chapter 1: Basics" → Chapter level
-    result = major_section_key("Part I: Foundations > Chapter 1: Basics")
-    assert "Chapter 1" in result
-    assert result != "Part I: Foundations"
-
-
-def test_major_section_key_fallback_top_level():
-    assert major_section_key("Introduction") == "Introduction"
+    assert result != arg2
 
 
 def test_grouping_uses_major_section_key():

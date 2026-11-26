@@ -26,30 +26,25 @@ def fake_llm_config(is_configured=True):
 
 # ── /api/generate tests ──────────────────────────────────────────────
 
-def test_generate_llm_not_configured(client):
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3",
+    [
+        (False, "summary", 503, "llm_not_configured"),
+        (True, "diagram", 501, "not_implemented"),
+    ],
+    ids=['generate_llm_not_configured', 'generate_unsupported_kind_returns_501'],
+)
+def test_generate_llm_not_configured(client, arg0, arg1, arg2, arg3):
     with patch("app.routers.generate_router.LLMConfig",
-               return_value=fake_llm_config(is_configured=False)):
+               return_value=fake_llm_config(is_configured=arg0)):
         resp = client.post("/api/generate", json={
-            "kind": "summary",
+            "kind": arg1,
             "notebook_id": "default",
             "document_ids": ["d1"],
             "params": {},
         })
-        assert resp.status_code == 503
-        assert resp.json()["detail"]["code"] == "llm_not_configured"
-
-
-def test_generate_unsupported_kind_returns_501(client):
-    with patch("app.routers.generate_router.LLMConfig",
-               return_value=fake_llm_config(is_configured=True)):
-        resp = client.post("/api/generate", json={
-            "kind": "diagram",
-            "notebook_id": "default",
-            "document_ids": ["d1"],
-            "params": {},
-        })
-        assert resp.status_code == 501
-        assert resp.json()["detail"]["code"] == "not_implemented"
+        assert resp.status_code == arg2
+        assert resp.json()["detail"]["code"] == arg3
 
 
 def test_generate_summary_happy_path(client):
@@ -143,8 +138,8 @@ def test_generate_flashcards_happy_path(client):
     fake_artifact = {"id": "art-fc", "notebook_id": "nb1", "kind": "flashcards",
                      "title": "FC", "content_json": "{}", "source_document_ids": "[]", "params_json": "{}"}
 
-    from app.services.generation.scope_resolver import ScopeResult, ScopeResolver
     from app.services.generation.flashcards_service import FlashcardsGenerator
+    from app.services.generation.scope_resolver import ScopeResolver, ScopeResult
     from app.services.retrieval.base import RetrievedChunk
     fake_chunk = RetrievedChunk(chunk_id="c1", document_id="d1", text="test text",
                                 title="", section_path="Ch 1", page_start=1, page_end=1)
@@ -193,8 +188,8 @@ def test_generate_mindmap_persists_with_json_serializable_sources(client):
         "]}"
     )
 
-    from app.services.generation.scope_resolver import ScopeResult, ScopeResolver
     from app.services.generation.mindmap_service import MindmapGenerator
+    from app.services.generation.scope_resolver import ScopeResolver, ScopeResult
     from app.services.retrieval.base import RetrievedChunk
     fake_chunk = RetrievedChunk(chunk_id="c1", document_id="d1", text="test text about the topic",
                                 title="", section_path="Ch 1", page_start=1, page_end=1)
@@ -228,27 +223,23 @@ def test_generate_mindmap_persists_with_json_serializable_sources(client):
                             assert data["artifact_id"]
 
 
-def test_generate_flashcards_count_out_of_range(client):
+@pytest.mark.parametrize(
+    "value",
+    [
+        100,
+        5,
+    ],
+    ids=['generate_flashcards_count_out_of_range', 'generate_flashcards_count_below_min'],
+)
+def test_generate_flashcards_count(client, value):
     with patch("app.routers.generate_router.LLMConfig", return_value=fake_llm_config(is_configured=True)):
         resp = client.post("/api/generate", json={
             "kind": "flashcards",
             "notebook_id": "default",
             "document_ids": ["d1"],
-            "params": {"count": 100},  # exceeds max 50
+            "params": {"count": value},  # exceeds max 50
         })
         assert resp.status_code == 422  # pydantic validation error
-
-
-def test_generate_flashcards_count_below_min(client):
-    """count=5 should fail Pydantic validation (ge=10)."""
-    with patch("app.routers.generate_router.LLMConfig", return_value=fake_llm_config(is_configured=True)):
-        resp = client.post("/api/generate", json={
-            "kind": "flashcards",
-            "notebook_id": "default",
-            "document_ids": ["d1"],
-            "params": {"count": 5},
-        })
-        assert resp.status_code == 422
 
 
 def test_generate_quiz_happy_path(client):
@@ -258,8 +249,8 @@ def test_generate_quiz_happy_path(client):
     fake_artifact = {"id": "art-quiz", "notebook_id": "nb1", "kind": "quiz",
                      "title": "Quiz", "content_json": "{}", "source_document_ids": "[]", "params_json": "{}"}
 
-    from app.services.generation.scope_resolver import ScopeResult, ScopeResolver
     from app.services.generation.quiz_service import QuizGenerator
+    from app.services.generation.scope_resolver import ScopeResolver, ScopeResult
     from app.services.retrieval.base import RetrievedChunk
     fake_chunk = RetrievedChunk(chunk_id="c1", document_id="d1", text="test text",
                                 title="", section_path="Ch 1", page_start=1, page_end=1)

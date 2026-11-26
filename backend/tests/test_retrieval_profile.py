@@ -27,21 +27,20 @@ class TestRetrievalProfile:
         assert profile.rerank_enabled is False
         assert profile.rerank_top_n == 20
 
-    def test_load_dense_heavy(self) -> None:
-        """load_profile('dense_heavy') should return (1.5, 0.5) weights."""
-        profile = load_profile("dense_heavy")
+    @pytest.mark.parametrize(
+        "arg0,arg1,arg2,arg3",
+        [
+            ("dense_heavy", "dense_heavy", 1.5, 0.5),
+            ("nonexistent", "baseline", 1.0, 1.0),
+        ],
+        ids=['load_dense_heavy', 'invalid_name_fallback'],
+    )
+    def test_retrieval_profile(self, arg0, arg1, arg2, arg3) -> None:
+        profile = load_profile(arg0)
 
-        assert profile.name == "dense_heavy"
-        assert profile.dense_weight == 1.5
-        assert profile.keyword_weight == 0.5
-
-    def test_invalid_name_fallback(self) -> None:
-        """load_profile('nonexistent') should fall back to baseline."""
-        profile = load_profile("nonexistent")
-
-        assert profile.name == "baseline"
-        assert profile.dense_weight == 1.0
-        assert profile.keyword_weight == 1.0
+        assert profile.name == arg1
+        assert profile.dense_weight == arg2
+        assert profile.keyword_weight == arg3
 
     def test_different_profile_differs(self) -> None:
         """Different profile names should yield meaningfully different weights."""

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.services.extraction.base import ContentExtractor
 from app.services.extraction.models import ExtractedDocument, SourceInput
 from app.services.extraction.registry import (
@@ -52,19 +54,20 @@ class FakeFallbackExtractor(ContentExtractor):
 
 
 class TestExtractorRegistry:
-    def test_selects_first_matching_extractor(self) -> None:
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("pdf", "fake_pdf"),
+            ("epub", "fake_epub"),
+        ],
+        ids=['selects_first_matching_extractor', 'selects_second_when_first_rejects'],
+    )
+    def test_extractor_registry(self, value, expected) -> None:
         registry = ExtractorRegistry(
             extractors=[FakePdfExtractor(), FakeEpubExtractor()],
         )
-        selection = registry.select(SourceInput(source_type="pdf"))
-        assert selection.engine_name == "fake_pdf"
-
-    def test_selects_second_when_first_rejects(self) -> None:
-        registry = ExtractorRegistry(
-            extractors=[FakePdfExtractor(), FakeEpubExtractor()],
-        )
-        selection = registry.select(SourceInput(source_type="epub"))
-        assert selection.engine_name == "fake_epub"
+        selection = registry.select(SourceInput(source_type=value))
+        assert selection.engine_name == expected
 
     def test_fallback_when_no_extractor_matches(self) -> None:
         registry = ExtractorRegistry(
@@ -136,35 +139,36 @@ class TestInferSourceType:
     def test_url_with_http(self) -> None:
         assert infer_source_type(url="https://example.com") == "url"
 
-    def test_raw_text_without_filename(self) -> None:
-        assert infer_source_type(raw_text="hello") == "text"
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "hello",
+            "content",
+        ],
+        ids=['raw_text_without_filename', 'text_priority_for_raw_text_no_file'],
+    )
+    def test_infer_source_type(self, value) -> None:
+        assert infer_source_type(raw_text=value) == "text"
 
     def test_raw_text_with_filename_is_typed_by_extension(self) -> None:
         assert infer_source_type(filename="notes.md", raw_text="x") == "text"
 
-    def test_pdf_extension(self) -> None:
-        assert infer_source_type(filename="book.pdf") == "pdf"
-
-    def test_epub_extension(self) -> None:
-        assert infer_source_type(filename="book.epub") == "epub"
-
-    def test_pptx_extension(self) -> None:
-        assert infer_source_type(filename="deck.pptx") == "pptx"
-
-    def test_docx_extension(self) -> None:
-        assert infer_source_type(filename="report.docx") == "docx"
-
-    def test_txt_extension(self) -> None:
-        assert infer_source_type(filename="readme.txt") == "text"
-
-    def test_md_extension(self) -> None:
-        assert infer_source_type(filename="readme.md") == "text"
-
-    def test_upper_case_extension(self) -> None:
-        assert infer_source_type(filename="DOC.PDF") == "pdf"
-
-    def test_unknown_extension(self) -> None:
-        assert infer_source_type(filename="data.xyz") == "unknown"
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("book.pdf", "pdf"),
+            ("book.epub", "epub"),
+            ("deck.pptx", "pptx"),
+            ("report.docx", "docx"),
+            ("readme.txt", "text"),
+            ("readme.md", "text"),
+            ("DOC.PDF", "pdf"),
+            ("data.xyz", "unknown"),
+        ],
+        ids=['pdf_extension', 'epub_extension', 'pptx_extension', 'docx_extension', 'txt_extension', 'md_extension', 'upper_case_extension', 'unknown_extension'],
+    )
+    def test_pdf_extension(self, value, expected) -> None:
+        assert infer_source_type(filename=value) == expected
 
     def test_empty_all(self) -> None:
         assert infer_source_type() == "unknown"
@@ -172,10 +176,6 @@ class TestInferSourceType:
     def test_url_priority_over_extension(self) -> None:
         # URL takes priority even if filename has an extension
         assert infer_source_type(url="https://example.com", filename="doc.pdf") == "url"
-
-    def test_text_priority_for_raw_text_no_file(self) -> None:
-        # raw text without filename → text (not unknown)
-        assert infer_source_type(raw_text="content") == "text"
 
 
 # ---------------------------------------------------------------------------

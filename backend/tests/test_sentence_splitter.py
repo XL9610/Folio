@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from app.services.pdf_ingestion.sentence_splitter import (
     split_long_sentence,
     split_sentences,
@@ -21,12 +23,20 @@ def test_split_two_sentences():
 # ---------------------------------------------------------------------------
 # Test 2: Dr. abbreviation not split
 # ---------------------------------------------------------------------------
-def test_dr_abbreviation_not_split():
-    text = "Dr. Smith arrived. The patient waited."
+@pytest.mark.parametrize(
+    "arg0,arg1,arg2,arg3",
+    [
+        ("Dr. Smith arrived. The patient waited.", "Dr. Smith arrived.", "The patient waited.", 1),
+        ("The U.S. and U.K. agreed. The treaty was signed.", "U.S.", "U.K.", 0),
+    ],
+    ids=['dr_abbreviation_not_split', 'us_uk_abbreviations'],
+)
+def test_dr_abbreviation_not_split(arg0, arg1, arg2, arg3):
+    text = arg0
     sentences = split_sentences(text)
     assert len(sentences) == 2
-    assert "Dr. Smith arrived." in sentences[0]
-    assert "The patient waited." in sentences[1]
+    assert arg1 in sentences[0]
+    assert arg2 in sentences[arg3]
 
 
 # ---------------------------------------------------------------------------
@@ -42,34 +52,21 @@ def test_complex_abbreviations():
 
 
 # ---------------------------------------------------------------------------
-# Test 4: U.S. / U.K. abbreviations
-# ---------------------------------------------------------------------------
-def test_us_uk_abbreviations():
-    text = "The U.S. and U.K. agreed. The treaty was signed."
-    sentences = split_sentences(text)
-    assert len(sentences) == 2
-    assert "U.S." in sentences[0]
-    assert "U.K." in sentences[0]
-
-
-# ---------------------------------------------------------------------------
 # Test 5: J. R. R. Tolkien initials
 # ---------------------------------------------------------------------------
-def test_jrr_tolkien_initials():
-    text = "J. R. R. Tolkien wrote the book. It became famous."
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        ("J. R. R. Tolkien wrote the book. It became famous.", "J. R. R. Tolkien"),
+        ("The price is $3.14 per item. That is cheap.", "$3.14"),
+    ],
+    ids=['jrr_tolkien_initials', 'decimal_protection'],
+)
+def test_jrr_tolkien_initials(value, expected):
+    text = value
     sentences = split_sentences(text)
     assert len(sentences) == 2
-    assert "J. R. R. Tolkien" in sentences[0]
-
-
-# ---------------------------------------------------------------------------
-# Test 6: decimal number protection
-# ---------------------------------------------------------------------------
-def test_decimal_protection():
-    text = "The price is $3.14 per item. That is cheap."
-    sentences = split_sentences(text)
-    assert len(sentences) == 2
-    assert "$3.14" in sentences[0]
+    assert expected in sentences[0]
 
 
 # ---------------------------------------------------------------------------
