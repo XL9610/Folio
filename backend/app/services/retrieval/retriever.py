@@ -19,9 +19,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# RRF constant (standard from research papers)
-RRF_K = 60
-
 
 class HybridRetriever:
     """Combines dense and keyword retrieval using Reciprocal Rank Fusion.
@@ -435,4 +432,3 @@ class HybridRetriever:
             return 1.10
 
         return 1.0
-

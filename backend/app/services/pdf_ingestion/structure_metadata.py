@@ -27,13 +27,6 @@ STRUCTURE_FIELDS = (
 # Backward-compatible status sets (derived from the single source of truth).
 # StructureStatus.is_reliable is the canonical check; these sets remain for
 # internal use within this module only.
-RELIABLE_STRUCTURE_STATUSES = {StructureStatus.EMBEDDED_TOC}
-UNRELIABLE_STRUCTURE_STATUSES = {
-    StructureStatus.PAGE_WINDOW_OUTLINE,
-    StructureStatus.NO_RELIABLE_OUTLINE,
-    StructureStatus.UNKNOWN_LEGACY,
-    StructureStatus.AUTO_DETECTED_OUTLINE,
-}
 
 WRAPPER_TOC_TITLE_RE = re.compile(
     r"^(?:toc|table\s+of\s+contents|contents?|articles?|features?)$",
@@ -272,16 +265,3 @@ def is_unreliable_structure_status(status: str | None) -> bool:
         return not StructureStatus(status).is_reliable
     except ValueError:
         return True
-
-
-def is_reliable_structure_status(status: str | None) -> bool:
-    """True only when the structure status is reliable for chapter inference.
-
-    Delegates to StructureStatus.is_reliable (the single source of truth).
-    """
-    if not status:
-        return False
-    try:
-        return StructureStatus(status).is_reliable
-    except ValueError:
-        return False

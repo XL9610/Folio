@@ -113,12 +113,6 @@ STRONG_BACK_PATTERNS: list[re.Pattern] = [
 # Titles within body that are NOT study content on their own but are
 # body-internal features (e.g. sidebars, timelines) — we DON'T skip these
 # because they are inside the body window.
-BODY_INTERNAL_SAFE = frozenset({
-    "timeline", "chronology", "source reading", "in performance",
-    "music in context", "innovations", "forms at a glance",
-    "key concepts", "echoes of history", "echoes of the new art",
-    "performing", "summary",
-})
 
 
 # ---------------------------------------------------------------------------

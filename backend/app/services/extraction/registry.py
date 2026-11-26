@@ -77,20 +77,6 @@ class ExtractorRegistry:
             fallback_reason="Source has no file_path; only fallback available.",
         )
 
-    def supported_extensions(self) -> set[str]:
-        """Return the set of file extensions that dedicated extractors handle.
-
-        Used by the API layer to determine which uploads are supported.
-        """
-        exts: set[str] = set()
-        for ext, source_type in _KNOWN_EXTENSIONS.items():
-            test_source = SourceInput(source_type=source_type, filename=f"test{ext}")
-            for extractor in self._extractors:
-                if extractor is not self._fallback and extractor.can_handle(test_source):
-                    exts.add(ext)
-                    break
-        return exts
-
 
 # ---------------------------------------------------------------------------
 # Default factory

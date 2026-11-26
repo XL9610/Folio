@@ -12,7 +12,6 @@ from app.services.pdf_ingestion.structure_status import StructureStatus
 from app.services.pdf_ingestion.structure_metadata import (
     UNKNOWN_LEGACY_STRUCTURE,
     build_structure_metadata,
-    is_reliable_structure_status,
     is_unreliable_structure_status,
 )
 from app.services.pdf_ingestion.chunker import PDFChunker
@@ -23,7 +22,7 @@ from app.services.pdf_ingestion.chunker import PDFChunker
 # ---------------------------------------------------------------------------
 
 class TestStructureStatusProperties:
-    """Verify enum .is_reliable and .has_any_outline properties."""
+    """Verify enum .is_reliable property."""
 
     def test_is_reliable_embedded_toc(self):
         """embedded_toc -> is_reliable=True (only this status is reliable)."""
@@ -45,26 +44,6 @@ class TestStructureStatusProperties:
         """unknown_legacy -> is_reliable=False."""
         assert StructureStatus.UNKNOWN_LEGACY.is_reliable is False
 
-    def test_has_any_outline_embedded_toc(self):
-        """embedded_toc has outline."""
-        assert StructureStatus.EMBEDDED_TOC.has_any_outline is True
-
-    def test_has_any_outline_auto_detected(self):
-        """auto_detected_outline has outline."""
-        assert StructureStatus.AUTO_DETECTED_OUTLINE.has_any_outline is True
-
-    def test_has_any_outline_page_window(self):
-        """page_window_outline has outline."""
-        assert StructureStatus.PAGE_WINDOW_OUTLINE.has_any_outline is True
-
-    def test_has_any_outline_no_reliable(self):
-        """no_reliable_outline does NOT have outline."""
-        assert StructureStatus.NO_RELIABLE_OUTLINE.has_any_outline is False
-
-    def test_has_any_outline_unknown_legacy(self):
-        """unknown_legacy does NOT have outline."""
-        assert StructureStatus.UNKNOWN_LEGACY.has_any_outline is False
-
     def test_str_equality(self):
         """Enum values are strings (str, Enum)."""
         assert StructureStatus.EMBEDDED_TOC == "embedded_toc"
@@ -77,7 +56,7 @@ class TestStructureStatusProperties:
 # ---------------------------------------------------------------------------
 
 class TestLegacyStatusFunctions:
-    """is_unreliable_structure_status / is_reliable_structure_status use enum."""
+    """is_unreliable_structure_status uses the enum."""
 
     def test_unreliable_status_from_string(self):
         """String status converted via enum: page_window_outline is unreliable."""
@@ -89,29 +68,13 @@ class TestLegacyStatusFunctions:
         """auto_detected_outline is no longer in the reliable set."""
         assert is_unreliable_structure_status("auto_detected_outline") is True
 
-    def test_reliable_status_from_string(self):
-        """embedded_toc is the only reliable status."""
-        assert is_reliable_structure_status("embedded_toc") is True
-
-    def test_reliable_status_auto_detected(self):
-        """auto_detected_outline is NOT reliable under the new enum."""
-        assert is_reliable_structure_status("auto_detected_outline") is False
-
     def test_unreliable_none(self):
         """None status defaults to unknown_legacy -> unreliable."""
         assert is_unreliable_structure_status(None) is True
 
-    def test_reliable_none(self):
-        """None status -> not reliable."""
-        assert is_reliable_structure_status(None) is False
-
     def test_unreliable_invalid_string(self):
         """Unknown status string -> falls through to unreliable."""
         assert is_unreliable_structure_status("bogus_status") is True
-
-    def test_reliable_invalid_string(self):
-        """Unknown status string -> falls through to not reliable."""
-        assert is_reliable_structure_status("bogus_status") is False
 
 
 # ---------------------------------------------------------------------------

@@ -21,12 +21,3 @@ class StructureStatus(str, Enum):
         """Only an embedded TOC extracted directly from PDF bookmarks is
         considered fully reliable for inferring chapter structure."""
         return self in (StructureStatus.EMBEDDED_TOC,)
-
-    @property
-    def has_any_outline(self) -> bool:
-        """True when the document has *some* kind of outline (even a
-        synthetic or page-window one).  False for unknown / no-outline."""
-        return self not in (
-            StructureStatus.NO_RELIABLE_OUTLINE,
-            StructureStatus.UNKNOWN_LEGACY,
-        )

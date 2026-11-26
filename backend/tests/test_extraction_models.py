@@ -10,8 +10,6 @@ from app.services.extraction.models import (
     SlideContent,
     SourceInput,
     extracted_structure_summary,
-    source_display_name,
-    source_extension,
 )
 from app.services.pdf_ingestion.models import DocumentPage, TocEntry
 
@@ -173,46 +171,6 @@ class TestExtractedDocument:
 
 
 # ---------------------------------------------------------------------------
-# source_extension
-# ---------------------------------------------------------------------------
-
-class TestSourceExtension:
-    def test_lowercase_pdf(self) -> None:
-        assert source_extension(SourceInput(source_type="pdf", filename="Doc.PDF")) == ".pdf"
-
-    def test_epub(self) -> None:
-        assert source_extension(SourceInput(source_type="epub", filename="book.epub")) == ".epub"
-
-    def test_no_extension(self) -> None:
-        assert source_extension(SourceInput(source_type="text", filename="README")) == ""
-
-    def test_from_file_path_fallback(self) -> None:
-        s = SourceInput(source_type="pdf", file_path="/tmp/doc.pdf", filename="")
-        assert source_extension(s) == ".pdf"
-
-    def test_empty_when_no_filename_or_path(self) -> None:
-        assert source_extension(SourceInput(source_type="url", url="https://example.com")) == ""
-
-
-# ---------------------------------------------------------------------------
-# source_display_name
-# ---------------------------------------------------------------------------
-
-class TestSourceDisplayName:
-    def test_prefers_filename(self) -> None:
-        s = SourceInput(source_type="pdf", filename="book.pdf", url="https://x.com")
-        assert source_display_name(s) == "book.pdf"
-
-    def test_falls_back_to_url(self) -> None:
-        s = SourceInput(source_type="url", url="https://example.com/article")
-        assert source_display_name(s) == "https://example.com/article"
-
-    def test_pasted_text_fallback(self) -> None:
-        s = SourceInput(source_type="text", raw_text="hello")
-        assert source_display_name(s) == "pasted text"
-
-
-# ---------------------------------------------------------------------------
 # extracted_structure_summary
 # ---------------------------------------------------------------------------
 
@@ -279,7 +237,6 @@ from app.services.extraction.base import (  # noqa: E402
     ContentExtractor,
     ExtractionError,
     ExtractorDependencyError,
-    UnsupportedSourceError,
 )
 
 
@@ -355,10 +312,6 @@ class TestExtractionErrors:
     def test_extraction_error_is_catchable_as_base(self) -> None:
         with pytest.raises(ExtractionError):
             raise ExtractorDependencyError("missing python-docx")
-
-    def test_unsupported_source_is_extraction_error(self) -> None:
-        with pytest.raises(ExtractionError):
-            raise UnsupportedSourceError("bad format")
 
     def test_extractor_dependency_error_message(self) -> None:
         err = ExtractorDependencyError(

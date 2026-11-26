@@ -18,10 +18,6 @@ class ExtractionError(Exception):
     """Base exception for extraction failures."""
 
 
-class UnsupportedSourceError(ExtractionError):
-    """Raised when a source type or format is not supported by the extractor."""
-
-
 class ExtractorDependencyError(ExtractionError):
     """Raised when an optional dependency is missing.
 

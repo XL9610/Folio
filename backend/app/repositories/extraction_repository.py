@@ -58,13 +58,3 @@ def get_document_extraction(document_id: str) -> dict[str, Any] | None:
         "SELECT * FROM document_extractions WHERE document_id = ?", (document_id,)
     ).fetchone()
     return dict(row) if row else None
-
-
-def delete_document_extraction(document_id: str) -> bool:
-    """Delete a document_extractions row. Returns True if a row was deleted."""
-    conn = get_connection()
-    cursor = conn.execute(
-        "DELETE FROM document_extractions WHERE document_id = ?", (document_id,)
-    )
-    conn.commit()
-    return cursor.rowcount > 0

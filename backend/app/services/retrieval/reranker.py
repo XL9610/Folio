@@ -187,21 +187,6 @@ def clean_query(query: str) -> str:
     return q
 
 
-def rewrite_for_definition(query: str) -> str:
-    """Rewrite a concept-definition query for better retrieval.
-
-    "What is a data structure" → "data structure definition fundamental introduction"
-    """
-    # Remove question words
-    q = query.lower().strip()
-    # Strip outer quotes
-    q = clean_query(q)
-    # Remove leading question patterns
-    q = re.sub(r'^(what is a |what is an |what is |what are |define |explain |describe )', '', q, flags=re.IGNORECASE)
-    # Add definition-oriented boost terms
-    return f"{q} definition fundamental introduction"
-
-
 def rerank_results(
     chunks: list[RetrievedChunk],
     downrank_roles: list[str] | None = None,

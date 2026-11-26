@@ -18,8 +18,6 @@ from ..repositories.notebook_repository import (
 )
 from ..services.extraction.artifact_store import ExtractionArtifactStore
 from ..services.index.sqlite_vec_store import SqliteVecStore
-from ..services.llm import LLMConfig
-from ..services.llm.client import create_llm_client
 from ._common import resolve_notebook_id
 
 logger = logging.getLogger(__name__)
@@ -162,51 +160,3 @@ async def mark_opened(notebook_id: str) -> dict:
     if not touch_notebook(resolved_id):
         raise HTTPException(status_code=404, detail=f"Notebook '{notebook_id}' not found.")
     return {"ok": True}
-
-
-@router.post("/{notebook_id}/generate-title")
-async def generate_title(notebook_id: str) -> dict:
-    """Generate a descriptive notebook title from source document names.
-
-    POST /api/notebooks/{notebook_id}/generate-title
-
-    Uses the configured LLM to create a short (3-7 word) descriptive title.
-    Falls back to the first document name if LLM is unavailable or unconfigured.
-    """
-    resolved_id = resolve_notebook_id(notebook_id)
-
-    docs = list_documents(resolved_id)
-
-    if not docs:
-        return {"title": "Study Notebook"}
-
-    filenames: list[str] = []
-    for d in docs[:10]:
-        title = d.get("display_title") or d["filename"]
-        filenames.append(title)
-
-    prompt = (
-        "You are an expert at creating concise, descriptive notebook titles for study materials.\n"
-        "Given the following source document names, generate a short (3-7 word) descriptive "
-        "title that captures the overall topic of the notebook.\n\n"
-        "Source documents:\n"
-        + "\n".join(f"- {name}" for name in filenames)
-        + "\n\nRespond with ONLY the title, nothing else. No quotes, no explanation."
-    )
-
-    try:
-        config = LLMConfig()
-        if not config.is_configured:
-            raise ValueError("LLM not configured")
-        client = create_llm_client(config)
-        title = client.complete_chat(
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=50,
-            temperature=0.7,
-        )
-        title = title.strip().strip('"').strip("'").strip()
-        return {"title": title[:100]}
-    except Exception as e:
-        logger.warning("Failed to generate notebook title via LLM: %s", e)
-        fallback = filenames[0] if filenames else "Study Notebook"
-        return {"title": fallback, "fallback": True}

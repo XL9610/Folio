@@ -10,7 +10,6 @@ import pytest
 from app.db.schema import create_tables
 from app.db.session import get_connection
 from app.repositories.extraction_repository import (
-    delete_document_extraction,
     get_document_extraction,
     upsert_document_extraction,
 )
@@ -335,20 +334,3 @@ class TestExtractionRepository:
 
     def test_get_nonexistent_returns_none(self) -> None:
         assert get_document_extraction("nonexistent") is None
-
-    def test_delete_removes_row(self) -> None:
-        _ensure_source_document("doc-3")
-        upsert_document_extraction(
-            document_id="doc-3",
-            extraction_engine="kreuzberg",
-            full_text_path="p.txt",
-            markdown_path=None,
-            pages_path=None,
-            metadata_json="{}",
-            warnings_json="[]",
-        )
-        assert delete_document_extraction("doc-3") is True
-        assert get_document_extraction("doc-3") is None
-
-    def test_delete_nonexistent_returns_false(self) -> None:
-        assert delete_document_extraction("never-existed") is False

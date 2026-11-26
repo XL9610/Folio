@@ -90,36 +90,6 @@ class IngestionResult:
 # ---------------------------------------------------------------------------
 
 
-def ingest_pdf(
-    file_path: str,
-    filename: str,
-    notebook_id: str,
-    use_llm_toc_filter: bool = config.chunking_llm_toc_filter,
-    force_reingest: bool = False,
-    chunker: PDFChunker | None = None,
-    embedder: SentenceTransformerEmbedder | None = None,
-    dense_store: SqliteVecStore | None = None,
-) -> IngestionResult:
-    """Compatibility adapter — delegates PDF ingestion through ingest_source.
-
-    Preserves existing call-site compatibility. All parameters are forwarded.
-    """
-    source = SourceInput(
-        source_type="pdf",
-        file_path=file_path,
-        filename=filename,
-        notebook_id=notebook_id,
-    )
-    return ingest_source(
-        source=source,
-        use_llm_toc_filter=use_llm_toc_filter,
-        force_reingest=force_reingest,
-        pdf_chunker=chunker,
-        embedder=embedder,
-        dense_store=dense_store,
-    )
-
-
 def _build_pdf_chunker(use_llm_toc_filter: bool) -> PDFChunker:
     """Build the default PDFChunker, wiring the LLM TOC classifier when enabled.
 

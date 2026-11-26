@@ -8,7 +8,6 @@ These types live in extraction to avoid coupling chunking output types
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Literal
 
 from ..pdf_ingestion.models import DocumentPage, TocEntry  # noqa: F401  # re-exported
@@ -96,24 +95,6 @@ _KNOWN_EXTENSIONS: dict[str, SourceType] = {
     ".md": "text",
     ".txt": "text",
 }
-
-
-def source_extension(source: SourceInput) -> str:
-    """Return lowercase extension with leading dot, or empty string."""
-    if source.filename:
-        return Path(source.filename).suffix.lower()
-    if source.file_path:
-        return Path(source.file_path).suffix.lower()
-    return ""
-
-
-def source_display_name(source: SourceInput) -> str:
-    """Human-readable name preferring filename, then URL, then 'pasted text'."""
-    if source.filename:
-        return source.filename
-    if source.url:
-        return source.url
-    return "pasted text"
 
 
 def extracted_structure_summary(doc: ExtractedDocument) -> dict[str, Any]:

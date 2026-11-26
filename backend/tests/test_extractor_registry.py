@@ -92,14 +92,6 @@ class TestExtractorRegistry:
         selection = registry.select(SourceInput(source_type="pdf"))
         assert selection.engine_name == "fake_pdf"  # PDF comes first
 
-    def test_supported_extensions(self) -> None:
-        registry = ExtractorRegistry(
-            extractors=[FakePdfExtractor(), FakeEpubExtractor()],
-        )
-        exts = registry.supported_extensions()
-        # Fake extractors don't have extension mapping, but the registry uses _KNOWN_EXTENSIONS
-        assert isinstance(exts, set)
-
     def test_fallback_reason_empty_when_dedicated(self) -> None:
         registry = ExtractorRegistry(extractors=[FakePdfExtractor()])
         selection = registry.select(SourceInput(source_type="pdf"))

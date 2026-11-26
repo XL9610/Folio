@@ -49,8 +49,6 @@ class EvidenceEval:
 # Constants
 # ---------------------------------------------------------------------------
 
-MIN_CHUNK_TEXT_LENGTH = 10
-MIN_CHUNKS_FOR_CONTENT_ANSWER = 1
 
 STOPWORDS = {
     "a",
