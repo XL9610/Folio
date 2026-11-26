@@ -72,6 +72,7 @@ const LOAD_ORDER = [
   'panels.jsx',
   'settings.jsx',
   'tweaks-panel.jsx',
+  'chat.jsx',
   'app.jsx',
   'titlebar.jsx',
   'notebooks.jsx',
