@@ -1518,11 +1518,11 @@ def test_pipeline_clarification_path():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=llm), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=llm), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
         pipeline = AgenticAskPipeline()
@@ -1629,16 +1629,16 @@ def test_pipeline_loop_stops_on_sufficient():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=composite), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=composite), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
         # Also need to mock the retriever to return something with evidence
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             from app.services.retrieval.base import RetrievedChunk
 
             mock_executor = MagicMock()
@@ -1711,15 +1711,15 @@ def test_pipeline_respects_max_rounds():
 
     from app.routers.ask_router import MAX_AGENT_ROUNDS, AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=never_satisfied), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=never_satisfied), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             mock_executor = MagicMock()
             mock_executor.execute.return_value = ToolResults()
             mock_executor.validate_tool_calls = lambda calls, doc_ids: calls
@@ -1851,15 +1851,15 @@ def test_pipeline_insufficient_context_no_citations():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=composite), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=composite), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             mock_executor = MagicMock()
             mock_executor.execute.return_value = ToolResults()  # empty evidence
             mock_executor.validate_tool_calls = lambda calls, doc_ids: calls
@@ -1907,15 +1907,15 @@ def test_pipeline_retrieval_unavailable_when_tools_error():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=composite), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=composite), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             tr = ToolResults()
             tr.tool_error = True  # a search tool raised; no evidence gathered
 
@@ -1964,15 +1964,15 @@ def test_pipeline_retrieval_unavailable_despite_metadata():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=composite), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=composite), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             tr = ToolResults()
             tr.tool_error = True  # body retrieval raised
             tr.metadata = [{"filename": "book.pdf", "page_count": 100, "chunk_count": 50}]
@@ -2028,15 +2028,15 @@ def test_pipeline_sufficient_context_has_citations():
 
     from app.routers.ask_router import AgenticAskPipeline
 
-    with patch("app.routers.ask_router.create_llm_client", return_value=composite), \
-         patch("app.routers.ask_router.HybridRetriever"), \
-         patch("app.routers.ask_router.SentenceTransformerEmbedder"), \
-         patch("app.routers.ask_router.SqliteVecStore"), \
-         patch("app.routers.ask_router.LLMConfig") as mock_cfg:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=composite), \
+         patch("app.services.qa.ask_pipeline.HybridRetriever"), \
+         patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"), \
+         patch("app.services.qa.ask_pipeline.SqliteVecStore"), \
+         patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg:
 
         mock_cfg.return_value.is_configured = True
 
-        with patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls:
+        with patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls:
             tr = ToolResults()
             tr.chunks = [RetrievedChunk(
                 chunk_id="c1", document_id="d1", text="Relevant text",
@@ -2127,7 +2127,7 @@ def _run_pipeline_with_rounds(rounds, retry_enabled):
         "planner_label": "specific_search",
         "tool_calls": [{"name": "retrieve_chunks", "args": {"query": "rewritten", "top_k": 5}}],
     }, chat_response="SEVIS tracked foreign students.")
-    with patch("app.routers.ask_router.create_llm_client", return_value=llm),          patch("app.routers.ask_router.HybridRetriever"),          patch("app.routers.ask_router.SentenceTransformerEmbedder"),          patch("app.routers.ask_router.SqliteVecStore"),          patch("app.routers.ask_router.LLMConfig") as mock_cfg,          patch("app.routers.ask_router.QAToolExecutor") as mock_executor_cls,          patch("app.routers.ask_router.config") as mock_config:
+    with patch("app.services.qa.ask_pipeline.create_llm_client", return_value=llm),          patch("app.services.qa.ask_pipeline.HybridRetriever"),          patch("app.services.qa.ask_pipeline.SentenceTransformerEmbedder"),          patch("app.services.qa.ask_pipeline.SqliteVecStore"),          patch("app.services.qa.ask_pipeline.LLMConfig") as mock_cfg,          patch("app.services.qa.ask_pipeline.QAToolExecutor") as mock_executor_cls,          patch("app.services.qa.ask_pipeline.config") as mock_config:
         mock_cfg.return_value.is_configured = True
         mock_config.rerank_enabled = False
         mock_config.retrieval_profile = "baseline"
