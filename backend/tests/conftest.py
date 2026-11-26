@@ -24,6 +24,11 @@ _bundled_tt_cache = os.path.join(
 if os.path.isdir(_bundled_tt_cache):
     os.environ.setdefault("TIKTOKEN_CACHE_DIR", _bundled_tt_cache)
 
+# Tests assume code defaults for feature flags; a developer's backend/.env
+# must not flip them. load_dotenv never overrides variables already set.
+os.environ["HIERARCHICAL_OVERVIEW_ENABLED"] = "false"
+os.environ["OVERVIEW_SUMMARY_READER"] = "false"
+
 
 # ---------------------------------------------------------------------------
 # Temporary directory for test PDFs
