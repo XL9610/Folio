@@ -126,8 +126,12 @@ def _is_refusal(agent_status: str, answer: str) -> bool:
     # ponytail: lexical only. "No reliable Chapter N boundary..." openings are
     # ambiguous (refusal on ho-vibe-coding-absent, real answer on q-vt-02) and
     # stay classified as answered; an LLM judge is the upgrade path.
-    # Markdown emphasis ("does **not** cover") would split the phrase.
-    head = _CITATION_MARKER_RE.sub("", answer or "").replace("*", "").lower()[:200]
+    # Markdown emphasis ("does **not** cover") would split the phrase, and a
+    # leading "# Title" line is not answer wording but eats the window.
+    text = _CITATION_MARKER_RE.sub("", answer or "").replace("*", "").lstrip()
+    while text.startswith("#"):
+        text = text.partition("\n")[2].lstrip()
+    head = text.lower()[:200]
     positions = [head.find(p) for p in _REFUSAL_PHRASES if p in head]
     if not positions:
         return False

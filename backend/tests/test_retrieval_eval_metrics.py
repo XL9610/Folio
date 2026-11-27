@@ -113,6 +113,12 @@ def test_ranking_metrics_empty_ground_truth_skipped_by_caller(eval_module):
                       "in Java*\n\nBased on the chapters retrieved, the book "
                       "does **not** appear to cover lambda expressions or the "
                       "Stream API as a topic.", True),
+        # a long heading pushed the absence phrase out of the window (g-nb-05)
+        ("completed", "# Lambda Expressions and the Stream API in *Data "
+                      "Structures and Algorithms in Java*\n\nBased on the "
+                      "material retrieved, I can't give you a substantive "
+                      "answer to this question. The retrieved passages don't "
+                      "cover lambda expressions or the Stream API at all.", True),
     ],
 )
 def test_refusal_classification(eval_module, status, answer, expected):
