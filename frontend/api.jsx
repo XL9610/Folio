@@ -272,11 +272,13 @@ const FOLIO_API = {
    */
   async ask(query, notebookId = 'default', documentIds = null, topK = 10, history = [], allowWeb = false, preferences = null) {
     let followUp = false;
+    let onEvent = null;  // set → stream via /api/ask/stream (step + token events)
     if (allowWeb && typeof allowWeb === 'object') {
       const options = allowWeb;
       allowWeb = !!(options.allowWeb ?? options.allow_web);
       preferences = options.preferences || options.answerPreferences || options.answer_preferences || preferences;
       followUp = !!(options.followUp ?? options.follow_up);
+      onEvent = typeof options.onEvent === 'function' ? options.onEvent : null;
     }
     const answerPreferences = _normalizeAnswerPreferences(preferences);
     const body = {
@@ -295,7 +297,7 @@ const FOLIO_API = {
     if (followUp) {
       body.follow_up = true;
     }
-    const res = await fetch(`${API_BASE}/api/ask`, {
+    const res = await fetch(`${API_BASE}/api/ask${onEvent ? '/stream' : ''}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -318,7 +320,31 @@ const FOLIO_API = {
       err.status = res.status;
       throw err;
     }
-    return res.json();
+    if (!onEvent) return res.json();
+    // Server-sent events: one JSON object per "data:" line, blank-line separated.
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      let cut;
+      while ((cut = buf.indexOf('\n\n')) >= 0) {
+        const line = buf.slice(0, cut);
+        buf = buf.slice(cut + 2);
+        if (!line.startsWith('data: ')) continue;
+        const ev = JSON.parse(line.slice(6));
+        if (ev.type === 'done') return ev.result;
+        if (ev.type === 'error') {
+          const err = new Error(ev.message || 'Ask failed');
+          err.detail = { code: 'llm_provider_error', message: ev.message };
+          throw err;
+        }
+        onEvent(ev);
+      }
+    }
+    throw new Error('Ask stream ended without a result');
   },
 
   // ── Generate (Studio) ──────────────────────────────────────────────────────

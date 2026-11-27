@@ -12,7 +12,8 @@ const useChat = (notebookId, includedIds) => {
       const raw = localStorage.getItem(CHAT_STORAGE_KEY);
       if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      // A streaming placeholder left by a closed window is not a real message.
+      return Array.isArray(parsed) ? parsed.filter(m => !m._streaming) : [];
     } catch (e) {
       console.warn('Failed to load stored chat', e);
       return [];

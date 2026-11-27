@@ -345,6 +345,28 @@ const AgentTrace = ({ msg, show = false }) => {
   );
 };
 
+/** ReAct steps, collapsed to one line by default; expand for each step's reasoning. */
+const ReasoningSteps = ({ steps, live }) => {
+  if (!steps || steps.length === 0) return null;
+  const last = steps[steps.length - 1];
+  const summary = live
+    ? `${last.label}…`
+    : `Looked in ${steps.length} place${steps.length === 1 ? '' : 's'}`;
+  return (
+    <details className="mb-4 sans" style={{ fontSize: 'calc(12px * var(--folio-font-scale, 1))', color: 'var(--text-muted)' }}>
+      <summary style={{ cursor: 'pointer' }}>{summary}</summary>
+      <ol className="mt-2 pl-5" style={{ listStyle: 'decimal' }}>
+        {steps.map((s, i) => (
+          <li key={i} className="mb-1">
+            {s.reasoning && <div style={{ color: 'var(--text-primary)' }}>{s.reasoning}</div>}
+            <div>{s.label}</div>
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+};
+
 const AssistantMessage = ({ msg, onFollowUp, onSaveMessage, onRegenerate, onDelete, showAgentTrace = false }) => {
   // Label is shown only for error states; the normal "Study Companion" /
   // "From your sources" label is noise and removed.
@@ -372,6 +394,7 @@ const AssistantMessage = ({ msg, onFollowUp, onSaveMessage, onRegenerate, onDele
           {label}
         </div>
       )}
+      <ReasoningSteps steps={msg._steps} live={msg._streaming} />
       <MarkdownRich text={msg.text} citations={msg.citations} />
 
       {msg.plan && <PlanTable plan={msg.plan} />}
@@ -380,7 +403,7 @@ const AssistantMessage = ({ msg, onFollowUp, onSaveMessage, onRegenerate, onDele
 
       <AgentTrace msg={msg} show={showAgentTrace} />
 
-      <div className="mt-6 flex items-center gap-5 sans" style={{ fontSize: 'calc(11px * var(--folio-font-scale, 1))', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>
+      {!msg._streaming && <div className="mt-6 flex items-center gap-5 sans" style={{ fontSize: 'calc(11px * var(--folio-font-scale, 1))', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>
         {onFollowUp && (
           <button
             className="inline-flex items-center rounded-full px-3 py-1.5 transition-colors uppercase tracking-wider"
@@ -414,7 +437,7 @@ const AssistantMessage = ({ msg, onFollowUp, onSaveMessage, onRegenerate, onDele
             title="Delete this Q&A turn"
           >Delete</button>
         )}
-      </div>
+      </div>}
     </div>
   </div>
   );
@@ -739,7 +762,7 @@ const ChatCenter = ({ notebookTitle, notebookSubtitle, includedCount, totalSourc
           {chat.length > 0 && (
             <div className="reading-col mx-auto pb-12 space-y-10">
               {chat.map(m => <Message key={m.id} msg={m} onFollowUp={handleFollowUp} onSaveMessage={handleSaveMessage} onRegenerate={onRegenerateTurn ? handleRegenerate : null} onDelete={onDeleteTurn ? handleDelete : null} showAgentTrace={chatPreferences.showAgentTrace} />)}
-              {thinking && <TypingIndicator />}
+              {thinking && !chat[chat.length - 1]?._streaming && <TypingIndicator />}
             </div>
           )}
         </div>

@@ -690,6 +690,24 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
     setChat(c => [...c, { id: uid, role: 'user', text, _quizContext: options.quizContext || null, _sourceDocumentIds: documentIds }]);
     setThinking(true);
 
+    // Streaming placeholder: grows with step events and answer tokens, then is
+    // replaced by the final message (the "done" result is authoritative).
+    const sid = 'a' + Date.now() + 's';
+    const steps = [];
+    const onEvent = (ev) => {
+      if (ev.type === 'step') steps.push({ label: ev.label, reasoning: ev.reasoning });
+      setChat(c => {
+        const base = c.some(m => m.id === sid)
+          ? c
+          : [...c, { id: sid, role: 'assistant', text: '', citations: [], _streaming: true, _steps: [] }];
+        return base.map(m => (m.id !== sid ? m : {
+          ...m,
+          _steps: [...steps],
+          text: ev.type === 'token' ? m.text + (ev.text || '') : m.text,
+        }));
+      });
+    };
+
     try {
       // Build conversation history when the next query is an explicit/automatic follow-up.
       // Quiz elaborate is self-contained (the prompt carries the question/answer), so
@@ -723,16 +741,17 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
         allowWeb,
         preferences: buildAnswerPreferences(settings),
         followUp: !!shouldFollowUp,
+        onEvent,
       });
 
       const citations = buildCitations(result.citations, sources);
 
       const msg = buildAssistantMessage(result, documentIds, allowWeb, options.quizContext, citations);
-      setChat(c => [...c, msg]);
+      setChat(c => [...c.filter(m => m.id !== sid), steps.length ? { ...msg, _steps: steps } : msg]);
     } catch (err) {
       console.error('Agent ask failed:', err);
       const { errorMsg, agentErrorCode } = buildErrorMessage(err);
-      setChat(c => [...c, {
+      setChat(c => [...c.filter(m => m.id !== sid), {
         id: 'a' + Date.now(),
         role: 'assistant',
         text: errorMsg,
