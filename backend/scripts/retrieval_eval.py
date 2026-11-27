@@ -78,6 +78,7 @@ _SEARCH_VARIANT_FLAGS = {"fts": {"dense_enabled": False}, "dense": {"keyword_ena
 
 _REFUSAL_PHRASES = (
     "does not cover",
+    "does not appear to cover",
     "doesn't cover",
     "don't cover",
     "do not cover",
@@ -125,7 +126,8 @@ def _is_refusal(agent_status: str, answer: str) -> bool:
     # ponytail: lexical only. "No reliable Chapter N boundary..." openings are
     # ambiguous (refusal on ho-vibe-coding-absent, real answer on q-vt-02) and
     # stay classified as answered; an LLM judge is the upgrade path.
-    head = _CITATION_MARKER_RE.sub("", answer or "").lower()[:200]
+    # Markdown emphasis ("does **not** cover") would split the phrase.
+    head = _CITATION_MARKER_RE.sub("", answer or "").replace("*", "").lower()[:200]
     positions = [head.find(p) for p in _REFUSAL_PHRASES if p in head]
     if not positions:
         return False
@@ -336,6 +338,7 @@ def main() -> int:
 
             entry["agent_status"] = a.get("agent_status", "")
             answer = (a.get("answer") or "").strip()
+            entry["answer"] = answer  # kept for answer-correctness judging
             entry["refused"] = _is_refusal(entry["agent_status"], answer)
             if entry["refused"]:
                 entry["refusal_evidence"] = answer  # full text: classification must be auditable

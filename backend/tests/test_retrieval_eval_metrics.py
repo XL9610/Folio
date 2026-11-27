@@ -108,6 +108,11 @@ def test_ranking_metrics_empty_ground_truth_skipped_by_caller(eval_module):
                       "Templeton, and life on Zuckerman's farm [S1][S2][S3][S4]"
                       "[S5][S6][S7][S8][S9][S10]. It doesn't contain any "
                       "technical design for building a time machine.", True),
+        # Markdown bold inside the absence phrase (g-nb-05, 2026-11-27 run)
+        ("completed", "# Lambda Expressions in *Data Structures and Algorithms "
+                      "in Java*\n\nBased on the chapters retrieved, the book "
+                      "does **not** appear to cover lambda expressions or the "
+                      "Stream API as a topic.", True),
     ],
 )
 def test_refusal_classification(eval_module, status, answer, expected):
