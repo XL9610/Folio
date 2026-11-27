@@ -119,6 +119,11 @@ def test_ranking_metrics_empty_ground_truth_skipped_by_caller(eval_module):
                       "material retrieved, I can't give you a substantive "
                       "answer to this question. The retrieved passages don't "
                       "cover lambda expressions or the Stream API at all.", True),
+        # ReAct-era refusal wordings (q-un-07, q-un-08, 2026-11-27 run)
+        ("completed", "I can't answer this one from the material available. "
+                      "None of the retrieved sources is Frank Herbert's *Dune*.", True),
+        ("completed", "The retrieved material doesn't actually cover sourdough "
+                      "baking — the passages that came back are from economics.", True),
     ],
 )
 def test_refusal_classification(eval_module, status, answer, expected):

@@ -96,6 +96,9 @@ _REFUSAL_PHRASES = (
     "does not mention",
     "not covered",
     "out of scope",
+    "can't answer this",
+    "cannot answer this",
+    "could not find this",  # ReAct not-found answer
 )
 
 # A refusal states absence up front; a real answer only mentions "does not X"
@@ -128,7 +131,8 @@ def _is_refusal(agent_status: str, answer: str) -> bool:
     # stay classified as answered; an LLM judge is the upgrade path.
     # Markdown emphasis ("does **not** cover") would split the phrase, and a
     # leading "# Title" line is not answer wording but eats the window.
-    text = _CITATION_MARKER_RE.sub("", answer or "").replace("*", "").lstrip()
+    # "doesn't actually cover" is the same claim as "doesn't cover".
+    text = _CITATION_MARKER_RE.sub("", answer or "").replace("*", "").replace(" actually ", " ").lstrip()
     while text.startswith("#"):
         text = text.partition("\n")[2].lstrip()
     head = text.lower()[:200]
