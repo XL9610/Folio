@@ -1,0 +1,474 @@
+[
+  {
+    "id": "g-tp-01",
+    "question": "Grokking Algorithms looks at the knapsack problem twice. Why does the greedy approach fail on it, and how does the later dynamic-programming treatment find the optimal answer instead of trying every set of items?",
+    "category": "two_place",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "eced96e17a32f1a89a0a5fa8fcb68953105a8534ac8708cdda5afe0870e724f4",
+        "page_start": 163,
+        "page_end": 164,
+        "section_path": "Chapter 8 Greedy Algorithms > The knapsack problem",
+        "excerpt": "144\nChapter 8  I  Greedy algorithms\nA lot of people tell me that this algorithm seems easy. It’s too"
+      },
+      {
+        "chunk_content_hash": "d1c6d6c1abbe9a287d6be506f304136629bcc868b3e9577b19137fec3919fc6b",
+        "page_start": 181,
+        "page_end": 181,
+        "section_path": "Chapter 9 Dynamic Programming > The knapsack problem > The simple solution",
+        "excerpt": "162\nChapter 9  I  Dynamic programming\nYou have three items that you can put into the knapsack.\nWhat "
+      },
+      {
+        "chunk_content_hash": "fccd2980adb391abb2032bfafbb3f5a1122340510ea2f0ecedd31304500a03bd",
+        "page_start": 182,
+        "page_end": 189,
+        "section_path": "Chapter 9 Dynamic Programming > The knapsack problem > Dynamic programming",
+        "excerpt": "163\nThe knapsack problem\nThat’s impractical for any reasonable number of goods. In chapter 8, \nyou s"
+      }
+    ]
+  },
+  {
+    "id": "g-tp-02",
+    "question": "In Think Python, why can't a list be used as a dictionary key, and how does the later chapter on the analysis of algorithms explain the same limitation when it builds its own hashtable?",
+    "category": "two_place",
+    "difficulty": "medium",
+    "document_hash": "3d360ed75aeb82d10c63ce61984e48985517b017872e1664b8266f9f1f1db9eb",
+    "document_filename": "Think Python (Allen B. Downey) (Z-Library).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "2093e606ed66f11276c15c7671c9d617123e44991c4fc858349400a03f493dcd",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "11. Dictionaries",
+        "excerpt": " you have to do it often, or if the dictionary gets big, the performance of your program will suffer"
+      },
+      {
+        "chunk_content_hash": "481fbaa8ad938162e70cc8d298b27fba8ae69848b2e0148aabfba26b9fcdeeaa",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "11. Dictionaries",
+        "excerpt": " “pretty print”).       Again, time you spend building scaffolding can reduce the time you spend  de"
+      },
+      {
+        "chunk_content_hash": "e9bf4bca78fa1ceb3ad7bf1e6d71a552f622cd205aa11201fe7de1348270d186",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "21. Analysis of Algorithms",
+        "excerpt": "):\n        self.items.append((k, v))\n\n    def get(self, k):\n        for key, val in self.items:\n    "
+      }
+    ]
+  },
+  {
+    "id": "g-tp-03",
+    "question": "On his first night at Wuthering Heights, Lockwood finds three versions of one name scratched by the window. What are they, and what does Nelly later tell him that connects one of those names to the young Mrs. Heathcliff?",
+    "category": "two_place",
+    "difficulty": "medium",
+    "document_hash": "1ae0633fbf56cbe298def55454020a5f8fd2ef7e83fbb475c2e1fd3ca24b9e7a",
+    "document_filename": "Wuthering_Heights_Emily_Brontë_z_library_sk,_1lib_sk,_z_lib_s.epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "3d8e99d22b47a3f0d7ef555aaea51c3a6b375dc03d20c4aaf4e73953a424eb71",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter III",
+        "excerpt": "Chapter III\n\nChapter III\n\n        W hile leading the way upstairs, she recommended that I should hid"
+      },
+      {
+        "chunk_content_hash": "80f62fee2cedc5d934aec26c77ab6a4d14033faa2e06ebb053eccc677c7ac815",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter IV",
+        "excerpt": "Chapter IV\n\nChapter IV\n\n        W hat vain weather-cocks   ao    we are! I, who had determined to ho"
+      }
+    ]
+  },
+  {
+    "id": "g-tp-04",
+    "question": "How does Taleb use the image of monkeys on typewriters to introduce survivorship bias, and how does he later apply that bias to the bestseller The Millionaire Next Door?",
+    "category": "two_place",
+    "difficulty": "medium",
+    "document_hash": "929ebbc16a9b0220813213b252630854e27aef9ad585288249379f97747d619d",
+    "document_filename": "Fooled by Randomness - The Hidden Rol... (Z-Library).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a867f94698d86be90e8e20ee12ec605251741d96b8a23462a4fec54e7a711dca",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "PART II",
+        "excerpt": "PART II\n\nPart II\n •\n MONKEYS ON\nTYPEWRITERS\n   Survivorship and Other Biases\n  I f one puts an infin"
+      },
+      {
+        "chunk_content_hash": "e78e959a53c823e787fba4bf43673d08b425d575ba2e30725bc65c3282b383c0",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Eight",
+        "excerpt": " comparison, but she is miscomputing the probabilities in a gross manner—she is using the wrong dist"
+      },
+      {
+        "chunk_content_hash": "c317caaf7e419704ec1b350cbbebddf0219bea54989030a61885b144a0655e3f",
+        "page_start": -1,
+        "page_end": -1,
+        "section_path": "Chapter Eight",
+        "excerpt": "Chapter Eight\n\nEight\n •\n TOO MANY MILLIONAIRES NEXT DOOR\n    Three illustrations of the survivorship"
+      }
+    ]
+  },
+  {
+    "id": "g-tp-05",
+    "question": "How does AI Engineering define retrieval-augmented generation where it first introduces RAG, and how does the finetuning chapter later say you should choose between RAG and finetuning?",
+    "category": "two_place",
+    "difficulty": "hard",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "1a23ffbebd4af4e6dd89154c7b9aab65b1d636814d2403a6b7f9cdc55a28ff76",
+        "page_start": 277,
+        "page_end": 279,
+        "section_path": "Chapter 6. RAG and Agents > RAG",
+        "excerpt": "CHAPTER 6\nRAG and Agents\nTo solve a task, a model needs both the instructions on how to do it, and t"
+      },
+      {
+        "chunk_content_hash": "cce79c6e581a255bf9e1e87ae4fa81757304cabc1cda18b0e90b60de6d4a0cc5",
+        "page_start": 340,
+        "page_end": 342,
+        "section_path": "Chapter 7. Finetuning > When to Finetune > Finetuning and RAG",
+        "excerpt": "Figure 7-2. Instead of including examples in each prompt, which increases cost and\nlatency, you fine"
+      }
+    ]
+  },
+  {
+    "id": "g-tp-06",
+    "question": "Grokking Algorithms brings up the traveling salesperson problem in its first chapter and again in the chapter on greedy algorithms. What running time does the book give it, and what signs does it list for spotting that a problem is NP-complete?",
+    "category": "two_place",
+    "difficulty": "medium",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "4c3131ab4feb961afb7e4ee5c38bedd9a63885e2099a85de8b03b596d1e2660d",
+        "page_start": 36,
+        "page_end": 37,
+        "section_path": "Chapter 1 Introduction to Algorithms > Big O notation > The traveling salesperson",
+        "excerpt": "17\nBig O notation\nEXERCISES\nGive the run time for each of these scenarios in terms of Big O.\n1.3  \u0007Y"
+      },
+      {
+        "chunk_content_hash": "6c067e1aea560280334ee906c5602bd15393a15b98286715567cd9530100c0b7",
+        "page_start": 172,
+        "page_end": 176,
+        "section_path": "Chapter 8 Greedy Algorithms > Traveling salesperson, step by step",
+        "excerpt": "153\nNP-complete problems\nMaybe you were reminded of the traveling salesperson problem from \nchapter "
+      },
+      {
+        "chunk_content_hash": "f1f8ea2138a4f987288d4b6517ff4d4e370986e0adb80fee2e9796bc0023257b",
+        "page_start": 177,
+        "page_end": 178,
+        "section_path": "Chapter 8 Greedy Algorithms > Traveling salesperson, step by step > How do you tell if a problem is NP-complete?",
+        "excerpt": "158\nChapter 8  I  Greedy algorithms\nHow do you tell if a problem is NP-complete?\nJonah is picking pl"
+      }
+    ]
+  },
+  {
+    "id": "g-tp-07",
+    "question": "Where did Buffett's idea of a margin of safety come from according to the book, and how does the book show him applying it, with numbers, when Berkshire bought Wells Fargo?",
+    "category": "two_place",
+    "difficulty": "hard",
+    "document_hash": "5cbe656c255d52cca906add8fd9aecaac9a72e37559cef04b623fc07002d8efa",
+    "document_filename": "Trading Stocks - The Warren Buffet Wa... (Z-Library).pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "47bd0d55455c2212425a8b895cca56648b6ba046d6acf7feff163b171978dbfc",
+        "page_start": 39,
+        "page_end": 42,
+        "section_path": "BENJAMIN GRAHAM",
+        "excerpt": "12\nT H E  W A R R E N  B U F F E T T  W AY\nBENJAMIN GRAHAM\nGraham is considered the dean of financia"
+      },
+      {
+        "chunk_content_hash": "58aef90cf99b1d0a674a703881f176dba529f57fd21720dc80d78df46ba49801",
+        "page_start": 39,
+        "page_end": 42,
+        "section_path": "BENJAMIN GRAHAM",
+        "excerpt": "a margin-of-safety concept for bonds\nwas not too difficult. It wasn’t necessary, he said, to accurat"
+      },
+      {
+        "chunk_content_hash": "eeab551175fb9aa099ca16053b770b8b62309165923849b0d80f135c991d9cc5",
+        "page_start": 154,
+        "page_end": 159,
+        "section_path": "Wells Fargo",
+        "excerpt": "I n v e s t i n g  G u i d e l i n e s :  Va l u e  Te n e t s\n129\nagain achieve these margins. If p"
+      },
+      {
+        "chunk_content_hash": "c82b6394d5e9ee603c68f7dadd3c3d2c045cdc59463467bf58aeb433cd701789",
+        "page_start": 154,
+        "page_end": 159,
+        "section_path": "Wells Fargo",
+        "excerpt": "I n v e s t i n g  G u i d e l i n e s :  Va l u e  Te n e t s\n131\nindicated value. Graham taught Bu"
+      },
+      {
+        "chunk_content_hash": "e6d43333a4b001c4909439bcf73836e5a16c43b79b3303bb0047cd7802d98175",
+        "page_start": 154,
+        "page_end": 159,
+        "section_path": "Wells Fargo",
+        "excerpt": "son-Juhl sells thousands of framing styles and finishes to\nits more than 18,000 customers. The leadi"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-01",
+    "question": "In the Dijkstra's algorithm chapter of Grokking Algorithms, what does Rama start with and what is he trying to trade for, who offers him what along the way, and what do the edge weights in his graph stand for?",
+    "category": "locate_drill",
+    "difficulty": "easy",
+    "document_hash": "2523e92058dff9f7ea6f530c3047673f77d1029744e206b35e1a8b375083dfd2",
+    "document_filename": "Grokking_Algorithms_Aditya_Y_Bhargava_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "837734e3446372a0044e5026b60746fecfd3f3aab66387c8827e78cf2fdb4129",
+        "page_start": 141,
+        "page_end": 146,
+        "section_path": "Chapter 7 Dijkstra’s Algorithm > Trading for a piano",
+        "excerpt": "122\nChapter 7  I  Dijkstra’s algorithm\nYou end up at node A either way, but the cycle adds more weig"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-02",
+    "question": "In the evaluation methodology chapter of AI Engineering, which biases does the book say AI judges have, and how can first-position bias be reduced?",
+    "category": "locate_drill",
+    "difficulty": "medium",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "c0e39b0676ca23df0cadfbf2036b8640f49eb071a728b983d913c96267bdd084",
+        "page_start": 165,
+        "page_end": 168,
+        "section_path": "Chapter 3. Evaluation Methodology > AI as a Judge > Limitations of AI as a Judge",
+        "excerpt": "faithfulness scores outputted by these three tools won’t be comparable. If, given a\n(context, answer"
+      },
+      {
+        "chunk_content_hash": "1e01ca855a1af9b408fbaea63af772d4483dbcc9154f31170ef352e9313d5b75",
+        "page_start": 169,
+        "page_end": 171,
+        "section_path": "Chapter 3. Evaluation Methodology > AI as a Judge > What Models Can Act as Judges?",
+        "excerpt": "19 Saito et al. (2023) found that humans tend to favor longer responses too, but to a much lesser ex"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-03",
+    "question": "In the memory section of AI Engineering's RAG and agents chapter, what benefits does the book list for giving an AI model a memory system?",
+    "category": "locate_drill",
+    "difficulty": "medium",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "f37fecc6e5b6854453b9be3f22917eab878afc08f452f1c8755e2a9ac9877883",
+        "page_start": 324,
+        "page_end": 328,
+        "section_path": "Chapter 6. RAG and Agents > Memory",
+        "excerpt": "external memory. Augmenting an AI model with a\nmemory system has many benefits. Here are just a few "
+      }
+    ]
+  },
+  {
+    "id": "g-ld-04",
+    "question": "In the 'Recursion Run Amok' section of Data Structures and Algorithms in Java, which examples of badly implemented recursion does the book examine, and why is fibonacciBad so slow?",
+    "category": "locate_drill",
+    "difficulty": "medium",
+    "document_hash": "6fd926a9a237e1edb9cba950f14178027a097f4d5ddc3d123610478cf6c33873",
+    "document_filename": "Data Structures and Algorithms in Java, 6th Edition, 2014.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "f285305c7c1bb4c74986670afa241aadc91fce474217cbc32703168ef00dec9f",
+        "page_start": 233,
+        "page_end": 236,
+        "section_path": "Chapter 5: Recursion > 5.5 Recursion Run Amok",
+        "excerpt": "5.5. Recursion Run Amok\n215\n5.5\nRecursion Run Amok\nAlthough recursion is a very powerful tool, it ca"
+      },
+      {
+        "chunk_content_hash": "23636914b76da1789e7c48bbe8a2156565085bdc671e9f85d5dc910370095261",
+        "page_start": 233,
+        "page_end": 236,
+        "section_path": "Chapter 5: Recursion > 5.5 Recursion Run Amok",
+        "excerpt": "��ciently). ∗/\n2\npublic static long ﬁbonacciBad(int n) {\n3\nif (n <= 1)\n4\nreturn n;\n5\nelse\n6\nreturn ﬁ"
+      },
+      {
+        "chunk_content_hash": "821741be16819d9bec8ab5d232ec6b265402e9f52d73f193acff71debda798f1",
+        "page_start": 233,
+        "page_end": 236,
+        "section_path": "Chapter 5: Recursion > 5.5 Recursion Run Amok",
+        "excerpt": "recursion trace includes a series of n method calls. Because the nonrecursive work\nfor each call use"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-05",
+    "question": "In the economics textbook's chapter on common currency areas, what is an optimum currency area, and how does the book go about judging whether the euro area is one?",
+    "category": "locate_drill",
+    "difficulty": "hard",
+    "document_hash": "4a6cdb403cd8113657a83024cb59322ed5d98262003f1e4ee222d6b3674df8b2",
+    "document_filename": "Economics_Share_N_Gregory_Mankiw,_M_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "19c6255c8b0060ec486c67ffc1d99e7554715c600a607b00715d32b388dbfa71",
+        "page_start": 776,
+        "page_end": 778,
+        "section_path": "Part 13: International Macroeconomics > Chapter 33: Common Currency Areas > The Theory of Optimum Currency Areas",
+        "excerpt": "760   PART 13   International macroeconomics\nThe Theory of Optimum Currency Areas\nOptimum currency a"
+      },
+      {
+        "chunk_content_hash": "b92c4002ff03789b54dd2248655ee8d44742bbf32dcea0afa7e6cd4a077c4b67",
+        "page_start": 779,
+        "page_end": 781,
+        "section_path": "Part 13: International Macroeconomics > Chapter 33: Common Currency Areas > Is Europe an Optimum Currency Area?",
+        "excerpt": "CHAPTER 33   COMMON CURRENCY AREAS   763\ncertainty exactly the revenue generated from their sales to"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-06",
+    "question": "In the Western music history book's discussion of Wagner, what is a leitmotive, and how does Alberich's curse in Das Rheingold use the ring leitmotive?",
+    "category": "locate_drill",
+    "difficulty": "medium",
+    "document_hash": "00cd55b71386d7b5a20b87a496855093d8667866c23f6c691c75d5e604b10a46",
+    "document_filename": "A History of Western Music Tenth.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "3439aea05531e344cb3d3c8ae1da7128b6bf13ae4e22443bf6f9de71be5b2485",
+        "page_start": 716,
+        "page_end": 722,
+        "section_path": "PART FIVE: THE NINETEENTH CENTURY > 28. Opera and Musical Theater in the Later Nineteenth Century > Music in Context: Wagner, Nationalism, and Anti-Semitism ",
+        "excerpt": ".\nLebrecht Music & Arts Photo Library\n\n682 \n \n \nC H A P T E R 2 8 • Opera and Musical Theater in the"
+      },
+      {
+        "chunk_content_hash": "7dae08482412fa9f79aa0aa4f52e5c826feb52a00028a4defe2a2ae2843457b6",
+        "page_start": 716,
+        "page_end": 722,
+        "section_path": "PART FIVE: THE NINETEENTH CENTURY > 28. Opera and Musical Theater in the Later Nineteenth Century > Music in Context: Wagner, Nationalism, and Anti-Semitism ",
+        "excerpt": "by the music, exemplifying Wagner’s concept that the drama is in the music \nand that the words, scen"
+      }
+    ]
+  },
+  {
+    "id": "g-ld-07",
+    "question": "In the art history anthology's chapter on form, content and style, Wölfflin's Principles of Art History reduces the development of style to five pairs of concepts. What are the five pairs?",
+    "category": "locate_drill",
+    "difficulty": "medium",
+    "document_hash": "aee555ee449699396c1259450f87e1d7b83e412e2e4ebdcd85b79163647c608e",
+    "document_filename": "The_Art_of_Art_History_A_Critical_Ant_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": false,
+    "relevant_chunks": [
+      {
+        "chunk_content_hash": "a019afc17fbb86666518acdffa374c53aaf0e7ec8fdcc602d1363f6f0d6ff5ed",
+        "page_start": 128,
+        "page_end": 137,
+        "section_path": "Chapter 3 Form, Content, Style > Principles of Art History",
+        "excerpt": "heinrich wölfflin 119\nHeinrich Wölﬄ  in \n1915\nPrinciples of Art History\nThe Most General Representat"
+      },
+      {
+        "chunk_content_hash": "86a22481d1603d46ed7c57bce89d51b7cf4841914d57f7897289614ce7eeaff4",
+        "page_start": 128,
+        "page_end": 137,
+        "section_path": "Chapter 3 Form, Content, Style > Principles of Art History",
+        "excerpt": "oque emphasises depth. Plane \nis the element of line, extension in one plane the form of the greates"
+      }
+    ]
+  },
+  {
+    "id": "g-nb-01",
+    "question": "How does Think Python teach asynchronous programming with asyncio and the await keyword?",
+    "category": "not_in_book",
+    "difficulty": "medium",
+    "document_hash": "3d360ed75aeb82d10c63ce61984e48985517b017872e1664b8266f9f1f1db9eb",
+    "document_filename": "Think Python (Allen B. Downey) (Z-Library).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "g-nb-02",
+    "question": "What does AI Engineering say about how DeepSeek-R1 was trained with reinforcement learning?",
+    "category": "not_in_book",
+    "difficulty": "hard",
+    "document_hash": "c845ca948f30815cc4c50201b0cc2685ea11807000912c65dd0a59229ce3f369",
+    "document_filename": "AI_Engineering_Building_Applications_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "g-nb-03",
+    "question": "What does Taleb say about Bitcoin and cryptocurrency trading in Fooled by Randomness?",
+    "category": "not_in_book",
+    "difficulty": "medium",
+    "document_hash": "929ebbc16a9b0220813213b252630854e27aef9ad585288249379f97747d619d",
+    "document_filename": "Fooled by Randomness - The Hidden Rol... (Z-Library).epub",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "g-nb-04",
+    "question": "How does this economics textbook analyse the economic effects of the COVID-19 pandemic?",
+    "category": "not_in_book",
+    "difficulty": "medium",
+    "document_hash": "4a6cdb403cd8113657a83024cb59322ed5d98262003f1e4ee222d6b3674df8b2",
+    "document_filename": "Economics_Share_N_Gregory_Mankiw,_M_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "g-nb-05",
+    "question": "How does Data Structures and Algorithms in Java use lambda expressions and the Stream API to process collections?",
+    "category": "not_in_book",
+    "difficulty": "medium",
+    "document_hash": "6fd926a9a237e1edb9cba950f14178027a097f4d5ddc3d123610478cf6c33873",
+    "document_filename": "Data Structures and Algorithms in Java, 6th Edition, 2014.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  },
+  {
+    "id": "g-nb-06",
+    "question": "What does the art history anthology say about NFTs and blockchain art?",
+    "category": "not_in_book",
+    "difficulty": "medium",
+    "document_hash": "aee555ee449699396c1259450f87e1d7b83e412e2e4ebdcd85b79163647c608e",
+    "document_filename": "The_Art_of_Art_History_A_Critical_Ant_z_library_sk,_1lib_sk,.pdf",
+    "additional_document_hashes": [],
+    "expect_refusal": true,
+    "relevant_chunks": []
+  }
+]
