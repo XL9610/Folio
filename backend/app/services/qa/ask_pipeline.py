@@ -185,6 +185,36 @@ class AgenticAskPipeline:
                 document_ids=document_ids,
                 follow_up=follow_up,
             )
+            if final_eval.status == "insufficient" and config.ask_corrective_retry and document_ids:
+                # Same corrective retry as the old flow: the guard is lexical,
+                # so search the user's literal question, keyword-only, and
+                # judge that evidence alone (off-topic chunks would otherwise
+                # fill the generator's passage budget).
+                retry = self._tools.execute(
+                    plan=replace(plan, tool_calls=[ToolCall(
+                        name="retrieve_chunks",
+                        args={"query": query, "top_k": top_k, "_raw": True},
+                    )]),
+                    notebook_id=notebook_id,
+                    document_ids=document_ids,
+                    top_k=top_k,
+                    allow_web=allow_web,
+                    user_query=effective_query,
+                )
+                tool_trace.append(ToolTraceItem(
+                    name="corrective_retry", status="ok", args={"reason": final_eval.reason[:200]},
+                ))
+                react_looked.append(f'Searching for "{query}"')
+                all_tool_results = ToolResults()
+                _merge_tool_results(all_tool_results, retry)
+                final_eval = self._evaluator.evaluate(
+                    query=query,
+                    plan=plan,
+                    tool_results=all_tool_results,
+                    notebook_id=notebook_id,
+                    document_ids=document_ids,
+                    follow_up=follow_up,
+                )
             early = {
                 "ambiguous": (final_eval.clarifying_question or "I need more information to answer that. Could you clarify?",
                               "clarification_needed"),

@@ -2119,7 +2119,7 @@ def test_qa_evidence_text_excludes_prefix():
     assert chunk.text == "canonical chunk content"
 
 
-def _run_pipeline_with_rounds(rounds, retry_enabled):
+def _run_pipeline_with_rounds(rounds, retry_enabled, react=False):
     """Run the ask pipeline with the executor returning *rounds* in order."""
     from app.routers.ask_router import AgenticAskPipeline
 
@@ -2132,6 +2132,9 @@ def _run_pipeline_with_rounds(rounds, retry_enabled):
         mock_config.rerank_enabled = False
         mock_config.retrieval_profile = "baseline"
         mock_config.ask_corrective_retry = retry_enabled
+        mock_config.ask_react_enabled = react
+        # ReAct model that is satisfied after the first look (q-sd-01 shape)
+        llm.complete_with_tools = lambda *a, **k: {"role": "assistant", "content": "Enough."}
         executor = MagicMock()
         executor.execute.side_effect = rounds
         mock_executor_cls.return_value = executor
@@ -2181,6 +2184,20 @@ def test_corrective_retry_still_refuses_and_can_be_disabled():
     result, executor = _run_pipeline_with_rounds([off_topic], retry_enabled=False)
     assert result.agent_status == "insufficient_context"
     assert executor.execute.call_count == 1
+
+
+def test_react_path_runs_the_corrective_retry():
+    """ReAct stops after the first look but the guard says insufficient:
+    the same literal retry as the old flow rescues it (q-sd-01)."""
+    off_topic = _round("Quotas were set by the 1924 act.")
+    on_topic = _round("After September 11 the government tracked students via SEVIS.")
+    with patch("app.services.qa.ask_pipeline.get_document", return_value=None):
+        result, executor = _run_pipeline_with_rounds([off_topic, on_topic], retry_enabled=True, react=True)
+    assert result.agent_status == "completed"
+    assert executor.execute.call_count == 2
+    assert executor.execute.call_args_list[1].kwargs["plan"].tool_calls[0].args["_raw"] is True
+    assert any(t.name == "react_stop" for t in result.tool_trace)
+    assert any(t.name == "corrective_retry" for t in result.tool_trace)
 
 
 def test_retrieve_searches_all_selected_sources_beyond_planner_view():
