@@ -116,8 +116,10 @@ class AgentAnswerGenerator:
         tool_results: ToolResults,
         source_info: dict,
         preferences: dict | None = None,
+        on_token=None,
     ) -> tuple[str, list[dict]]:
-        """Generate a grounded answer.
+        """Generate a grounded answer. ``on_token(text)`` streams deltas when
+        the client supports it; the full text is still returned.
 
         source_info may contain notebook_id and document_ids for context
         (evidence_status/reason are no longer injected into the prompt).
@@ -156,13 +158,18 @@ class AgentAnswerGenerator:
                     if config.overview_summary_reader and tool_results.summary_context
                     else OVERVIEW_GROUNDING_BLOCK
                 )
-            answer = self._llm.complete_chat(
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                max_tokens=1536,
-            )
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+            if on_token and hasattr(self._llm, "stream_chat"):
+                parts = []
+                for delta in self._llm.stream_chat(messages=messages, max_tokens=1536):
+                    parts.append(delta)
+                    on_token(delta)
+                answer = "".join(parts)
+            else:
+                answer = self._llm.complete_chat(messages=messages, max_tokens=1536)
         except Exception as exc:
             logger.error("Answer generation LLM call failed: %s", exc)
             raise RuntimeError(f"Answer generation failed: {exc}") from exc

@@ -135,6 +135,12 @@ class AppConfig:
     ask_corrective_retry: bool = field(
         default_factory=lambda: os.getenv("ASK_CORRECTIVE_RETRY", "true").lower() == "true"
     )
+    # ReAct evidence loop (agentic-study-companion issue 05): the model sees
+    # each tool result and picks the next tool, up to 8 steps. Off until the
+    # PRD eval gates pass. Set ASK_REACT_ENABLED=true to enable.
+    ask_react_enabled: bool = field(
+        default_factory=lambda: os.getenv("ASK_REACT_ENABLED", "false").lower() == "true"
+    )
 
     # -- BM25x Keyword Search -----------------------------------------------
     # Default off: ImprovedFTS5 is the deterministic, reproducible default.

@@ -10,6 +10,7 @@ import time
 from dataclasses import replace
 
 from ...core.config import config
+from ...repositories.document_repository import get_document
 from ..embedding.sentence_transformer_embedder import SentenceTransformerEmbedder
 from ..index.sqlite_vec_store import SqliteVecStore
 from ..llm import LLMConfig
@@ -28,6 +29,7 @@ from .follow_up import (
     _fallback_follow_up_plan,
     _should_continue_prior_topic,
 )
+from .react_loop import run_react
 from .source_framing import _with_source_framing_questions
 from .structural_answers import (
     _try_answer_structural_query,
@@ -96,6 +98,7 @@ class AgenticAskPipeline:
         preferences: dict | None = None,
         follow_up: bool = False,
         debug_retrieval: bool = False,
+        on_event=None,
     ) -> AskResult:
         """Run the agentic ask pipeline with bounded loop.
 
@@ -104,6 +107,9 @@ class AgenticAskPipeline:
           - "clarification_needed": ambiguous query, needs user input
           - "insufficient_context": evidence too weak to answer
           - "timeout": wall-clock budget exhausted
+
+        ``on_event(dict)`` receives streaming events: {"type": "step", ...}
+        while gathering evidence, then {"type": "token", "text"} deltas.
         """
         t0 = time.monotonic()
         tool_trace: list[ToolTraceItem] = []
@@ -144,51 +150,34 @@ class AgenticAskPipeline:
                     tool_trace=tool_trace,
                 )
 
-        # ── 2. Bounded tool-execution loop ──
-        all_tool_results = ToolResults()
-        final_eval: EvidenceEval | None = None
-
-        for round_idx in range(1, MAX_AGENT_ROUNDS + 1):
-            # Timeout check
-            if time.monotonic() - t0 > MAX_WALL_CLOCK_SECONDS:
-                logger.warning("Agent loop timed out at round %d", round_idx)
-                tool_trace.append(ToolTraceItem(
-                    name="agent_loop",
-                    status="timeout",
-                    args={"round": round_idx},
-                    error=f"Exceeded {MAX_WALL_CLOCK_SECONDS}s budget",
-                ))
-                final_eval = EvidenceEval(
-                    status="insufficient",
-                    reason="Agent loop timed out before gathering sufficient evidence.",
+        # ── 2. Evidence: ReAct loop, or the bounded plan-and-execute loop ──
+        react_looked: list[str] | None = None
+        if config.ask_react_enabled and plan.retrieval_scope != "whole_source":
+            try:
+                all_tool_results, react_trace, react_looked = run_react(
+                    self._llm, self._tools, plan,
+                    query=effective_query,
+                    notebook_id=notebook_id,
+                    document_ids=document_ids,
+                    documents=[d for d in (get_document(i) for i in document_ids[:10]) if d],
+                    top_k=top_k,
+                    allow_web=allow_web,
+                    on_event=on_event,
                 )
-                break
+            except Exception as exc:  # noqa: BLE001 — any loop failure falls back
+                logger.warning("ReAct loop failed, falling back to plan-and-execute: %s", exc)
+                tool_trace.append(ToolTraceItem(name="react", status="fallback", error=str(exc)[:200]))
+                react_looked = None
 
-            # ── 2a. Execute tools ──
-            round_results = self._tools.execute(
-                plan=plan,
-                notebook_id=notebook_id,
-                document_ids=document_ids,
-                top_k=top_k,
-                allow_web=allow_web,
-                user_query=effective_query,
-            )
-            # Merge results
-            _merge_tool_results(all_tool_results, round_results)
-            for tr in round_results.trace:
+        if react_looked is not None:
+            for tr in react_trace:
                 tool_trace.append(ToolTraceItem(
                     name=tr["name"],
                     status=tr.get("status", "ok"),
                     args=tr.get("args", {}),
                     error=tr.get("error", ""),
                 ))
-
-            # ── 2b. Structural guard (deterministic-only) ──
-            # Use the original query (not the follow-up wrapper) so that the
-            # evaluator checks the user's actual question against evidence. The
-            # exact-term off-topic gate is skipped for follow-ups (grounded in
-            # conversation history instead of fresh retrieval).
-            eval_result = self._evaluator.evaluate(
+            final_eval = self._evaluator.evaluate(
                 query=query,
                 plan=plan,
                 tool_results=all_tool_results,
@@ -196,27 +185,23 @@ class AgenticAskPipeline:
                 document_ids=document_ids,
                 follow_up=follow_up,
             )
-            evals.append(eval_result)
-            # Only surface guard status to trace when it's NOT "proceed"
-            if eval_result.status != "proceed":
+            early = {
+                "ambiguous": (final_eval.clarifying_question or "I need more information to answer that. Could you clarify?",
+                              "clarification_needed"),
+                "error": ("Search is currently unavailable. Please try again, or re-index your sources.",
+                          "retrieval_unavailable"),
+                "insufficient": (_not_found_answer(react_looked), "insufficient_context"),
+            }.get(final_eval.status)
+            if early:
                 tool_trace.append(ToolTraceItem(
-                    name="guard",
-                    status=eval_result.status,
-                    args={
-                        "round": round_idx,
-                        "chunks": len(all_tool_results.chunks),
-                        "reason": eval_result.reason[:200],
-                    },
+                    name="guard", status=final_eval.status,
+                    args={"chunks": len(all_tool_results.chunks), "reason": final_eval.reason[:200]},
                 ))
-
-            # ── 2c. Decide next action ──
-            if eval_result.status == "ambiguous":
-                # Return clarification question directly — do NOT generate answer
                 return AskResult(
                     notebook_id=notebook_id,
                     query=query,
-                    answer=eval_result.clarifying_question or "I need more information to answer that. Could you clarify?",
-                    agent_status="clarification_needed",
+                    answer=early[0],
+                    agent_status=early[1],
                     planner_task=plan.task,
                     used_llm=True,
                     citations=[],
@@ -225,61 +210,144 @@ class AgenticAskPipeline:
                     source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
                 )
 
-            # proceed / sufficient / insufficient → always break and generate
-            # Generator owns semantic answer quality from full chunk context
-            if (
-                eval_result.status == "insufficient"
-                and round_idx == 1
-                and config.ask_corrective_retry
-                and document_ids
-            ):
-                # Corrective round: the guard is lexical ("query term absent
-                # from evidence"), so retry lexically — the user's literal
-                # question, keyword-only, no planner rewrite or expansion.
-                # Round-1 evidence is discarded so off-topic chunks don't
-                # fill the generator's passage budget.
-                plan = replace(plan, tool_calls=[ToolCall(
-                    name="retrieve_chunks",
-                    args={"query": query, "top_k": top_k, "_raw": True},
-                )])
-                all_tool_results = ToolResults()
-                tool_trace.append(ToolTraceItem(
-                    name="corrective_retry",
-                    status="ok",
-                    args={"reason": eval_result.reason[:200]},
-                ))
-                continue
+        if react_looked is None:
+            if on_event:
+                on_event({"type": "step", "reasoning": "", "label": "Searching the sources"})
+            all_tool_results = ToolResults()
+            final_eval: EvidenceEval | None = None
 
-            if eval_result.status == "insufficient":
-                return AskResult(
+            for round_idx in range(1, MAX_AGENT_ROUNDS + 1):
+                # Timeout check
+                if time.monotonic() - t0 > MAX_WALL_CLOCK_SECONDS:
+                    logger.warning("Agent loop timed out at round %d", round_idx)
+                    tool_trace.append(ToolTraceItem(
+                        name="agent_loop",
+                        status="timeout",
+                        args={"round": round_idx},
+                        error=f"Exceeded {MAX_WALL_CLOCK_SECONDS}s budget",
+                    ))
+                    final_eval = EvidenceEval(
+                        status="insufficient",
+                        reason="Agent loop timed out before gathering sufficient evidence.",
+                    )
+                    break
+
+                # ── 2a. Execute tools ──
+                round_results = self._tools.execute(
+                    plan=plan,
                     notebook_id=notebook_id,
-                    query=query,
-                    answer="The selected source does not contain enough information to answer this.",
-                    agent_status="insufficient_context",
-                    planner_task=plan.task,
-                    used_llm=True,
-                    citations=[],
-                    tool_trace=tool_trace,
-                    retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
-                    source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
+                    document_ids=document_ids,
+                    top_k=top_k,
+                    allow_web=allow_web,
+                    user_query=effective_query,
                 )
+                # Merge results
+                _merge_tool_results(all_tool_results, round_results)
+                for tr in round_results.trace:
+                    tool_trace.append(ToolTraceItem(
+                        name=tr["name"],
+                        status=tr.get("status", "ok"),
+                        args=tr.get("args", {}),
+                        error=tr.get("error", ""),
+                    ))
 
-            if eval_result.status == "error":
-                return AskResult(
+                # ── 2b. Structural guard (deterministic-only) ──
+                # Use the original query (not the follow-up wrapper) so that the
+                # evaluator checks the user's actual question against evidence. The
+                # exact-term off-topic gate is skipped for follow-ups (grounded in
+                # conversation history instead of fresh retrieval).
+                eval_result = self._evaluator.evaluate(
+                    query=query,
+                    plan=plan,
+                    tool_results=all_tool_results,
                     notebook_id=notebook_id,
-                    query=query,
-                    answer="Search is currently unavailable. Please try again, or re-index your sources.",
-                    agent_status="retrieval_unavailable",
-                    planner_task=plan.task,
-                    used_llm=True,
-                    citations=[],
-                    tool_trace=tool_trace,
-                    retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
-                    source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
+                    document_ids=document_ids,
+                    follow_up=follow_up,
                 )
+                evals.append(eval_result)
+                # Only surface guard status to trace when it's NOT "proceed"
+                if eval_result.status != "proceed":
+                    tool_trace.append(ToolTraceItem(
+                        name="guard",
+                        status=eval_result.status,
+                        args={
+                            "round": round_idx,
+                            "chunks": len(all_tool_results.chunks),
+                            "reason": eval_result.reason[:200],
+                        },
+                    ))
 
-            final_eval = eval_result
-            break
+                # ── 2c. Decide next action ──
+                if eval_result.status == "ambiguous":
+                    # Return clarification question directly — do NOT generate answer
+                    return AskResult(
+                        notebook_id=notebook_id,
+                        query=query,
+                        answer=eval_result.clarifying_question or "I need more information to answer that. Could you clarify?",
+                        agent_status="clarification_needed",
+                        planner_task=plan.task,
+                        used_llm=True,
+                        citations=[],
+                        tool_trace=tool_trace,
+                        retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
+                        source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
+                    )
+
+                # proceed / sufficient / insufficient → always break and generate
+                # Generator owns semantic answer quality from full chunk context
+                if (
+                    eval_result.status == "insufficient"
+                    and round_idx == 1
+                    and config.ask_corrective_retry
+                    and document_ids
+                ):
+                    # Corrective round: the guard is lexical ("query term absent
+                    # from evidence"), so retry lexically — the user's literal
+                    # question, keyword-only, no planner rewrite or expansion.
+                    # Round-1 evidence is discarded so off-topic chunks don't
+                    # fill the generator's passage budget.
+                    plan = replace(plan, tool_calls=[ToolCall(
+                        name="retrieve_chunks",
+                        args={"query": query, "top_k": top_k, "_raw": True},
+                    )])
+                    all_tool_results = ToolResults()
+                    tool_trace.append(ToolTraceItem(
+                        name="corrective_retry",
+                        status="ok",
+                        args={"reason": eval_result.reason[:200]},
+                    ))
+                    continue
+
+                if eval_result.status == "insufficient":
+                    return AskResult(
+                        notebook_id=notebook_id,
+                        query=query,
+                        answer="The selected source does not contain enough information to answer this.",
+                        agent_status="insufficient_context",
+                        planner_task=plan.task,
+                        used_llm=True,
+                        citations=[],
+                        tool_trace=tool_trace,
+                        retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
+                        source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
+                    )
+
+                if eval_result.status == "error":
+                    return AskResult(
+                        notebook_id=notebook_id,
+                        query=query,
+                        answer="Search is currently unavailable. Please try again, or re-index your sources.",
+                        agent_status="retrieval_unavailable",
+                        planner_task=plan.task,
+                        used_llm=True,
+                        citations=[],
+                        tool_trace=tool_trace,
+                        retrieved_chunks=_debug_retrieved_chunks(all_tool_results) if debug_retrieval else [],
+                        source_metadata=_debug_source_metadata(all_tool_results) if debug_retrieval else [],
+                    )
+
+                final_eval = eval_result
+                break
 
         structural_answer = _try_answer_structural_query(effective_query, all_tool_results)
         if structural_answer:
@@ -319,6 +387,7 @@ class AgenticAskPipeline:
                 "evidence_reason": final_eval.reason if final_eval else "",
             },
             preferences=preferences,
+            on_token=(lambda t: on_event({"type": "token", "text": t})) if on_event else None,
         )
         answer_text = _with_source_framing_questions(effective_query, all_tool_results, answer_text)
         answer_text = _with_unresolved_section_disclaimer(effective_query, all_tool_results, answer_text)
@@ -388,6 +457,16 @@ class AgenticAskPipeline:
 # ---------------------------------------------------------------------------
 # Helper: merge tool results across rounds
 # ---------------------------------------------------------------------------
+
+def _not_found_answer(looked: list[str]) -> str:
+    """Honest refusal for the ReAct path: say it was not found, and where it looked."""
+    places = "\n".join(f"- {p}" for p in dict.fromkeys(looked)) or "- (no searches ran)"
+    return (
+        "I could not find this in the selected sources. Where I looked:\n"
+        f"{places}\n\n"
+        "Try naming the chapter, or selecting a different source."
+    )
+
 
 def _apply_overview_presentation(plan: PlanResult, answer_text: str) -> str:
     """Hide internal [S#] markers for whole-source overviews only (Phase 3.1).

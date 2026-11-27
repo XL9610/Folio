@@ -14,9 +14,13 @@ Architecture (bounded loop):
 
 from __future__ import annotations
 
+import json
 import logging
+import queue
+import threading
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 
 from ..repositories.document_repository import list_documents
 from ..repositories.notebook_repository import get_notebook, get_or_create_default
@@ -85,6 +89,54 @@ async def ask(request: AskRequest) -> AskResponse:
 
     Requires LLM_REMOTE_ENABLED=true and valid LLM_API_KEY.
     """
+    kwargs = _prepare(request)
+    try:
+        result = _get_agent().answer(**kwargs)
+    except RuntimeError as exc:
+        # LLM provider failure
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "llm_provider_error",
+                "message": str(exc)
+            }
+        ) from exc
+    return _to_response(result, request)
+
+
+@router.post("/ask/stream")
+def ask_stream(request: AskRequest) -> StreamingResponse:
+    """Same as /ask, streamed as server-sent events.
+
+    Events (one JSON object per ``data:`` line): {"type": "step", "reasoning",
+    "label"} while gathering evidence, {"type": "token", "text"} answer deltas,
+    then {"type": "done", "result": <AskResponse>} or {"type": "error",
+    "message"}. The final answer in "done" is authoritative: post-processing
+    can differ from the streamed tokens.
+    """
+    kwargs = _prepare(request)
+    events: queue.Queue = queue.Queue()
+
+    def work() -> None:
+        try:
+            result = _get_agent().answer(**kwargs, on_event=events.put)
+            events.put({"type": "done", "result": _to_response(result, request).model_dump()})
+        except Exception as exc:  # noqa: BLE001 — reported to the client as an event
+            logger.warning("Streaming ask failed: %s", exc)
+            events.put({"type": "error", "message": str(exc)})
+        events.put(None)
+
+    threading.Thread(target=work, daemon=True).start()
+
+    def sse():
+        while (event := events.get()) is not None:
+            yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(sse(), media_type="text/event-stream")
+
+
+def _prepare(request: AskRequest) -> dict:
+    """Validate the request and resolve notebook/documents into answer() kwargs."""
     # --- Check LLM availability ---
     llm_config = LLMConfig()
     if not llm_config.is_configured:
@@ -113,37 +165,26 @@ async def ask(request: AskRequest) -> AskResponse:
     else:
         document_ids = request.document_ids
 
-    # --- Run agentic pipeline ---
     history = [{"role": h.role, "text": h.text, "intent": h.intent} for h in request.history]
     preferences = (
         request.preferences.model_dump(exclude_none=True)
         if request.preferences is not None
         else None
     )
+    return {
+        "notebook_id": notebook_id,
+        "query": request.query,
+        "document_ids": document_ids,
+        "top_k": request.top_k,
+        "history": history,
+        "allow_web": request.allow_web,
+        "preferences": preferences,
+        "follow_up": request.follow_up,
+        "debug_retrieval": request.debug_retrieval,
+    }
 
-    try:
-        agent = _get_agent()
-        result = agent.answer(
-            notebook_id=notebook_id,
-            query=request.query,
-            document_ids=document_ids,
-            top_k=request.top_k,
-            history=history,
-            allow_web=request.allow_web,
-            preferences=preferences,
-            follow_up=request.follow_up,
-            debug_retrieval=request.debug_retrieval,
-        )
-    except RuntimeError as exc:
-        # LLM provider failure
-        raise HTTPException(
-            status_code=503,
-            detail={
-                "code": "llm_provider_error",
-                "message": str(exc)
-            }
-        ) from exc
 
+def _to_response(result, request: AskRequest) -> AskResponse:
     return AskResponse(
         notebook_id=result.notebook_id,
         query=result.query,

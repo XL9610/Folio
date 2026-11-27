@@ -99,6 +99,54 @@ class OpenAICompatibleClient:
         choice = response.choices[0]
         return choice.message.content or ""
 
+    def complete_with_tools(
+        self,
+        messages: list[dict],
+        tools: list[dict],
+        max_tokens: int | None = None,
+    ) -> dict:
+        """One native function-calling turn. Returns the assistant message as
+        a chat-API dict: {"role", "content", "tool_calls"?}, ready to append."""
+        try:
+            response = self._client.chat.completions.create(
+                model=self._config.model,
+                messages=messages,
+                tools=tools,
+                max_tokens=max_tokens or self._config.max_tokens,
+                temperature=self._config.temperature,
+            )
+        except Exception as exc:
+            raise RuntimeError(f"LLM API call failed: {exc}") from exc
+        msg = response.choices[0].message
+        out: dict = {"role": "assistant", "content": msg.content or ""}
+        if msg.tool_calls:
+            out["tool_calls"] = [
+                {"id": tc.id, "type": "function",
+                 "function": {"name": tc.function.name, "arguments": tc.function.arguments or "{}"}}
+                for tc in msg.tool_calls
+            ]
+        return out
+
+    def stream_chat(
+        self,
+        messages: list[dict[str, str]],
+        max_tokens: int | None = None,
+    ):
+        """Yield answer text deltas as they arrive."""
+        try:
+            stream = self._client.chat.completions.create(
+                model=self._config.model,
+                messages=messages,
+                max_tokens=max_tokens or self._config.max_tokens,
+                temperature=self._config.temperature,
+                stream=True,
+            )
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as exc:
+            raise RuntimeError(f"LLM API call failed: {exc}") from exc
+
     def complete_json(
         self,
         system_prompt: str,
