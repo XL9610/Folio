@@ -71,7 +71,6 @@ const decorateCitationRefsInHtml = (html) => {
  */
 const MarkdownRich = ({ text, citations = [] }) => {
   const [tip, setTip] = React.useState(null);
-  if (!text) return null;
 
   const hasMarked = typeof window !== 'undefined' && window.marked;
   const hasPurify = typeof window !== 'undefined' && window.DOMPurify;
@@ -84,6 +83,9 @@ const MarkdownRich = ({ text, citations = [] }) => {
     });
     return m;
   }, [citations]);
+
+  // After the hooks: a streaming message starts empty and gains text later.
+  if (!text) return null;
 
   if (!hasMarked || !hasPurify) {
     return <pre className="serif-display whitespace-pre-wrap" style={{ fontSize: 'calc(15px * var(--folio-font-scale, 1))', lineHeight: 1.7, color: 'var(--text-primary)' }}>{text}</pre>;

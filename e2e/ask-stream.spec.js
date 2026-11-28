@@ -61,3 +61,24 @@ test('ReAct steps render collapsed to one line and expand to the reasoning', asy
   await summary.click();
   await expect(page.locator('#steps-root').getByText('Need the essay itself.')).toBeVisible();
 });
+
+test('a streaming message that starts empty renders its text once tokens arrive', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.evaluate(() => {
+    const host = document.createElement('div');
+    host.id = 'stream-root';
+    document.body.appendChild(host);
+    const root = ReactDOM.createRoot(host);
+    const render = (text) => root.render(React.createElement(window.ChatCenter, {
+      chat: [{ id: 'u1', role: 'user', text: 'q' },
+             { id: 'a1', role: 'assistant', text, citations: [], _streaming: true,
+               _steps: [{ label: 'Searching', reasoning: '' }] }],
+      setChat: () => {}, thinking: true, setThinking: () => {}, onSend: () => {},
+      includedCount: 1, totalSources: 1, prompts: [], sourceDocumentIds: ['d1'],
+      draftInput: '', setDraftInput: () => {}, llmConfigured: true,
+    }));
+    render('');
+    setTimeout(() => render('The aura declines.'), 100);
+  });
+  await expect(page.locator('#stream-root').getByText('The aura declines.')).toBeVisible();
+});
