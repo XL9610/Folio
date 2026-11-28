@@ -29,6 +29,18 @@ if os.path.isdir(_bundled_tt_cache):
 os.environ["HIERARCHICAL_OVERVIEW_ENABLED"] = "false"
 os.environ["OVERVIEW_SUMMARY_READER"] = "false"
 
+# Tests must never open the developer's real database: TestClient(app) runs
+# the startup migrations, and those rewrite user data.
+os.environ["LOCAL_DATA_DIR"] = tempfile.mkdtemp(prefix="rag_test_data_")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _test_database():
+    """Create the schema in the throwaway database before any test queries it."""
+    from app.db.session import init_db
+
+    init_db()
+
 
 # ---------------------------------------------------------------------------
 # Temporary directory for test PDFs
