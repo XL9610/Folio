@@ -164,7 +164,82 @@ const SourceItem = ({ source, included, onToggleInclude, onDelete }) => {
   );
 };
 
-const SourcesSidebar = ({ sources, loading, error, includedIds, onToggleInclude, onSelectAll, onAdd, onUpload, onDeleteSource, notebookTitle, onNotebookTitleChange, onCollapse, onBack, onOpenSettings, onRetry, sortMode = 'recent' }) => {
+/** The notebook's chat sessions: new, switch, rename, delete. */
+const SessionList = ({ list, activeId, busy, onNew, onSwitch, onRename, onDelete }) => {
+  const [editingId, setEditingId] = React.useState(null);
+  const [draft, setDraft] = React.useState('');
+  const commit = () => { onRename(editingId, draft); setEditingId(null); };
+  const small = { fontSize: 'calc(12.5px * var(--folio-font-scale, 1))' };
+
+  return (
+    <div style={{ borderTop: '1px solid var(--border-soft)' }}>
+      <div className="px-5 pt-3 pb-1.5 flex items-center justify-between">
+        <span className="label" style={{ color: 'var(--text-secondary)' }}>Chats</span>
+        <button
+          onClick={onNew}
+          disabled={busy}
+          className="serif-display"
+          style={{ ...small, fontStyle: 'italic', color: 'var(--text-muted)', opacity: busy ? 0.5 : 1 }}
+          title="Start a new chat"
+        >
+          + new chat
+        </button>
+      </div>
+      <div className="overflow-y-auto scroll-thin pb-1" style={{ maxHeight: '24vh' }}>
+        {list.map(s => {
+          const active = s.id === activeId;
+          const editing = !s.unsaved && editingId === s.id;
+          return (
+            <div
+              key={s.id || 'new'}
+              className="group px-5 py-1.5 flex items-center gap-2"
+              style={{ background: active ? 'var(--surface-card)' : 'transparent' }}
+            >
+              {editing ? (
+                <input
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') setEditingId(null); }}
+                  onBlur={() => setEditingId(null)}
+                  autoFocus
+                  aria-label="Chat name"
+                  className="sans flex-1 min-w-0"
+                  style={{ ...small, color: 'var(--text-primary)', background: 'var(--surface-card)', border: '1px solid var(--accent)', borderRadius: 4, padding: '1px 6px', outline: 'none' }}
+                />
+              ) : (
+                <button
+                  onClick={() => onSwitch(s.id)}
+                  disabled={busy || active}
+                  aria-current={active ? 'true' : undefined}
+                  className="sans flex-1 min-w-0 text-left truncate"
+                  style={{ ...small, color: active ? 'var(--text-primary)' : 'var(--text-secondary)', cursor: busy || active ? 'default' : 'pointer' }}
+                  title={s.title}
+                >
+                  {s.title}
+                </button>
+              )}
+              {!s.unsaved && !editing && (
+                <span className="shrink-0 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => { setDraft(s.title); setEditingId(s.id); }}
+                    style={{ color: 'var(--text-muted)', padding: 2 }}
+                    title="Rename chat"
+                    aria-label="Rename chat"
+                  >
+                    <Icon name="pen" size={11} />
+                  </button>
+                  <window.ConfirmDeleteButton onDelete={() => onDelete(s.id)} />
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const SourcesSidebar = ({ sources, loading, error, includedIds, onToggleInclude, onSelectAll, onAdd, onUpload, onDeleteSource, notebookTitle, onNotebookTitleChange, onCollapse, onBack, onOpenSettings, onRetry, sortMode = 'recent', chats }) => {
   const displaySources = React.useMemo(() => sortSourcesForDisplay(sources, sortMode), [sources, sortMode]);
   const readySources = sources.filter(s => s.status === 'ready');
   const ready = readySources.length;
@@ -343,6 +418,8 @@ const SourcesSidebar = ({ sources, loading, error, includedIds, onToggleInclude,
         )}
       </div>
 
+      {chats && <SessionList {...chats} />}
+
       {/* Footer */}
       <div className="px-5 pt-4 pb-6">
         <div className="hairline mb-3" />
@@ -355,3 +432,4 @@ const SourcesSidebar = ({ sources, loading, error, includedIds, onToggleInclude,
 };
 
 window.SourcesSidebar = SourcesSidebar;
+window.SessionList = SessionList;

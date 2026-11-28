@@ -461,6 +461,39 @@ def _drop_study_plans(conn: sqlite3.Connection) -> None:
     conn.execute("DROP TABLE IF EXISTS study_plans")
 
 
+def _dedupe_conversation_snapshots(conn: sqlite3.Connection) -> None:
+    """Delete conversation rows that are stale snapshots of another row.
+
+    Before conversations had a stable id, every autosave inserted a new row, so
+    a notebook holds many copies of one growing chat. A row whose messages
+    are all contained in another row of the same notebook carries nothing the
+    other lacks; drop it so each remaining row is one real session. Messages
+    match by id (unique per message, so distinct sessions never match); the
+    oldest messages have no id and match by role and text. Idempotent.
+    """
+    import json
+
+    rows = conn.execute(
+        "SELECT id, notebook_id, messages_json, created_at FROM saved_conversations"
+    ).fetchall()
+    by_notebook: dict[str, list[tuple[str, str, set]]] = {}
+    for row_id, notebook_id, messages_json, created_at in rows:
+        try:
+            ids = [m.get("id") or (m.get("role"), m.get("text")) for m in json.loads(messages_json)]
+        except (ValueError, AttributeError, TypeError):
+            continue
+        by_notebook.setdefault(notebook_id, []).append((row_id, created_at, set(ids)))
+    for group in by_notebook.values():
+        for row_id, created_at, ids in group:
+            for other_id, other_created, other_ids in group:
+                if other_id == row_id or not ids <= other_ids:
+                    continue
+                # equal sets: keep exactly one, the newest
+                if ids < other_ids or (other_created, other_id) > (created_at, row_id):
+                    conn.execute("DELETE FROM saved_conversations WHERE id = ?", (row_id,))
+                    break
+
+
 def _backfill_vec_notebook_ids(conn: sqlite3.Connection) -> None:
     """Repair chunks_vec rows indexed with an empty notebook_id (one-time).
 
@@ -504,6 +537,8 @@ def run_migrations(conn: sqlite3.Connection) -> None:
     _migrate_ingestion_jobs(conn)
     _drop_study_plans(conn)
     _backfill_vec_notebook_ids(conn)
+    _ensure_column(conn, "saved_conversations", "updated_at", "TEXT DEFAULT NULL")
+    _dedupe_conversation_snapshots(conn)
 
 
 # Legacy DB app_config keys → environment variable names. The app_config KV

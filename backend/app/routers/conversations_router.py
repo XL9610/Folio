@@ -52,12 +52,13 @@ async def save_conversation(request: SaveConversationRequest):
 
     conn.execute(
         """INSERT INTO saved_conversations
-           (id, notebook_id, title, messages_json, source_document_ids)
-           VALUES (?, ?, ?, ?, ?)
+           (id, notebook_id, title, messages_json, source_document_ids, updated_at)
+           VALUES (?, ?, ?, ?, ?, strftime('%Y-%m-%d %H:%M:%f', 'now'))
            ON CONFLICT(id) DO UPDATE SET
              title = excluded.title,
              messages_json = excluded.messages_json,
-             source_document_ids = excluded.source_document_ids""",
+             source_document_ids = excluded.source_document_ids,
+             updated_at = excluded.updated_at""",
         (
             conv_id,
             notebook_id,
@@ -87,7 +88,8 @@ async def list_conversations(notebook_id: str = "default"):
         notebook_id = nb["id"]
     conn = get_connection()
     rows = conn.execute(
-        "SELECT * FROM saved_conversations WHERE notebook_id = ? ORDER BY created_at DESC",
+        "SELECT * FROM saved_conversations WHERE notebook_id = ? "
+        "ORDER BY COALESCE(updated_at, created_at) DESC, rowid DESC",
         (notebook_id,),
     ).fetchall()
     return [

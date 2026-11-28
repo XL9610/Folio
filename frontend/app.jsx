@@ -273,7 +273,21 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
   const [view, setView] = useState('chat'); // chat | quiz | flashcards | summary  (legacy artifact viewers, reachable via Tweaks only)
   const [uploadOpen, setUploadOpen] = useState(false);
 
-  const { chat, setChat, chatDraft, setChatDraft, CHAT_SCROLL_KEY } = window.useChat(notebookId, includedIds);
+  // Switching chat session restores the sources that session was using.
+  const restoreSessionSources = (ids) => {
+    const ready = new Set(sources.filter(s => s.status === 'ready').map(s => s.id));
+    const valid = ids.filter(id => ready.has(id));
+    if (valid.length > 0) setIncludedIds(valid);
+  };
+  const {
+    chat, setChat, chatDraft, setChatDraft, CHAT_SCROLL_KEY,
+    sessionList, activeSessionId, newSession, switchSession, renameSession, deleteSession,
+  } = window.useChat(notebookId, includedIds, restoreSessionSources);
+  // Not while an answer is in flight: it would land in the wrong session.
+  const chatSessions = {
+    list: sessionList, activeId: activeSessionId, busy: thinking,
+    onNew: newSession, onSwitch: switchSession, onRename: renameSession, onDelete: deleteSession,
+  };
 
   const sourceScopeKey = `folio.scope.${notebookId}.v1`;
   const resolveInitialSourceScope = (mapped, currentIds = []) => {
@@ -1276,7 +1290,7 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
                 transition: resizing ? 'none' : 'width 280ms cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
-              <div style={{ width: leftWEff, minWidth: leftWEff }}>
+              <div style={{ width: leftWEff, minWidth: leftWEff, height: '100%' }}>
                 <ErrorBoundary>
                   <SourcesSidebar
                     sources={sources}
@@ -1294,6 +1308,7 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
                     onOpenSettings={() => setSettingsOpen(true)}
                     onRetry={refreshSources}
                     sortMode={settings?.sources?.sort || 'recent'}
+                    chats={chatSessions}
                   />
                 </ErrorBoundary>
               </div>
@@ -1470,6 +1485,7 @@ const App = ({ notebookId = 'default', onBack, onReady }) => {
                         onOpenSettings={() => setSettingsOpen(true)}
                         onRetry={refreshSources}
                         sortMode={settings?.sources?.sort || 'recent'}
+                        chats={chatSessions}
                       />
                     </ErrorBoundary>
                   </div>

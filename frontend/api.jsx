@@ -526,6 +526,16 @@ const FOLIO_API = {
     return res.json();
   },
 
+  /**
+   * Delete a saved conversation (a chat session).
+   * DELETE /api/conversations/{id}
+   */
+  async deleteConversation(conversationId) {
+    const res = await fetch(`${API_BASE}/api/conversations/${encodeURIComponent(conversationId)}`, { method: 'DELETE' });
+    // 404: already gone, which is what the caller wanted.
+    if (!res.ok && res.status !== 404) throw new Error(`Delete conversation failed: ${res.status}`);
+  },
+
   // ── Notebooks ────────────────────────────────────────────────────────────
 
   async listNotebooks() {
