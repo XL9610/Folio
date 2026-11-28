@@ -136,10 +136,11 @@ class AppConfig:
         default_factory=lambda: os.getenv("ASK_CORRECTIVE_RETRY", "true").lower() == "true"
     )
     # ReAct evidence loop (agentic-study-companion issue 05): the model sees
-    # each tool result and picks the next tool, up to 8 steps. Off until the
-    # PRD eval gates pass. Set ASK_REACT_ENABLED=true to enable.
+    # each tool result and picks the next tool, up to 8 steps. On since the
+    # PRD eval gates passed (2026-11-28). Set ASK_REACT_ENABLED=false to fall
+    # back to plan-and-execute.
     ask_react_enabled: bool = field(
-        default_factory=lambda: os.getenv("ASK_REACT_ENABLED", "false").lower() == "true"
+        default_factory=lambda: os.getenv("ASK_REACT_ENABLED", "true").lower() == "true"
     )
 
     # -- BM25x Keyword Search -----------------------------------------------
